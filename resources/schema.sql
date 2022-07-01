@@ -9,10 +9,10 @@ DROP TABLE IF EXISTS  account;
 
 
 CREATE TABLE account (
-     social_security_number int not null unique,
-     account_number int not null,
-     password varchar(255) not null,
-     primary key (social_security_number)
+    social_security_number INT NOT NULL UNIQUE,
+    account_number INT NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    PRIMARY KEY (social_security_number)
 );
 
 
@@ -24,60 +24,66 @@ CREATE TABLE account_details(
     email varchar(255) not null unique,
     phone_number int not null,
     birthday date not null,
-    country varchar(30) not null,no jedna robimy
+    country varchar(30) not null,
         primary key (id),
     foreign key (account_id) references account(social_security_number)
 );
 
 CREATE TABLE account_balance (
-     id int auto_increment,
-     account_id int,
-     amount double not null,
-     currency enum('euro','złoty','dollar'),
-     primary key(id),
-     foreign key (account_id) references account(social_security_number)
-
+    id INT AUTO_INCREMENT,
+    account_id INT,
+    amount DOUBLE NOT NULL,
+    currency ENUM('euro', 'złoty', 'dollar'),
+    PRIMARY KEY (id),
+    FOREIGN KEY (account_id)
+        REFERENCES account (social_security_number)
 );
 
 CREATE TABLE devices (
-     id int not null auto_increment,
-     user_id int not null,
-     added datetime not null,
-     ip char(19),
-     primary key(id),
-     foreign key (user_id) references account(social_security_number)
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    added DATETIME NOT NULL,
+    ip CHAR(19),
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id)
+        REFERENCES account (social_security_number)
 );
 
 CREATE TABLE favorites (
-   account_id int not null,
-   receiver_id int not null,
-   primary key (account_id,receiver_id),
-   foreign key (account_id) references account(social_security_number),
-   foreign key (receiver_id) references account(social_security_number)
+    account_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    PRIMARY KEY (account_id , receiver_id),
+    FOREIGN KEY (account_id)
+        REFERENCES account (social_security_number),
+    FOREIGN KEY (receiver_id)
+        REFERENCES account (social_security_number)
 );
 
 
-CREATE TABLE transfer(
-                         id int auto_increment,
-                         sender_id int not null,
-                         receiver_id int not null,
-                         order_date datetime not null,
-                         amount double not null default 5.00,
-                         currency enum('euro','złoty','dollar'),
-                         type enum('CLASSIC','MOBILE'),
-                         primary key(id),
-                         foreign key (sender_id) references  account(social_security_number),
-                         foreign key (receiver_id) references  account(social_security_number)
+CREATE TABLE transfer (
+    id INT AUTO_INCREMENT,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    order_date DATETIME NOT NULL,
+    amount DOUBLE NOT NULL DEFAULT 5.00,
+    currency ENUM('euro', 'złoty', 'dollar'),
+    type ENUM('CLASSIC', 'MOBILE'),
+    PRIMARY KEY (id),
+    FOREIGN KEY (sender_id)
+        REFERENCES account (social_security_number),
+    FOREIGN KEY (receiver_id)
+        REFERENCES account (social_security_number)
 );
 
 
-CREATE TABLE currency_exchange(
-                                  id int auto_increment,
-                                  account_id int not null,
-                                  ordered datetime not null,
-                                  from enum('euro','złoty','dollar'),
-                                  to enum('euro','złoty','dollar'),
-                                  amount double not null,
-                                  primary key (id),
-                                  foreign key (account_id) references account(social_security_number)
+CREATE TABLE currency_exchange (
+    id INT AUTO_INCREMENT,
+    account_id INT NOT NULL,
+    ordered DATETIME NOT NULL,
+    currency_from ENUM('euro', 'złoty', 'dollar'),
+    currency_to ENUM('euro', 'złoty', 'dollar'),
+    amount DOUBLE NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (account_id)
+        REFERENCES account (social_security_number)
 );
