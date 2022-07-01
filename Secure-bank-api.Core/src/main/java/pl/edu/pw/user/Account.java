@@ -15,6 +15,7 @@ public class Account implements UserDetails {
     @GeneratedValue(strategy= GenerationType.IDENTITY) // temporary
     private String accountNumber;
 
+    @Column
     private String password;
 
     @Override
@@ -29,21 +30,21 @@ public class Account implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

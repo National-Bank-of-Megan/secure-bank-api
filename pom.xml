@@ -13,6 +13,7 @@
       <module>Secure-bank-api.Auth</module>
     <module>Secure-bank-api.Transfer</module>
     <module>Secure-bank-api.Exchange</module>
+      <module>test</module>
   </modules>
 
   <name>secure-bank-api</name>

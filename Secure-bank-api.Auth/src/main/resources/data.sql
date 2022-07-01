@@ -1,0 +1,1 @@
+INSERT INTO ACCOUNT(password) values('eeee')
