@@ -1,0 +1,1 @@
+INSERT INTO ACCOUNT(client_id,password) values(12345678,'$2a$12$e67sIyl3djKpnsScm6CQ1uo96.14MmBk5jMb.oQ6Icpt1eUegeJ42' )
