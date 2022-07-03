@@ -1,17 +1,21 @@
 package pl.edu.pw.user;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.edu.pw.auth.logic.CredentialGenerator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Data
 @Entity
 @Table
+@EqualsAndHashCode
 public class Account implements UserDetails {
 
     @Id
@@ -23,6 +27,17 @@ public class Account implements UserDetails {
 
     @Column
     private String password;
+
+    @OneToMany(
+        mappedBy = "account",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<AccountHash> accountHashList = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "current_hash_id")
+    private AccountHash currentAuthenticationHash;
 
     public Account(Set<String> existingAccountNumbers, String encryptedPassword) {
         this.accountNumber = generateAccountNumber(existingAccountNumbers);
@@ -40,6 +55,30 @@ public class Account implements UserDetails {
 
     private String generateAccountNumber(Set<String> existingAccountNumbers) {
         return CredentialGenerator.generateUniqueAccountNumber(existingAccountNumbers);
+    }
+
+    public void addAllAccountHashes(Collection<AccountHash> accountHashes) {
+        for (AccountHash accountHash : accountHashes) {
+            addAccountHash(accountHash);
+        }
+    }
+
+    public void addAccountHash(AccountHash accountHash) {
+        if (accountHash != null) {
+            this.accountHashList.add(accountHash);
+            accountHash.setAccount(this);
+        }
+    }
+
+    public void removeAccountHash(AccountHash accountHash) {
+        if (accountHash != null) {
+            this.accountHashList.remove(accountHash);
+            accountHash.setAccount(null);
+        }
+    }
+
+    public void setCurrentAuthenticationHash(AccountHash accountHash) {
+        this.currentAuthenticationHash = accountHash;
     }
 
     @Override
