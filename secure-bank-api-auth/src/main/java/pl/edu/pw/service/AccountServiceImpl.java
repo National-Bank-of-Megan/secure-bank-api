@@ -1,15 +1,11 @@
 package pl.edu.pw.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.auth.logic.PasswordHashesGenerator;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
-import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.user.Account;
 import pl.edu.pw.user.AccountHash;
@@ -25,6 +21,8 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
+    private static final String NO_SUCH_ACCOUNT_MESSAGE = "No such account";
+
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -43,7 +41,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account getAccount(String accountNumber) {
-        return accountRepository.findByClientId(Long.valueOf(accountNumber)).orElse(null);
+        return accountRepository.findByAccountNumber(accountNumber).orElse(null);
+    }
+
+    @Override
+    public String getLoginCombination(String username) {
+        Account account = accountRepository.findByAccountNumber(username).orElse(null);
+        return account != null ? account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition()
+                               : (NO_SUCH_ACCOUNT_MESSAGE + " with username " + username);
+    }
+
+    @Override
+    public Account getAccountLazy(String accountNumber) {
+        return accountRepository.getAccountLazy(accountNumber);
     }
 
     public static class AccountMapper {

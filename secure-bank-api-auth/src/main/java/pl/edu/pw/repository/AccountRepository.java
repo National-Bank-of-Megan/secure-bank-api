@@ -7,6 +7,7 @@ import pl.edu.pw.user.Account;
 import java.util.Optional;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, String> {
+public interface AccountRepository extends JpaRepository<Account, String>, LazyLoadAccountRepository {
     Optional<Account> findByClientId(Long clientId);
+    Optional<Account> findByAccountNumber(String accountNumber);
 }

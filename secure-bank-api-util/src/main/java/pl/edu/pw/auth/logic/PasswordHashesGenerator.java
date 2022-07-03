@@ -33,7 +33,7 @@ public class PasswordHashesGenerator {
 
             StringBuilder partPassword = new StringBuilder();
             for (Integer randomPasswordCharacter : randomPasswordCharacters) {
-                partPassword.append(password.indexOf(randomPasswordCharacter));
+                partPassword.append(password.charAt(randomPasswordCharacter));
             }
             String partPasswordHashed = passwordEncoder.encode(partPassword.toString());
             passwordHashes.add(new PartPasswordHash(partPasswordHashed, randomPasswordCharacters));

@@ -38,6 +38,11 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @GetMapping("/login/combination")
+    public String getLoginCombination(@Valid @RequestParam String username) {
+        return accountService.getLoginCombination(username);
+    }
+
     // todo do poprawy - na razie rak
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {

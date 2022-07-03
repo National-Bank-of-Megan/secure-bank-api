@@ -35,7 +35,7 @@ public class Account implements UserDetails {
     )
     private List<AccountHash> accountHashList = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_hash_id")
     private AccountHash currentAuthenticationHash;
 
