@@ -3,7 +3,7 @@ package pl.edu.pw.user;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pl.edu.pw.auth.CredentialGenerator;
+import pl.edu.pw.auth.logic.CredentialGenerator;
 
 import javax.persistence.*;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package pl.edu.pw.auth;
+package pl.edu.pw.auth.logic;
 
 import java.security.SecureRandom;
 import java.util.Set;
