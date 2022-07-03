@@ -7,6 +7,6 @@ import pl.edu.pw.user.Account;
 import javax.transaction.Transactional;
 
 public interface AccountService {
-//    void registerAccount(AccountRegistration registerData);
+    void registerAccount(AccountRegistration registerData);
     Account getAccount(String accountNumber);
 }

@@ -1,9 +1,9 @@
 package pl.edu.pw.user;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.edu.pw.auth.CredentialGenerator;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -13,18 +13,21 @@ import java.util.Set;
 @Entity
 @Table
 public class Account implements UserDetails {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long clientId;
+
+    @Column
+    private String accountNumber;
 
     @Column
     private String password;
 
-//    no to raczej nie do logowania
-//    public Account(Set<String> existingAccountNumbers, String encryptedPassword) {
-//        this.clientId = generateAccountNumber(existingAccountNumbers);
-//        this.password = encryptedPassword;
-//    }
-
+    public Account(Set<String> existingAccountNumbers, String encryptedPassword) {
+        this.accountNumber = generateAccountNumber(existingAccountNumbers);
+        this.password = encryptedPassword;
+    }
 
     public Account(Long clientId, String password) {
         this.clientId = clientId;

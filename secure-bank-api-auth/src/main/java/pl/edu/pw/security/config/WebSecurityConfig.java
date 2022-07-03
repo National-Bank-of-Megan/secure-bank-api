@@ -40,7 +40,7 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests().antMatchers("/api/login/**", "/api/token/refresh/**").permitAll()
                 .and()
-                .authorizeRequests().antMatchers("/api/registration/**").permitAll()
+                .authorizeRequests().antMatchers("/api/register/**").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/api/password/**").permitAll()
                 .and()

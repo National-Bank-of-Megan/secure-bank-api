@@ -16,39 +16,32 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
-
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService, UserDetailsService {
+public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
-//    @Override
-//    public void registerAccount(AccountRegistration registerData) {
-//        registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
-//        Set<String> accountsNumbers = accountRepository.findAll().stream().map(Account::getClientId).collect(Collectors.toSet());
-//        Account accountToRegister = map(registerData, accountsNumbers);
-//        accountRepository.save(accountToRegister);
-//    }
+    @Override
+    public void registerAccount(AccountRegistration registerData) {
+        registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
+        Set<String> accountsNumbers = accountRepository.findAll().stream().map(Account::getAccountNumber).collect(Collectors.toSet());
+        Account accountToRegister = AccountMapper.map(registerData, accountsNumbers);
+        accountRepository.save(accountToRegister);
+    }
 
     @Override
     public Account getAccount(String accountNumber) {
         return accountRepository.findByClientId(Long.valueOf(accountNumber)).orElse(null);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String accountNumber) throws UsernameNotFoundException {
-        return accountRepository.findByClientId(Long.valueOf(accountNumber)).
-                orElseThrow(() -> new UsernameNotFoundException(String.format("Account number %s not found", accountNumber)));
+    public static class AccountMapper {
+        public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers) {
+            return new Account(
+                existingAccountsNumbers,
+                registerData.getPassword()
+            );
+        }
     }
-
-//    public static class AccountMapper {
-//        public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers) {
-//            return new Account(
-//                existingAccountsNumbers,
-//                registerData.getPassword()
-//            );
-//        }
-//    }
 }

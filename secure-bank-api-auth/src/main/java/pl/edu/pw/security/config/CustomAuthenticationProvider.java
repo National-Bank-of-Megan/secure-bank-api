@@ -27,17 +27,26 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
         Optional<Account> account = accountRepository.findByClientId(Long.valueOf(name));
+        if (account.isPresent()) {
+            Account fetchedAccount = account.get();
+            String hashedPassword = fetchedAccount.getPassword();
+            if (passwordEncoder.matches(password, hashedPassword)) {
+                return new UsernamePasswordAuthenticationToken(fetchedAccount, new ArrayList<>());
+            }
+        }
+        return null;
+    }
 //        Set<String> accountsNumbers = accountRepository.findAll().stream().map(Account::getClientId).collect(Collectors.toSet());
 //        if (account.isPresent()) {
 //            int passwordHashId = Session.get("hashId");
 //            Hash hash = hashRepository.getHash(passwordHashId);
 //            if (passwordEncoder.matches(password, hash)) {
-        return new UsernamePasswordAuthenticationToken(
-               new Account(Long.valueOf(name), password), new ArrayList<>());
+//                return new UsernamePasswordAuthenticationToken(
+//                        new Account(Long.valueOf(name), password), new ArrayList<>());
 //            }
 //        }
 //        return null;
-    }
+//    }
 
     @Override
     public boolean supports(Class<?> authentication) {
