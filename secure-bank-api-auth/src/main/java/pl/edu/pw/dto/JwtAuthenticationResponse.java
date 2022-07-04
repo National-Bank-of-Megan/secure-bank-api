@@ -4,11 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @AllArgsConstructor
+
 public class JwtAuthenticationResponse {
 
     @NonNull
     private String accessToken;
-    private boolean mfa;
+    @NotNull
+    private String refreshToken;
+
 }

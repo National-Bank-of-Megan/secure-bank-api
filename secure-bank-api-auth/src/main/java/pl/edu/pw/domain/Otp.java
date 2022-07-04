@@ -3,6 +3,7 @@ package pl.edu.pw.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.edu.pw.service.otp.OtpService;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,5 +39,10 @@ public class Otp {
     public Otp(String otp, Date otpRequestedTime) {
         this.otp = otp;
         this.otpRequestedTime = otpRequestedTime;
+    }
+
+    public boolean isValid(){
+        if(this.otpRequestedTime.getTime() + OTP_VALID_DURATION < System.currentTimeMillis()) return false;
+        return true;
     }
 }

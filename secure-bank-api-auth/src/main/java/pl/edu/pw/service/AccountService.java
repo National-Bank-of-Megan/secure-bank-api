@@ -7,10 +7,11 @@ import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.user.Account;
 
 import javax.transaction.Transactional;
+import java.util.Map;
 
 public interface AccountService {
 
     Account getAccount(String accountNumber);
 //    void login (LoginRequest request);
-    String verify(VerifyCodeRequest request);
+    Map<String,String> verify(VerifyCodeRequest request);
 }
