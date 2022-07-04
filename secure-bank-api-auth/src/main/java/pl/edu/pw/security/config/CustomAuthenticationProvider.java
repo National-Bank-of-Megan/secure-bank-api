@@ -26,17 +26,17 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
-        Optional<Account> account = accountRepository.findByClientId(Long.valueOf(name));
-//        Set<String> accountsNumbers = accountRepository.findAll().stream().map(Account::getClientId).collect(Collectors.toSet());
-//        if (account.isPresent()) {
-//            int passwordHashId = Session.get("hashId");
-//            Hash hash = hashRepository.getHash(passwordHashId);
-//            if (passwordEncoder.matches(password, hash)) {
-        return new UsernamePasswordAuthenticationToken(
-               new Account(Long.valueOf(name), password), new ArrayList<>());
-//            }
-//        }
-//        return null;
+        Account account = accountRepository.findByClientId(Long.valueOf(name)).orElseThrow(
+//                todo correct exception
+                ()-> new RuntimeException("Client with this client id does not exist")
+        );
+
+        String hashedPassword = account.getPassword();
+        if (passwordEncoder.matches(password, hashedPassword)) {
+            return new UsernamePasswordAuthenticationToken(account, new ArrayList<>());
+        }
+
+        return null;
     }
 
     @Override

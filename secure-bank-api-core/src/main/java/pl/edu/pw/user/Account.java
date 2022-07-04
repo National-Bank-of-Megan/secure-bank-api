@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 @Table
 public class Account implements UserDetails {
+
     @Id
     private Long clientId;
 
@@ -46,7 +47,7 @@ public class Account implements UserDetails {
 
     @Override
     public String getUsername() {
-        return null;
+        return clientId.toString();
     }
 
     @Override

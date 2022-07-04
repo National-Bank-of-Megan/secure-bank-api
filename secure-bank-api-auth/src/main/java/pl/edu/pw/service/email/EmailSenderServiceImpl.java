@@ -1,10 +1,12 @@
 package pl.edu.pw.service.email;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.mail.javamail.JavaMailSender;
+
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -13,7 +15,7 @@ import javax.mail.internet.MimeMessage;
 @AllArgsConstructor
 public class EmailSenderServiceImpl {
 
-    private final JavaMailSender mailSender;
+    private JavaMailSender mailSender;
 
     @Async
     public void send(String receiver, String code) {
@@ -23,7 +25,7 @@ public class EmailSenderServiceImpl {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
             helper.setText(email, true);
-            helper.setTo(receiver);
+            helper.setTo("user@email.com");
             helper.setSubject("Please verify your device");
             helper.setFrom("nbm_security_team@pw.edu.pl");
             mailSender.send(mimeMessage);
