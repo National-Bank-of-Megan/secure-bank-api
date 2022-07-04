@@ -7,35 +7,30 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.service.AccountService;
 import pl.edu.pw.user.Account;
 
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
-        Account account = accountRepository.findByClientId(Long.valueOf(name)).orElseThrow(
-//                todo correct exception
-                ()-> new RuntimeException("Client with this client id does not exist")
-        );
-
-        String hashedPassword = account.getPassword();
-        if (passwordEncoder.matches(password, hashedPassword)) {
-            return new UsernamePasswordAuthenticationToken(account, new ArrayList<>());
+        Account account = accountService.getAccount(name);
+        if (account != null) {
+            String hashedPasswordPart = account.getCurrentAuthenticationHash().getPasswordPart();
+            System.out.println(hashedPasswordPart);
+            if (passwordEncoder.matches(password, hashedPasswordPart)) {
+                return new UsernamePasswordAuthenticationToken(account, new ArrayList<>());
+            }
         }
-
         return null;
     }
 

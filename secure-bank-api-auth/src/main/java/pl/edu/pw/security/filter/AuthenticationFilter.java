@@ -1,34 +1,44 @@
 package pl.edu.pw.security.filter;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.Hibernate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import pl.edu.pw.service.email.EmailSenderServiceImpl;
-import pl.edu.pw.service.otp.OtpService;
+import pl.edu.pw.repository.AccountHashRepository;
+import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.service.AccountService;
 import pl.edu.pw.user.Account;
+import pl.edu.pw.user.AccountHash;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
+import java.security.SecureRandom;
+import java.util.*;
 
-@AllArgsConstructor
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-    private EmailSenderServiceImpl emailSenderService;
-    private OtpService otpService;
+    private AccountRepository accountRepository;
+    private AccountHashRepository accountHashRepository;
+    private SecureRandom random;
 
+    public AuthenticationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository, AccountHashRepository accountHashRepository) {
+        this.authenticationManager = authenticationManager;
+        this.accountRepository = accountRepository;
+        this.accountHashRepository = accountHashRepository;
+        this.random = new SecureRandom();
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -46,30 +56,44 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-
+        // TODO: zabezpieczyć sekret
         Account account = (Account)authResult.getPrincipal();
-////        todo change receiver from client id to email
-        emailSenderService.send(account.getUsername(),otpService.generateOneTimePassword(account));
-//        System.out.println("Old successful authentiation");
-//        Account account = (Account)authResult.getPrincipal();
-//        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-//        String token = JWT.create()
-//                .withSubject(account.getClientId().toString())
-//                .withExpiresAt(new Date(System.currentTimeMillis()+1000*60*60))
-//                .withIssuer(request.getRequestURL().toString())
-//                .sign(algorithm);
-//
-//        String refreshToken = JWT.create().withSubject(account.getClientId().toString())
-//                .withExpiresAt(new Date(System.currentTimeMillis()+1000*120*60))
-//                .withIssuer(request.getRequestURL().toString())
-//                .sign(algorithm);
-//
-//        Map<String, String> tokens = new HashMap<>();
-//        tokens.put("access_token",token);
-//        tokens.put("refresh_token",refreshToken);
-//        response.setContentType(APPLICATION_JSON_VALUE);
-//        new ObjectMapper().writeValue(response.getOutputStream(),tokens);
+        Account eagerAccount = accountRepository.findByAccountNumber(account.getAccountNumber()).get();
+        List<AccountHash> allByAccountAccountNumber = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
+        setOtherHashCombination(eagerAccount, allByAccountAccountNumber);
+
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        String token = JWT.create()
+                .withSubject(account.getClientId().toString())
+                .withExpiresAt(new Date(System.currentTimeMillis()+1000*60*60))
+                .withIssuer(request.getRequestURL().toString())
+                .sign(algorithm);
+
+        String refreshToken = JWT.create().withSubject(account.getClientId().toString())
+                .withExpiresAt(new Date(System.currentTimeMillis()+1000*120*60))
+                .withIssuer(request.getRequestURL().toString())
+                .sign(algorithm);
+
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("access_token",token);
+        tokens.put("refresh_token",refreshToken);
+        response.setContentType(APPLICATION_JSON_VALUE);
+        new ObjectMapper().writeValue(response.getOutputStream(),tokens);
     }
 
-
+    private void setOtherHashCombination(Account account, List<AccountHash> accountHashList) {
+//        List<AccountHash> accountHashList = account.getAccountHashList();
+//        Hibernate.initialize(accountHashList);
+        AccountHash currentAccountHash = account.getCurrentAuthenticationHash();
+        boolean otherAccountHash = false;
+        do {
+            int index = random.nextInt(0, accountHashList.size());
+            AccountHash accountHash = accountHashList.get(index);
+            if (!currentAccountHash.getId().equals(accountHash.getId())) {
+                otherAccountHash = true;
+                account.setCurrentAuthenticationHash(accountHash);
+                accountRepository.save(account);
+            }
+        } while (!otherAccountHash);
+    }
 }

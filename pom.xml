@@ -13,6 +13,7 @@
     <module>secure-bank-api-auth</module>
     <module>secure-bank-api-transfer</module>
     <module>secure-bank-api-currency-exchange</module>
+    <module>secure-bank-api-util</module>
   </modules>
 
   <name>secure-bank-api</name>

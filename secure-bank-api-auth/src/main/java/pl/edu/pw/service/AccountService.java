@@ -11,7 +11,10 @@ import java.util.Map;
 
 public interface AccountService {
 
+    void registerAccount(AccountRegistration registerData);
     Account getAccount(String accountNumber);
+    String getLoginCombination(String username);
+    Account getAccountLazy(String accountNumber);
 //    void login (LoginRequest request);
     Map<String,String> verify(VerifyCodeRequest request);
 }
