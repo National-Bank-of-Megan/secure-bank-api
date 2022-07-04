@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.security.filter.AuthenticationFilter;
 import pl.edu.pw.security.filter.AuthorizationFilter;
@@ -27,10 +28,11 @@ public class WebSecurityConfig {
     private AccountRepository accountRepository;
     private EmailSenderServiceImpl emailSenderService;
     private OtpService otpService;
+    private AccountHashRepository accountHashRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManagerBean(authenticationConfiguration),emailSenderService,otpService);
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository);
         authenticationFilter.setFilterProcessesUrl("/api/login");
         AuthorizationFilter authorizationFilter = new AuthorizationFilter(accountRepository);
 
@@ -63,10 +65,6 @@ public class WebSecurityConfig {
     public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
-    
-
-
 
 
 }

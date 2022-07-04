@@ -41,7 +41,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 
 
-public class AccountServiceImpl implements AccountService {
+public class AccountServiceImpl implements AccountService, UserDetailsService {
     private static final String NO_SUCH_ACCOUNT_MESSAGE = "No such account";
 
     private final AccountRepository accountRepository;
