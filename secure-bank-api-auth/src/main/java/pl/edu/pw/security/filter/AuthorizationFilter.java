@@ -6,6 +6,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,14 +30,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AuthorizationFilter extends OncePerRequestFilter {
 
     private AccountRepository accountRepository;
+    private static final Logger log = LoggerFactory.getLogger(AuthorizationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
         if(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh")) {
+            log.info("AuthorizationFilter->\tskipping authorization, login or token refresh attempt");
             filterChain.doFilter(request,response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                log.info("AuthorizationFilter->\tchecking jwt");
                 try {
                     String token = authorizationHeader.substring("Bearer ".length());
                     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
@@ -57,6 +63,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                     new ObjectMapper().writeValue(response.getOutputStream(),error);
                 }
             } else {
+                log.info("AuthorizationFilter->\tnot jwt send, proceeding with next filters...");
                 filterChain.doFilter(request, response);
             }
         }

@@ -1,25 +1,18 @@
-package pl.edu.pw.service;
+package pl.edu.pw.service.account;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.auth.logic.PasswordHashesGenerator;
-import pl.edu.pw.domain.Otp;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
-import pl.edu.pw.dto.LoginRequest;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.repository.OtpRepository;
 import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.user.Account;
 import pl.edu.pw.user.AccountHash;
@@ -32,8 +25,6 @@ import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 
 @Service

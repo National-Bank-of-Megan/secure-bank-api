@@ -1,4 +1,4 @@
-package pl.edu.pw.service;
+package pl.edu.pw.service.account;
 
 public interface AccountHashService {
 

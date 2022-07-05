@@ -1,4 +1,4 @@
-package pl.edu.pw.service;
+package pl.edu.pw.service.account;
 
 import org.springframework.stereotype.Service;
 import pl.edu.pw.dto.AccountRegistration;

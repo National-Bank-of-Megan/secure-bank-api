@@ -33,3 +33,11 @@ CREATE TABLE otp
     primary key (client_id)
 );
 
+
+CREATE TABLE IP(
+    ip VARCHAR PRIMARY KEY,
+    client_id int,
+    name varchar,
+    foreign key (client_id) references account(client_id)
+);
+

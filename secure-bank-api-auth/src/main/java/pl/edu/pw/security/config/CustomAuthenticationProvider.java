@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import pl.edu.pw.service.AccountService;
+import pl.edu.pw.service.account.AccountService;
 import pl.edu.pw.user.Account;
 
 import java.util.ArrayList;
