@@ -42,7 +42,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        desktop app processing
-        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository,devicesService,new SecureRandom());
+        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository,devicesService,new SecureRandom(),otpService,emailSenderService);
         webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
         AuthorizationFilter authorizationFilter = new AuthorizationFilter(accountRepository);
 

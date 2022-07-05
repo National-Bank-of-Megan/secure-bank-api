@@ -83,10 +83,10 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         return tokens;
     }
 
-    public String getLoginCombination(String username) {
-        Account account = accountRepository.findByAccountNumber(username).orElse(null);
+    public String getLoginCombination(String clientId) {
+        Account account = accountRepository.findByClientId(Long.valueOf(clientId)).orElse(null);
         return account != null ? account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition()
-                               : (NO_SUCH_ACCOUNT_MESSAGE + " with username " + username);
+                               : (NO_SUCH_ACCOUNT_MESSAGE + " with client id " + clientId);
     }
 
     @Override

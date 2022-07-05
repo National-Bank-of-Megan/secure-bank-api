@@ -17,6 +17,8 @@ import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.devices.DevicesService;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
+import pl.edu.pw.service.email.EmailSenderServiceImpl;
+import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.user.Account;
 import pl.edu.pw.user.AccountHash;
 
@@ -42,6 +44,8 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 //    todo nazmienic na DevicesService
     private DevicesServiceImpl devicesService;
     private SecureRandom random;
+    private OtpService otpService;
+    private EmailSenderServiceImpl emailSenderService;
 
 //    WKURWIA MNIE TO !!!
 //    public WebAuthenticationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository, AccountHashRepository accountHashRepository) {
@@ -53,9 +57,8 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+
         log.info("WebAuthenticationFilter->\ttrying to authenticate...");
-        String ipAddress = devicesService.getIpAddress(request);
-        log.info("Machine trying to access api: "+ ipAddress);
 
         String username, password;
         try {
@@ -73,29 +76,37 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
 
         log.info("WebAuthenticationFilter->\tsending JWT. Authentication successful");
+        String ipAddress = devicesService.getIpAddress(request);
+        log.info("Machine trying to access api: "+ ipAddress);
+//        todo integracja z serwisem urządzeń
+        boolean isNewDevice = true;
 
         Account account = (Account) authResult.getPrincipal();
-        Account eagerAccount = accountRepository.findByAccountNumber(account.getAccountNumber()).get();
-        List<AccountHash> allByAccountAccountNumber = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
-        setOtherHashCombination(eagerAccount, allByAccountAccountNumber);
+        if(isNewDevice){
+            emailSenderService.send(account.getUsername(),otpService.generateOneTimePassword(account));
+        }else{
+            Account eagerAccount = accountRepository.findByAccountNumber(account.getAccountNumber()).get();
+            List<AccountHash> allByAccountAccountNumber = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
+            setOtherHashCombination(eagerAccount, allByAccountAccountNumber);
 
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-        String token = JWT.create()
-                .withSubject(account.getClientId().toString())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                .withIssuer(request.getRequestURL().toString())
-                .sign(algorithm);
+            Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+            String token = JWT.create()
+                    .withSubject(account.getClientId().toString())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                    .withIssuer(request.getRequestURL().toString())
+                    .sign(algorithm);
 
-        String refreshToken = JWT.create().withSubject(account.getClientId().toString())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 120 * 60))
-                .withIssuer(request.getRequestURL().toString())
-                .sign(algorithm);
+            String refreshToken = JWT.create().withSubject(account.getClientId().toString())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 120 * 60))
+                    .withIssuer(request.getRequestURL().toString())
+                    .sign(algorithm);
 
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("access_token", token);
-        tokens.put("refresh_token", refreshToken);
-        response.setContentType(APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("access_token", token);
+            tokens.put("refresh_token", refreshToken);
+            response.setContentType(APPLICATION_JSON_VALUE);
+            new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+        }
     }
 
     private void setOtherHashCombination(Account account, List<AccountHash> accountHashList) {
