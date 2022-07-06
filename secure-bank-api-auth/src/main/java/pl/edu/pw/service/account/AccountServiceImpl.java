@@ -49,6 +49,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         List<AccountHash> accountHashes = partPasswordHashes.stream().map(AccountHashMapper::map).toList();
         accountToRegister.addAllAccountHashes(accountHashes);
         accountToRegister.setCurrentAuthenticationHash(accountHashes.get(0));
+        accountToRegister.setClientId(123456L);
         accountRepository.save(accountToRegister);
     }
 

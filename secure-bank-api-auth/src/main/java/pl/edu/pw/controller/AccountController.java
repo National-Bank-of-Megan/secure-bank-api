@@ -17,17 +17,6 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @PostMapping("/verify")
-    public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-        Map<String,String> tokens = accountService.verify(request);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(tokens.get("access_token"),tokens.get("refresh_token")));
-    }
-
-
-    @GetMapping("/hello")
-    public String hello(){
-        return "Hello fully authenticated user";
-    }
 
 
 

@@ -21,6 +21,7 @@ import pl.edu.pw.service.email.EmailSenderServiceImpl;
 import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.user.Account;
 import pl.edu.pw.user.AccountHash;
+import pl.edu.pw.util.JWTUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -47,28 +48,19 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private OtpService otpService;
     private EmailSenderServiceImpl emailSenderService;
 
-//    WKURWIA MNIE TO !!!
-//    public WebAuthenticationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository, AccountHashRepository accountHashRepository) {
-//        this.authenticationManager = authenticationManager;
-//        this.accountRepository = accountRepository;
-//        this.accountHashRepository = accountHashRepository;
-//        this.random = new SecureRandom();
-//    }
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
         log.info("WebAuthenticationFilter->\ttrying to authenticate...");
-
-        String username, password;
+        String clientId, password;
         try {
             Map<String, String> requestMap = new ObjectMapper().readValue(request.getInputStream(), Map.class);
-            username = requestMap.get("username");
+            clientId = requestMap.get("clientId");
             password = requestMap.get("password");
         } catch (IOException e) {
             throw new AuthenticationServiceException(e.getMessage(), e);
         }
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(clientId, password);
         return authenticationManager.authenticate(authenticationToken);
     }
 
@@ -78,8 +70,9 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("WebAuthenticationFilter->\tsending JWT. Authentication successful");
         String ipAddress = devicesService.getIpAddress(request);
         log.info("Machine trying to access api: "+ ipAddress);
+
 //        todo integracja z serwisem urządzeń
-        boolean isNewDevice = true;
+        boolean isNewDevice = false;
 
         Account account = (Account) authResult.getPrincipal();
         if(isNewDevice){
@@ -89,21 +82,13 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             List<AccountHash> allByAccountAccountNumber = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
             setOtherHashCombination(eagerAccount, allByAccountAccountNumber);
 
-            Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-            String token = JWT.create()
-                    .withSubject(account.getClientId().toString())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                    .withIssuer(request.getRequestURL().toString())
-                    .sign(algorithm);
-
-            String refreshToken = JWT.create().withSubject(account.getClientId().toString())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 120 * 60))
-                    .withIssuer(request.getRequestURL().toString())
-                    .sign(algorithm);
+//            jwt generation
+            int refreshToken = 1000 * 120 * 60;
+            int accessToken = 1000 * 60 * 60;
 
             Map<String, String> tokens = new HashMap<>();
-            tokens.put("access_token", token);
-            tokens.put("refresh_token", refreshToken);
+            tokens.put("access_token", JWTUtil.generateToken(account,accessToken,request));
+            tokens.put("refresh_token", JWTUtil.generateToken(account,refreshToken,request));
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), tokens);
         }
