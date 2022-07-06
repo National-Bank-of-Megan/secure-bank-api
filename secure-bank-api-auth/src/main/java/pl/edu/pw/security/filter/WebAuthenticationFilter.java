@@ -1,7 +1,6 @@
 package pl.edu.pw.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,13 +10,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.AccountHash;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.service.email.EmailSenderServiceImpl;
 import pl.edu.pw.service.otp.OtpService;
-import pl.edu.pw.user.Account;
-import pl.edu.pw.user.AccountHash;
 import pl.edu.pw.util.JWTUtil;
 
 import javax.servlet.FilterChain;
