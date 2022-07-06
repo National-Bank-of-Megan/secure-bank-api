@@ -1,12 +1,9 @@
 package pl.edu.pw.security.filter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,12 +12,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.service.devices.DevicesService;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.service.email.EmailSenderServiceImpl;
 import pl.edu.pw.service.otp.OtpService;
-import pl.edu.pw.user.Account;
-import pl.edu.pw.user.AccountHash;
+import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.AccountHash;
 import pl.edu.pw.util.JWTUtil;
 
 import javax.servlet.FilterChain;
@@ -28,8 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.*;
 

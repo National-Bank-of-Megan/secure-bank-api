@@ -1,4 +1,4 @@
-package pl.edu.pw.user;
+package pl.edu.pw.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

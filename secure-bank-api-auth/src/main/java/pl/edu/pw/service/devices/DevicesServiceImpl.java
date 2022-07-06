@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.repository.DeviceRepository;
-import pl.edu.pw.security.filter.WebAuthenticationFilter;
-import pl.edu.pw.user.Account;
+import pl.edu.pw.domain.Account;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;

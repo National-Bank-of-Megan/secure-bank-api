@@ -1,4 +1,4 @@
-package pl.edu.pw.user;
+package pl.edu.pw.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -7,10 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pl.edu.pw.auth.logic.CredentialGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -38,6 +35,14 @@ public class Account implements UserDetails {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_hash_id")
     private AccountHash currentAuthenticationHash;
+
+    @Column
+    @OneToMany(mappedBy = "account")
+    private Set<CurrencyExchange> exchanges;
+
+//    @Column
+//    @OneToMany(mappedBy = )
+//    private Set<Transfer> transfers;
 
     public Account(Set<String> existingAccountNumbers, String encryptedPassword) {
         this.accountNumber = generateAccountNumber(existingAccountNumbers);

@@ -12,7 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.user.Account;
+import pl.edu.pw.domain.Account;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Otp;
 import pl.edu.pw.repository.OtpRepository;
 import pl.edu.pw.service.email.EmailSenderServiceImpl;
-import pl.edu.pw.user.Account;
+import pl.edu.pw.domain.Account;
 
 import java.util.Date;
 

@@ -1,6 +1,6 @@
 package pl.edu.pw.repository;
 
-import pl.edu.pw.user.Account;
+import pl.edu.pw.domain.Account;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

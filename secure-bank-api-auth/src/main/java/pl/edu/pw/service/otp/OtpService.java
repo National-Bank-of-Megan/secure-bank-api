@@ -1,6 +1,6 @@
 package pl.edu.pw.service.otp;
 
-import pl.edu.pw.user.Account;
+import pl.edu.pw.domain.Account;
 
 public interface OtpService {
 

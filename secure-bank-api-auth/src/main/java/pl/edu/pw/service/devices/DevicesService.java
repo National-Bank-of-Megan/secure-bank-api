@@ -1,6 +1,6 @@
 package pl.edu.pw.service.devices;
 
-import pl.edu.pw.user.Account;
+import pl.edu.pw.domain.Account;
 
 import javax.servlet.http.HttpServletRequest;
 
