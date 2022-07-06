@@ -13,8 +13,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.user.Account;
-import pl.edu.pw.user.AccountHash;
+import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.AccountHash;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

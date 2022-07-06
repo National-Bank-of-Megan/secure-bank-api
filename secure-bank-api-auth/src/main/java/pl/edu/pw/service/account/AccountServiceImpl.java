@@ -14,8 +14,8 @@ import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.otp.OtpService;
-import pl.edu.pw.user.Account;
-import pl.edu.pw.user.AccountHash;
+import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.AccountHash;
 
 import javax.transaction.Transactional;
 
