@@ -9,12 +9,12 @@ import java.util.Date;
 
 public class JWTUtil {
 
-    public static String generateToken(Account user, int duration, HttpServletRequest request) {
+    public static String generateToken(String secret, long expirationTime, Account user, HttpServletRequest request) {
 
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        Algorithm algorithm = Algorithm.HMAC256(secret.getBytes());
         String token = JWT.create()
                 .withSubject(user.getClientId().toString())
-                .withExpiresAt(new Date(System.currentTimeMillis() + duration))
+                .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
         return token;

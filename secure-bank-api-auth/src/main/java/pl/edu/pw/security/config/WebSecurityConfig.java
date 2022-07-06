@@ -13,14 +13,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.security.filter.AuthorizationFilter;
 import pl.edu.pw.security.filter.MobileAuthenticationFilter;
+import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.service.email.EmailSenderServiceImpl;
 import pl.edu.pw.service.otp.OtpService;
-
-import java.security.SecureRandom;
 
 @Configuration
 @EnableWebSecurity
@@ -29,11 +27,11 @@ import java.security.SecureRandom;
 public class WebSecurityConfig {
 
     private AuthenticationConfiguration authenticationConfiguration;
+    private RestAuthenticationSuccessHandler successHandler;
+    private RestAuthenticationFailureHandler failureHandler;
     private AccountRepository accountRepository;
     private AccountHashRepository accountHashRepository;
     private DevicesServiceImpl devicesService;
-
-
 
     private EmailSenderServiceImpl emailSenderService;
     private OtpService otpService;
@@ -42,8 +40,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        desktop app processing
-        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository,devicesService,new SecureRandom(),otpService,emailSenderService);
-        webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
+        WebAuthenticationFilter webAuthenticationFilter = getAuthenticationFilter();
         AuthorizationFilter authorizationFilter = new AuthorizationFilter(accountRepository);
 
 //        mobile app processing
@@ -63,13 +60,13 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests().antMatchers("/h2-console/**").permitAll()
                 .and()
-                .authorizeRequests().anyRequest().authenticated();
+                .authorizeRequests().anyRequest().authenticated()
+                .and()
+                .addFilter(webAuthenticationFilter)
+                .addFilter(mobileAuthenticationFilter)
+                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .headers().frameOptions().disable();
 
-        http.addFilter(webAuthenticationFilter);
-        http.addFilter(mobileAuthenticationFilter);
-        http.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        http.headers().frameOptions().disable();
         return http.build();
     }
 
@@ -78,5 +75,11 @@ public class WebSecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-
+    private WebAuthenticationFilter getAuthenticationFilter() throws Exception {
+        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository, devicesService, otpService, emailSenderService);
+        webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
+        webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
+        webAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);
+        return webAuthenticationFilter;
+    }
 }
