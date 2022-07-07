@@ -14,7 +14,6 @@ import java.util.Map;
 @RequestMapping(path = "/api/account")
 @RequiredArgsConstructor
 public class AccountController {
-
     private final AccountService accountService;
 
 

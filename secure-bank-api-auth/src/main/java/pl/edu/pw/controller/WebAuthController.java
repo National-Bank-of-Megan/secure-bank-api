@@ -1,5 +1,6 @@
 package pl.edu.pw.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,15 @@ import pl.edu.pw.dto.JwtAuthenticationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.service.account.AccountService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/api/web")
@@ -33,15 +41,23 @@ public class WebAuthController {
         return accountService.getLoginCombination(clientId);
     }
 
-    @PostMapping("login//verify")
-    public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-        Map<String,String> tokens = accountService.verify(request);
+    @PostMapping("/login/verify")
+    public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest) {
+        Map<String,String> tokens = accountService.verify(request, httpRequest);
         return ResponseEntity.ok(new JwtAuthenticationResponse(tokens.get("access_token"),tokens.get("refresh_token")));
     }
 
-
-
-
-
-
+    @GetMapping("/token/refresh")
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String, String> bodyResponse = new HashMap<>();
+        response.setContentType(APPLICATION_JSON_VALUE);
+        try {
+            bodyResponse = accountService.getTokensWithRefreshToken(request);
+        } catch (Exception e) {
+            response.setStatus(FORBIDDEN.value());
+            bodyResponse.put("error_message", e.getMessage());
+        } finally {
+            new ObjectMapper().writeValue(response.getOutputStream(), bodyResponse);
+        }
+    }
 }

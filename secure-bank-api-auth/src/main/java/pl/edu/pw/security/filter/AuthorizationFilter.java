@@ -40,34 +40,26 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(AuthorizationFilter.class);
 
-    @Override
+    @Override // według moich obliczeń powinno działać, a kod jest bardziej clean
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
-        if (request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh")) {
-            log.info("AuthorizationFilter->\tskipping authorization, login or token refresh attempt");
-            filterChain.doFilter(request, response);
-        } else {
+        if (!(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh"))) {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 log.info("AuthorizationFilter->\tchecking jwt");
                 try {
                     UsernamePasswordAuthenticationToken auth = getAuthentication(authorizationHeader);
                     SecurityContextHolder.getContext().setAuthentication(auth);
-                    filterChain.doFilter(request, response);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    response.setHeader("error", e.getMessage());
+                    Map<String, String> error = getErrorMap(e);
                     response.setStatus(FORBIDDEN.value());
-                    Map<String, String> error = new HashMap<>();
-                    error.put("error_message", e.getMessage());
                     response.setContentType(APPLICATION_JSON_VALUE);
                     new ObjectMapper().writeValue(response.getOutputStream(), error);
                 }
-            } else {
-                log.info("AuthorizationFilter->\tnot jwt send, proceeding with next filters...");
-                filterChain.doFilter(request, response);
             }
         }
+        filterChain.doFilter(request, response);
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String authorizationHeader) {
@@ -78,5 +70,11 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         String accountNumber = decodedJWT.getSubject();
         Account account = accountRepository.findByClientId(Long.valueOf(accountNumber)).orElseThrow();
         return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), null);
+    }
+
+    private Map<String, String> getErrorMap(Exception e) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error_message", e.getMessage());
+        return error;
     }
 }

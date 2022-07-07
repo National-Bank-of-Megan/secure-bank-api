@@ -19,7 +19,6 @@ public class AccountDetails {
     @Column private String lastname;
     @Column private String email;
 
-    @Column
     @OneToOne
     private Account account;
 

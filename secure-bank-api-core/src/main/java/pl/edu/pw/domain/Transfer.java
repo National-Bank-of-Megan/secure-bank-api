@@ -16,14 +16,12 @@ public class Transfer {
 
     @Column private Date orderedOn;
 
-    @Column
     @ManyToOne
-    @JoinColumn(name="client_id",nullable=false)
+//    @JoinColumn(name="client_id",nullable=false)
     private Account receiver;
 
-    @Column
     @ManyToOne
-    @JoinColumn(name="client_id",nullable=false)
+//    @JoinColumn(name="client_id",nullable=false)
     private Account sender;
 
     @Column private double amount;

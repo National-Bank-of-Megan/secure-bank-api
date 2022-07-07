@@ -20,11 +20,6 @@ ALTER TABLE account
 ALTER TABLE account_hash
   ADD FOREIGN KEY (client_id) REFERENCES account (client_id);
 
--- CREATE TABLE current_account_hash (
--- 	account_hash_id INT PRIMARY KEY,
---     FOREIGN KEY (account_hash_id) REFERENCES account_hashes (id)
--- );
-
 CREATE TABLE otp
 (
     client_id          INT         NOT NULL UNIQUE,
@@ -35,9 +30,9 @@ CREATE TABLE otp
 
 
 CREATE TABLE IP(
-    ip VARCHAR PRIMARY KEY,
+    ip VARCHAR(50) PRIMARY KEY,
     client_id int,
-    name varchar,
+    name varchar(200),
     foreign key (client_id) references account(client_id)
 );
 

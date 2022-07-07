@@ -22,7 +22,6 @@ public class CurrencyExchange {
     @Column @Enumerated(EnumType.STRING) private Currency currencySold;
     @Column private double amountSold;
 
-    @Column
     @ManyToOne
     @JoinColumn(name="client_id",nullable=false)
     private Account account;
