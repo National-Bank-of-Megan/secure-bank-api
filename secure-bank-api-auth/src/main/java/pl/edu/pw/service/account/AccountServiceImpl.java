@@ -2,7 +2,6 @@ package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import pl.edu.pw.auth.logic.PasswordHashesGenerator;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.AccountHash;
+import pl.edu.pw.domain.Device;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.VerifyCodeRequest;
@@ -53,14 +53,19 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public void registerAccount(AccountRegistration registerData) {
         String rawPassword = registerData.getPassword();
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
-        Set<String> accountsNumbers = accountRepository.findAll().stream().map(Account::getAccountNumber).collect(Collectors.toSet());
-        Account accountToRegister = AccountMapper.map(registerData, accountsNumbers);
+        Set<String> existingAccountsNumbers = accountRepository.findAll().stream().map(Account::getAccountNumber).collect(Collectors.toSet());
+        Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers);
+        setAccountHashes(accountToRegister, rawPassword);
+        accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
+        accountToRegister.setClientId(123456L);
+        accountRepository.save(accountToRegister);
+    }
+
+    private void setAccountHashes(Account accountToRegister, String rawPassword) {
         List<PartPasswordHash> partPasswordHashes = PasswordHashesGenerator.generatePasswordHashes(rawPassword, passwordEncoder);
         List<AccountHash> accountHashes = partPasswordHashes.stream().map(AccountHashMapper::map).toList();
         accountToRegister.addAllAccountHashes(accountHashes);
         accountToRegister.setCurrentAuthenticationHash(accountHashes.get(0));
-        accountToRegister.setClientId(123456L);
-        accountRepository.save(accountToRegister);
     }
 
     @Override

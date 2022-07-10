@@ -5,4 +5,6 @@ import lombok.Data;
 @Data
 public class AccountRegistration {
     private String password;
+    private String publicIp;
+    private String localIp;
 }

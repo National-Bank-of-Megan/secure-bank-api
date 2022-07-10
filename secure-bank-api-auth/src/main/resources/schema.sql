@@ -28,11 +28,11 @@ CREATE TABLE otp
     primary key (client_id)
 );
 
-
-CREATE TABLE IP(
-    ip VARCHAR(50) PRIMARY KEY,
-    client_id int,
-    name varchar(200),
-    foreign key (client_id) references account(client_id)
+CREATE TABLE device(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    account_id INT NOT NULL,
+    name VARCHAR(200),
+    ip VARCHAR(50) NOT NULL,
+    FOREIGN KEY (account_id) REFERENCES account(client_id)
 );
 

@@ -18,7 +18,6 @@ public class OtpServiceImpl implements OtpService {
     private final OtpRepository otpRepository;
     private final EmailSenderServiceImpl emailSenderService;
 
-
     @Override
     public String generateOneTimePassword(Account account) {
         String OTP = RandomString.make(8);

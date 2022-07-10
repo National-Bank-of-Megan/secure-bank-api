@@ -40,6 +40,13 @@ public class Account implements UserDetails {
     @OneToMany(mappedBy = "account")
     private Set<CurrencyExchange> exchanges;
 
+    @OneToMany(
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Device> accountDevices = new ArrayList<>();
+
 //    @Column
 //    @OneToMany(mappedBy = )
 //    private Set<Transfer> transfers;
@@ -79,6 +86,20 @@ public class Account implements UserDetails {
         if (accountHash != null) {
             this.accountHashList.remove(accountHash);
             accountHash.setAccount(null);
+        }
+    }
+
+    public void addDevice(Device device) {
+        if (device != null) {
+            this.accountDevices.add(device);
+            device.setAccount(this);
+        }
+    }
+
+    public void removeDeice(Device device) {
+        if (device != null) {
+            this.accountDevices.remove(device);
+            device.setAccount(null);
         }
     }
 

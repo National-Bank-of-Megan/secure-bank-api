@@ -88,7 +88,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("Machine trying to access api: " + ipAddress);
 
 //        todo integracja z serwisem urządzeń
-        boolean isNewDevice = false;
+        boolean isNewDevice = true;
 
         Account account = (Account) authResult.getPrincipal();
         if (isNewDevice) {

@@ -11,11 +11,14 @@ import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.JwtAuthenticationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.service.account.AccountService;
+import pl.edu.pw.util.http.HttpRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,9 +34,21 @@ public class WebAuthController {
     private final AccountService accountService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody AccountRegistration registration) {
+    public ResponseEntity<?> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
+        registration.setLocalIp(getLocalIpAddress());
+        registration.setPublicIp(HttpRequestUtils.getClientIpAddressFromRequest(request));
         accountService.registerAccount(registration);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    private String getLocalIpAddress() {
+        String localIp;
+        try {
+            localIp = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            localIp = "UNKNOWN";
+        }
+        return localIp;
     }
 
     @GetMapping("/login/combination")
