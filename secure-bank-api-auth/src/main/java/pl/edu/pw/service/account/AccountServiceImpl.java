@@ -85,6 +85,8 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         tokens.put("access_token", JWTUtil.generateToken(jwtSecret, jwtExpirationTime, account, httpRequest));
         tokens.put("refresh_token", JWTUtil.generateToken(jwtSecret, refreshTokenExpirationTime, account, httpRequest));
 
+        // TODO: add device to trusted ones
+
         return tokens;
     }
 
