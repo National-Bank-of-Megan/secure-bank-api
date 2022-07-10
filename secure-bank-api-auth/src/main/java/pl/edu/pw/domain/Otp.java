@@ -3,7 +3,6 @@ package pl.edu.pw.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.edu.pw.service.otp.OtpService;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,7 +21,7 @@ public class Otp {
     private static final long OTP_VALID_DURATION = 5 * 60 * 1000;   // 5 minutes
 
     @Id
-    private Long clientNumber;
+    private String clientId;
 
     @Column
     private String otp;
@@ -30,8 +29,8 @@ public class Otp {
     @Column
     private Date otpRequestedTime;
 
-    public Otp(Long clientNumber, String otp) {
-        this.clientNumber = clientNumber;
+    public Otp(String clientId, String otp) {
+        this.clientId = clientId;
         this.otp = otp;
         this.otpRequestedTime = new Date();
     }

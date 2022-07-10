@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.auth.logic.PasswordHashesGenerator;
 import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.AccountDetails;
 import pl.edu.pw.domain.AccountHash;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.dto.AccountRegistration;
@@ -54,11 +55,13 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public void registerAccount(AccountRegistration registerData) {
         String rawPassword = registerData.getPassword();
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
-        Set<String> existingAccountsNumbers = accountRepository.findAll().stream().map(Account::getAccountNumber).collect(Collectors.toSet());
-        Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers);
+        List<Account> allAccounts = accountRepository.findAll();
+        Set<String> existingAccountsNumbers = allAccounts.stream().map(Account::getAccountNumber).collect(Collectors.toSet());
+        Set<String> existingClientIds = allAccounts.stream().map(Account::getClientId).collect(Collectors.toSet());
+        Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
         setAccountHashes(accountToRegister, rawPassword);
+        accountToRegister.setAccountDetails(new AccountDetails(null, null, registerData.getEmail(), null));
         accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
-        accountToRegister.setClientNumber(123456L);
         accountRepository.save(accountToRegister);
     }
 
@@ -87,8 +90,6 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         otpService.clearOneTimePassword(account);
         Device device = new Device();
         account.addDevice(device);
-        // Potencjalnie niebezpieczne rozwiązanie - do omówienia
-
         // TODO: add device to trusted ones
     }
 
@@ -113,10 +114,11 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     public static class AccountMapper {
-        public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers) {
+        public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers, Set<String> existingClientIds) {
             return new Account(
-                    existingAccountsNumbers,
-                    registerData.getPassword()
+                existingClientIds,
+                existingAccountsNumbers,
+                registerData.getPassword()
             );
         }
     }

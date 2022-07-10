@@ -23,6 +23,6 @@ public class CurrencyExchange {
     @Column private double amountSold;
 
     @ManyToOne
-    @JoinColumn(name="client_number",nullable=false)
+    @JoinColumn(name="client_id",nullable=false)
     private Account account;
 }

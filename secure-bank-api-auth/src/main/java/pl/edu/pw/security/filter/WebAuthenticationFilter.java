@@ -34,13 +34,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private static final Logger log = LoggerFactory.getLogger(WebAuthenticationFilter.class);
-    private AuthenticationManager authenticationManager;
-    private AccountRepository accountRepository;
-    private AccountHashRepository accountHashRepository;
-    private DevicesServiceImpl devicesService;
-    private SecureRandom random;
-    private OtpService otpService;
-    private EmailSenderServiceImpl emailSenderService;
+    private final AuthenticationManager authenticationManager;
+    private final AccountRepository accountRepository;
+    private final AccountHashRepository accountHashRepository;
+    private final DevicesServiceImpl devicesService;
+    private final SecureRandom random;
+    private final OtpService otpService;
+    private final EmailSenderServiceImpl emailSenderService;
 
     @Value("${jwt.expirationTime}")
     private long jwtExpirationTime;
@@ -71,7 +71,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String clientId, password;
         try {
             Map<String, String> requestMap = new ObjectMapper().readValue(request.getInputStream(), Map.class);
-            clientId = requestMap.get("clientNumber");
+            clientId = requestMap.get("clientId");
             password = requestMap.get("password");
         } catch (IOException e) {
             throw new AuthenticationServiceException(e.getMessage(), e);
@@ -81,7 +81,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
 
         log.info("WebAuthenticationFilter->\tsending JWT. Authentication successful");
         String ipAddress = devicesService.getIpAddress(request);

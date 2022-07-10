@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface OtpRepository extends JpaRepository<Otp,Long> {
-    Optional<Otp> findByClientId(Long clientId);
+    Optional<Otp> findByClientId(String clientId);
     Optional<Otp> findByOtp(String otp);
 }

@@ -22,7 +22,7 @@ public class OtpServiceImpl implements OtpService {
     public String generateOneTimePassword(Account account) {
         String OTP = RandomString.make(8);
 
-        otpRepository.findByClientId(account.getClientNumber())
+        otpRepository.findByClientId(account.getClientId())
                 .ifPresentOrElse(
                         otp -> {
                             otp.setOtp(OTP);
@@ -30,7 +30,7 @@ public class OtpServiceImpl implements OtpService {
                             otpRepository.save(otp);
                         },
                         () -> {
-                            otpRepository.save(new Otp(account.getClientNumber(), OTP, new Date()));
+                            otpRepository.save(new Otp(account.getClientId(), OTP, new Date()));
                         }
                 );
 
@@ -45,7 +45,7 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public void clearOneTimePassword(Account account) {
-        Otp otp = otpRepository.findById(account.getClientNumber()).orElseThrow(
+        Otp otp = otpRepository.findByClientId(account.getClientId()).orElseThrow(
                 () -> new RuntimeException("Otp not found")
         );
         otpRepository.delete(otp);

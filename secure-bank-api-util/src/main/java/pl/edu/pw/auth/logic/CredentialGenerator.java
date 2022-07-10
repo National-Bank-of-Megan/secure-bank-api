@@ -4,30 +4,28 @@ import java.security.SecureRandom;
 import java.util.Set;
 
 public class CredentialGenerator {
-    private static final int ACCOUNT_NUMBER_LENGTH = 26;
 
-
-    public static String generateUniqueAccountNumber(Set<String> existingAccountNumbers) {
+    public static String generateUniqueCredentials(Set<String> existingCredentials, int credentialLength) {
         SecureRandom random = new SecureRandom();
-        String uniqueAccountNumber = null;
-        boolean accountNumberExists = true;
+        String uniqueCredential = null;
+        boolean credentialExists = true;
         do {
-            String accountNumber = generateAccountNumber(random);
-            if (!existingAccountNumbers.contains(accountNumber)) {
-                accountNumberExists = false;
-                uniqueAccountNumber = accountNumber;
+            String credential = generateCredential(random, credentialLength);
+            if (!existingCredentials.contains(credential)) {
+                credentialExists = false;
+                uniqueCredential = credential;
             }
-        } while(accountNumberExists);
+        } while(credentialExists);
 
-        return uniqueAccountNumber;
+        return uniqueCredential;
     }
 
-    private static String generateAccountNumber(SecureRandom random) {
+    private static String generateCredential(SecureRandom random, int credentialLength) {
         int minDigit = 0;
         int maxDigit = 9;
-        StringBuilder accountNumber = new StringBuilder(ACCOUNT_NUMBER_LENGTH);
+        StringBuilder accountNumber = new StringBuilder(credentialLength);
 
-        for (int i = 0; i < ACCOUNT_NUMBER_LENGTH; i++) {
+        for (int i = 0; i < credentialLength; i++) {
             int randomDigit = random.nextInt(minDigit, maxDigit+1);
             accountNumber.append(randomDigit);
         }
