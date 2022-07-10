@@ -84,6 +84,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token", JWTUtil.generateToken(jwtSecret, jwtExpirationTime, account, httpRequest));
         tokens.put("refresh_token", JWTUtil.generateToken(jwtSecret, refreshTokenExpirationTime, account, httpRequest));
+        // Potencjalnie niebezpieczne rozwiązanie - do omówienia
 
         // TODO: add device to trusted ones
 
