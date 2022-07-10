@@ -71,7 +71,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String clientId, password;
         try {
             Map<String, String> requestMap = new ObjectMapper().readValue(request.getInputStream(), Map.class);
-            clientId = requestMap.get("clientId");
+            clientId = requestMap.get("clientNumber");
             password = requestMap.get("password");
         } catch (IOException e) {
             throw new AuthenticationServiceException(e.getMessage(), e);

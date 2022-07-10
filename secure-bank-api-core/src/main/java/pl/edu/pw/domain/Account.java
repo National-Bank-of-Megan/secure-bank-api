@@ -17,9 +17,9 @@ public class Account implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long clientId;
+    private Long clientNumber;
 
-    @Column
+    @Column(unique = true)
     private String accountNumber;
 
     @Column
@@ -56,8 +56,8 @@ public class Account implements UserDetails {
         this.password = encryptedPassword;
     }
 
-    public Account(Long clientId, String password) {
-        this.clientId = clientId;
+    public Account(Long clientNumber, String password) {
+        this.clientNumber = clientNumber;
         this.password = password;
     }
 
@@ -114,7 +114,7 @@ public class Account implements UserDetails {
 
     @Override
     public String getUsername() {
-        return clientId.toString();
+        return clientNumber.toString();
     }
 
     @Override

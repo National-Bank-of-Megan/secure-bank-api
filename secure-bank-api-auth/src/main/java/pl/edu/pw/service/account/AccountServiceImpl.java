@@ -1,5 +1,6 @@
 package pl.edu.pw.service.account;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,7 +58,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers);
         setAccountHashes(accountToRegister, rawPassword);
         accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
-        accountToRegister.setClientId(123456L);
+        accountToRegister.setClientNumber(123456L);
         accountRepository.save(accountToRegister);
     }
 
@@ -74,21 +75,21 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     @Override
-    public Map<String, String> verify(VerifyCodeRequest verifyRequest, HttpServletRequest httpRequest) {
-        otpService.verify(verifyRequest.getCode());
+    public void verify(VerifyCodeRequest verifyRequest, HttpServletRequest httpRequest) {
+        boolean isCodeValid = otpService.verify(verifyRequest.getCode());
+        if (!isCodeValid) {
+            throw new TokenExpiredException("Code has expired");
+        }
 
         Account account = accountRepository.findByClientId(Long.valueOf(verifyRequest.getClientId())).orElseThrow(
                 () -> new UsernameNotFoundException("User not found")
         );
         otpService.clearOneTimePassword(account);
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("access_token", JWTUtil.generateToken(jwtSecret, jwtExpirationTime, account, httpRequest));
-        tokens.put("refresh_token", JWTUtil.generateToken(jwtSecret, refreshTokenExpirationTime, account, httpRequest));
+        Device device = new Device();
+        account.addDevice(device);
         // Potencjalnie niebezpieczne rozwiązanie - do omówienia
 
         // TODO: add device to trusted ones
-
-        return tokens;
     }
 
     @Override
@@ -109,11 +110,6 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         Account account = accountRepository.findByClientId(Long.valueOf(clientId)).orElse(null);
         return account != null ? account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition()
                 : (NO_SUCH_ACCOUNT_MESSAGE + " with client id " + clientId);
-    }
-
-    @Override
-    public Account getAccountLazy(String accountNumber) {
-        return accountRepository.getAccountLazy(accountNumber);
     }
 
     public static class AccountMapper {

@@ -16,7 +16,7 @@ public class AccountHash {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "client_number")
     private Account account;
 
     @Column

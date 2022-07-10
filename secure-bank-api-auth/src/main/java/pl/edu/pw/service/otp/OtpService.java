@@ -7,5 +7,5 @@ public interface OtpService {
     String generateOneTimePassword(Account account);
     void sendOtpEmail(Account account, String otp);
     void clearOneTimePassword(Account account);
-    void verify(String otp);
+    boolean verify(String otp);
 }

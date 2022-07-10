@@ -70,12 +70,12 @@ public class MobileAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
         String token = JWT.create()
-                .withSubject(account.getClientId().toString())
+                .withSubject(account.getClientNumber().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis()+1000*60*60))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
 
-        String refreshToken = JWT.create().withSubject(account.getClientId().toString())
+        String refreshToken = JWT.create().withSubject(account.getClientNumber().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis()+1000*120*60))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);

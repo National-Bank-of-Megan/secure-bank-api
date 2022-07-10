@@ -18,11 +18,11 @@ import java.util.Date;
 @AllArgsConstructor
 @Table
 public class Otp {
-
+    
     private static final long OTP_VALID_DURATION = 5 * 60 * 1000;   // 5 minutes
 
     @Id
-    private Long clientId;
+    private Long clientNumber;
 
     @Column
     private String otp;
@@ -30,8 +30,8 @@ public class Otp {
     @Column
     private Date otpRequestedTime;
 
-    public Otp(Long clientId, String otp) {
-        this.clientId = clientId;
+    public Otp(Long clientNumber, String otp) {
+        this.clientNumber = clientNumber;
         this.otp = otp;
         this.otpRequestedTime = new Date();
     }
@@ -42,7 +42,6 @@ public class Otp {
     }
 
     public boolean isValid(){
-        if(this.otpRequestedTime.getTime() + OTP_VALID_DURATION < System.currentTimeMillis()) return false;
-        return true;
+        return this.otpRequestedTime.getTime() + OTP_VALID_DURATION >= System.currentTimeMillis();
     }
 }

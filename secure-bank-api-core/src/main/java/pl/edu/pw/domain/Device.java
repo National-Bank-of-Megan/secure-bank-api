@@ -26,7 +26,7 @@ public class Device {
     private String ip;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "client_number")
     private Account account;
 
     public Device(String name, String ip) {

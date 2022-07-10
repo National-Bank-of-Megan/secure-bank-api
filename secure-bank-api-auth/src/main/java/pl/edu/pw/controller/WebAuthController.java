@@ -58,8 +58,8 @@ public class WebAuthController {
 
     @PostMapping("/login/verify")
     public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest) {
-        Map<String,String> tokens = accountService.verify(request, httpRequest);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(tokens.get("access_token"),tokens.get("refresh_token")));
+        accountService.verify(request, httpRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/token/refresh")
