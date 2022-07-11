@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 public interface AccountService {
-    void registerAccount(AccountRegistration registerData);
+    String registerAccount(AccountRegistration registerData);
     Account getAccount(String accountNumber);
     String getLoginCombination(String username);
 //    void login (LoginRequest request);

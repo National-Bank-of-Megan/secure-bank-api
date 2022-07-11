@@ -1,5 +1,12 @@
 package pl.edu.pw.service.otp;
 
+import dev.samstevens.totp.code.HashingAlgorithm;
+import dev.samstevens.totp.exceptions.QrGenerationException;
+import dev.samstevens.totp.qr.QrData;
+import dev.samstevens.totp.qr.QrGenerator;
+import dev.samstevens.totp.qr.ZxingPngQrGenerator;
+import dev.samstevens.totp.secret.DefaultSecretGenerator;
+import dev.samstevens.totp.secret.SecretGenerator;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.stereotype.Service;
@@ -10,6 +17,8 @@ import pl.edu.pw.domain.Account;
 
 import java.util.Date;
 
+import static dev.samstevens.totp.util.Utils.getDataUriForImage;
+
 //todo convert ot record
 @RequiredArgsConstructor
 @Service
@@ -17,6 +26,43 @@ public class OtpServiceImpl implements OtpService {
 
     private final OtpRepository otpRepository;
     private final EmailSenderServiceImpl emailSenderService;
+
+    @Override
+    public String generateSecret() {
+        SecretGenerator generator = new DefaultSecretGenerator();
+        return generator.generate();
+    }
+
+    @Override
+    public String getUriForImage(String secret) {
+        QrData data = new QrData.Builder()
+                .label("One Time Password")
+                .secret(secret)
+                .issuer("National-Bank-of-Megan")
+                .algorithm(HashingAlgorithm.SHA1)
+                .digits(6)
+                .period(30)
+                .build();
+
+        QrGenerator generator = new ZxingPngQrGenerator();
+        byte[] imageData = new byte[0];
+
+        try {
+            imageData = generator.generate(data);
+        } catch (QrGenerationException e) {
+            throw new RuntimeException("Could not generate QR code");
+        }
+
+        String mimeType = generator.getImageMimeType();
+
+        String dataUriForImage = getDataUriForImage(imageData, mimeType);
+        return dataUriForImage;
+    }
+
+    @Override
+    public boolean verifyCode(String code, String secret) {
+        return false;
+    }
 
     @Override
     public String generateOneTimePassword(Account account) {

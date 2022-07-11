@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +38,8 @@ public class WebAuthController {
     public ResponseEntity<?> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
         registration.setLocalIp(getLocalIpAddress());
         registration.setPublicIp(HttpRequestUtils.getClientIpAddressFromRequest(request));
-        accountService.registerAccount(registration);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        String qr = accountService.registerAccount(registration);
+        return ResponseEntity.created(URI.create("/register")).body(qr);
     }
 
     private String getLocalIpAddress() {

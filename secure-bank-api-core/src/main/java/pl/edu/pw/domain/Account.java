@@ -28,6 +28,9 @@ public class Account implements UserDetails {
     private String accountNumber;
 
     @Column
+    private String secret;
+
+    @Column
     @NotBlank
     private String password;
 

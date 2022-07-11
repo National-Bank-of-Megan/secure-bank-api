@@ -1,6 +1,7 @@
 CREATE TABLE account
 (
     client_id VARCHAR(16) PRIMARY KEY,
+    secret varchar(),
     current_hash_id INT UNIQUE,
     account_number  VARCHAR(255) NOT NULL UNIQUE,
     password        VARCHAR(255) NOT NULL

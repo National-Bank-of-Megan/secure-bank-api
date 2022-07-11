@@ -52,7 +52,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     private String jwtSecret;
 
     @Override
-    public void registerAccount(AccountRegistration registerData) {
+    public String registerAccount(AccountRegistration registerData) {
         String rawPassword = registerData.getPassword();
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
         List<Account> allAccounts = accountRepository.findAll();
@@ -62,7 +62,10 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         setAccountHashes(accountToRegister, rawPassword);
         accountToRegister.setAccountDetails(new AccountDetails(null, null, registerData.getEmail(), null));
         accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
+        String secret = otpService.generateSecret();
+        accountToRegister.setSecret(secret);
         accountRepository.save(accountToRegister);
+        return otpService.getUriForImage(secret);
     }
 
     private void setAccountHashes(Account accountToRegister, String rawPassword) {

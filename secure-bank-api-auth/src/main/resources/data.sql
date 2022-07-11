@@ -1,7 +1,7 @@
-INSERT INTO ACCOUNT(client_id,password, account_number) values
-                                (123456,'$2a$12$T1jPgI8pJScKKNN6RXdH7uoKtVVU0T8gvjdwykFTrBwsmgiGx1fC2',
-                                                               '141234123412341234');
-
-
-INSERT INTO IP(ip,client_id,name) VALUES
-        ('192.168.100.106',123456,'macbookpro');
+-- INSERT INTO ACCOUNT(client_id,password, account_number) values
+--                                 (123456,'$2a$12$T1jPgI8pJScKKNN6RXdH7uoKtVVU0T8gvjdwykFTrBwsmgiGx1fC2',
+--                                                                '141234123412341234');
+--
+--
+-- INSERT INTO IP(ip,client_id,name) VALUES
+--         ('192.168.100.106',123456,'macbookpro');
