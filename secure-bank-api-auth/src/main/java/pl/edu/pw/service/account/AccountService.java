@@ -12,6 +12,6 @@ public interface AccountService {
     Account getAccount(String accountNumber);
     String getLoginCombination(String username);
 //    void login (LoginRequest request);
-    void verify(VerifyCodeRequest request, HttpServletRequest httpRequest);
+    boolean verify(VerifyCodeRequest request, HttpServletRequest httpRequest);
     Map<String,String> getTokensWithRefreshToken(HttpServletRequest request);
 }

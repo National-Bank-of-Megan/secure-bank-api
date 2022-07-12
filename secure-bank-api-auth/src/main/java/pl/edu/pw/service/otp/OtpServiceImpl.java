@@ -1,12 +1,14 @@
 package pl.edu.pw.service.otp;
 
-import dev.samstevens.totp.code.HashingAlgorithm;
+import dev.samstevens.totp.code.*;
 import dev.samstevens.totp.exceptions.QrGenerationException;
 import dev.samstevens.totp.qr.QrData;
 import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.qr.ZxingPngQrGenerator;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
+import dev.samstevens.totp.time.SystemTimeProvider;
+import dev.samstevens.totp.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.stereotype.Service;
@@ -61,7 +63,11 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public boolean verifyCode(String code, String secret) {
-        return false;
+        TimeProvider timeProvider = new SystemTimeProvider();
+        CodeGenerator codeGenerator = new DefaultCodeGenerator();
+        CodeVerifier verifier = new DefaultCodeVerifier(codeGenerator, timeProvider);
+        boolean isValid = verifier.isValidCode(secret,code);
+        return isValid;
     }
 
     @Override

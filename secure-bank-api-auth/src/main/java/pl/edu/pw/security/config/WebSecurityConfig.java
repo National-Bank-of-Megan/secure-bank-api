@@ -54,7 +54,7 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**").permitAll()
+                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**","/api/web/login/verify/**").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/api/web/register/**").permitAll()
                 .and()

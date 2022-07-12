@@ -1,16 +1,23 @@
 package pl.edu.pw.controller;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.JwtAuthenticationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
+import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AccountService;
+import pl.edu.pw.util.JWTUtil;
 import pl.edu.pw.util.http.HttpRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +38,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class WebAuthController {
 
+    @Value("${jwt.expirationTime}")
+    private long jwtExpirationTime;
+
+    @Value("${refreshToken.expirationTime}")
+    private long refreshTokenExpirationTime;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     private static final Logger log = LoggerFactory.getLogger(WebAuthController.class);
     private final AccountService accountService;
+    private final AccountRepository accountRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
@@ -58,9 +75,19 @@ public class WebAuthController {
     }
 
     @PostMapping("/login/verify")
-    public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest) {
-        accountService.verify(request, httpRequest);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
+
+        if (accountService.verify(request, httpRequest)) {
+            Account account = accountRepository.findByClientId(request.getClientId()).orElse(null);
+            Map<String, String> bodyResponse = new HashMap<>();
+            bodyResponse.put("access_token", JWTUtil.generateToken(jwtSecret, jwtExpirationTime, account, httpRequest));
+            bodyResponse.put("refresh_token", JWTUtil.generateToken(jwtSecret, refreshTokenExpirationTime, account, httpRequest));
+            response.setContentType(APPLICATION_JSON_VALUE);
+            new ObjectMapper().writeValue(response.getOutputStream(), bodyResponse);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @GetMapping("/token/refresh")

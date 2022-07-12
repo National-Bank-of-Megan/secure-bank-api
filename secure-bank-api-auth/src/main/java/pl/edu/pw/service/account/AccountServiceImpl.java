@@ -23,10 +23,7 @@ import pl.edu.pw.util.JWTUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -77,23 +74,25 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Override
     public Account getAccount(String accountNumber) {
-        return accountRepository.findByClientId(Long.valueOf(accountNumber)).orElse(null);
+        return accountRepository.findByClientId(accountNumber).orElse(null);
     }
 
     @Override
-    public void verify(VerifyCodeRequest verifyRequest, HttpServletRequest httpRequest) {
-        boolean isCodeValid = otpService.verify(verifyRequest.getCode());
-        if (!isCodeValid) {
-            throw new TokenExpiredException("Code has expired");
-        }
+    public boolean verify(VerifyCodeRequest verifyRequest, HttpServletRequest httpRequest) {
+//        todo check whether devices are the same (login and verification)
+        Account account  = accountRepository.findByClientId(verifyRequest.getClientId()).orElse(null);
+        if(account == null) return false;
+        else {
+            //      jak bd coś takiego spr. to można dawać komunikaty o podejrzanej aktywności
+            if(!account.isShouldBeVerified()) return  false;
 
-        Account account = accountRepository.findByClientId(Long.valueOf(verifyRequest.getClientId())).orElseThrow(
-                () -> new UsernameNotFoundException("User not found")
-        );
-        otpService.clearOneTimePassword(account);
-        Device device = new Device();
-        account.addDevice(device);
-        // TODO: add device to trusted ones
+            boolean isCodeValid = otpService.verifyCode(verifyRequest.getCode(),account.getSecret());
+            if (!isCodeValid) return false;
+
+            account.setShouldBeVerified(false);
+            accountRepository.save(account);
+            return true;
+        }
     }
 
     @Override
@@ -111,7 +110,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     public String getLoginCombination(String clientId) {
-        Account account = accountRepository.findByClientId(Long.valueOf(clientId)).orElse(null);
+        Account account = accountRepository.findByClientId(clientId).orElse(null);
         return account != null ? account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition()
                 : (NO_SUCH_ACCOUNT_MESSAGE + " with client id " + clientId);
     }
@@ -140,7 +139,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     // TODO: do wywalenia?
     @Override
     public UserDetails loadUserByUsername(String clientId) throws UsernameNotFoundException {
-        return accountRepository.findByClientId(Long.valueOf(clientId)).
+        return accountRepository.findByClientId(clientId).
                 orElseThrow(() -> new UsernameNotFoundException(String.format("Client %s not found", clientId)));
     }
 

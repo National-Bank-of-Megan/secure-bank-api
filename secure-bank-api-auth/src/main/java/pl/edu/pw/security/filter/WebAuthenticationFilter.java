@@ -87,12 +87,14 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String ipAddress = devicesService.getIpAddress(request);
         log.info("Machine trying to access api: " + ipAddress);
 
+        Account account = (Account) authResult.getPrincipal();
+
 //        todo integracja z serwisem urządzeń
         boolean isNewDevice = true;
-
-        Account account = (Account) authResult.getPrincipal();
         if (isNewDevice) {
-            emailSenderService.send(account.getUsername(), otpService.generateOneTimePassword(account));
+            account.setShouldBeVerified(true);
+            accountRepository.save(account);
+            response.setStatus(206);
         } else {
             Account fetchedAccount = accountRepository.findByAccountNumber(account.getAccountNumber()).get();
             List<AccountHash> allByAccountAccountNumber = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
