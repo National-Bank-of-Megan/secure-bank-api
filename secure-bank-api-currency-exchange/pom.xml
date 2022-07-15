@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Secure-bank-api.Exchange</artifactId>
+    <artifactId>secure-bank-api-currency-exchange</artifactId>
     <packaging>jar</packaging>
 
     <properties>

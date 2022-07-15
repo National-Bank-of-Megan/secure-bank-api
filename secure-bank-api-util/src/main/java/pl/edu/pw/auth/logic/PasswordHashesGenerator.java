@@ -5,7 +5,6 @@ import pl.edu.pw.dto.PartPasswordHash;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class PasswordHashesGenerator {
@@ -29,7 +28,7 @@ public class PasswordHashesGenerator {
                         break;
                     }
                 }
-            } while(!uniqueCombination);
+            } while (!uniqueCombination);
 
             StringBuilder partPassword = new StringBuilder();
             for (Integer randomPasswordCharacter : randomPasswordCharacters) {

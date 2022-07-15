@@ -1,9 +1,6 @@
 package pl.edu.pw.service.account;
 
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,14 +16,12 @@ import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.otp.OtpService;
-import pl.edu.pw.util.JWTUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 
 @Service
@@ -38,15 +33,6 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
-
-    @Value("${jwt.expirationTime}")
-    private long jwtExpirationTime;
-
-    @Value("${refreshToken.expirationTime}")
-    private long refreshTokenExpirationTime;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
     @Override
     public String registerAccount(AccountRegistration registerData) {
@@ -80,32 +66,18 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     @Override
     public boolean verify(VerifyCodeRequest verifyRequest, HttpServletRequest httpRequest) {
 //        todo check whether devices are the same (login and verification)
-        Account account  = accountRepository.findByClientId(verifyRequest.getClientId()).orElse(null);
-        if(account == null) return false;
+        Account account = accountRepository.findByClientId(verifyRequest.getClientId()).orElse(null);
+        if (account == null) return false;
         else {
             //      jak bd coś takiego spr. to można dawać komunikaty o podejrzanej aktywności
-            if(!account.isShouldBeVerified()) return  false;
+            if (!account.isShouldBeVerified()) return false;
 
-            boolean isCodeValid = otpService.verifyCode(verifyRequest.getCode(),account.getSecret());
+            boolean isCodeValid = otpService.verifyCode(verifyRequest.getCode(), account.getSecret());
             if (!isCodeValid) return false;
 
             account.setShouldBeVerified(false);
             accountRepository.save(account);
             return true;
-        }
-    }
-
-    @Override
-    public Map<String, String> getTokensWithRefreshToken(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            Account account = (Account) SecurityContextHolder.getContext().getAuthentication();
-            Map<String, String> tokens = new HashMap<>();
-            tokens.put("access_token", JWTUtil.generateToken(jwtSecret, jwtExpirationTime, account, request));
-            tokens.put("refresh_token", JWTUtil.generateToken(jwtSecret, refreshTokenExpirationTime, account, request));
-            return tokens;
-        } else {
-            throw new RuntimeException("There is no \"Bearer\" header in your request.");
         }
     }
 
@@ -118,9 +90,9 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public static class AccountMapper {
         public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers, Set<String> existingClientIds) {
             return new Account(
-                existingClientIds,
-                existingAccountsNumbers,
-                registerData.getPassword()
+                    existingClientIds,
+                    existingAccountsNumbers,
+                    registerData.getPassword()
             );
         }
     }

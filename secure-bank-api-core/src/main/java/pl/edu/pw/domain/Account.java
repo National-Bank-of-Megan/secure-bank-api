@@ -9,7 +9,10 @@ import pl.edu.pw.auth.logic.CredentialGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -31,20 +34,20 @@ public class Account implements UserDetails {
     private String secret;
 
     @Column
-    private boolean shouldBeVerified =false;
+    private boolean shouldBeVerified = false;
 
     @Column
     @NotBlank
     private String password;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL,
-              fetch = FetchType.LAZY, optional = false)
+            fetch = FetchType.LAZY, optional = false)
     private AccountDetails accountDetails;
 
     @OneToMany(
-        mappedBy = "account",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
     private List<AccountHash> accountHashList = new ArrayList<>();
 
@@ -78,8 +81,7 @@ public class Account implements UserDetails {
             if (this.accountDetails != null) {
                 this.accountDetails.setAccount(null);
             }
-        }
-        else {
+        } else {
             accountDetails.setAccount(this);
         }
         this.accountDetails = accountDetails;
@@ -138,7 +140,7 @@ public class Account implements UserDetails {
 
     @Override
     public String getUsername() {
-        return clientId.toString();
+        return clientId;
     }
 
     @Override

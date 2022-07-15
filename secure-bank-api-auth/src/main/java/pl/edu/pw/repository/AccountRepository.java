@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String>, LazyLoadAccountRepository {
     Optional<Account> findByClientId(String clientId);
+
     Optional<Account> findByAccountNumber(String accountNumber);
 }

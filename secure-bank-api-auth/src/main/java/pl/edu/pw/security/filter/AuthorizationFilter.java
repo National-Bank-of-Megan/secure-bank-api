@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.domain.Account;
+import pl.edu.pw.repository.AccountRepository;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,7 +29,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AuthorizationFilter extends OncePerRequestFilter {
     private static final String TOKEN_PREFIX = "Bearer ";
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     @Value("${jwt.secret}")
     private String jwtSecret;

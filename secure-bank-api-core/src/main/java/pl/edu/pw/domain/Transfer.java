@@ -14,7 +14,8 @@ public class Transfer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column private Date orderedOn;
+    @Column
+    private Date orderedOn;
 
     @ManyToOne
 //    @JoinColumn(name="client_id",nullable=false)
@@ -24,8 +25,13 @@ public class Transfer {
 //    @JoinColumn(name="client_id",nullable=false)
     private Account sender;
 
-    @Column private double amount;
-    @Column @Enumerated(EnumType.STRING) private Currency currency;
-    @Column @Enumerated(EnumType.STRING) private TransferType transferType;
+    @Column
+    private double amount;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private TransferType transferType;
 
 }

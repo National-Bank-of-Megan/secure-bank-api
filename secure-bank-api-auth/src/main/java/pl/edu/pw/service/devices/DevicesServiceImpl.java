@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.repository.DeviceRepository;
-import pl.edu.pw.domain.Account;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -33,12 +33,11 @@ public class DevicesServiceImpl implements DevicesService {
     private final DeviceRepository deviceRepository;
 
     @Override
-    public boolean verifyDevice( HttpServletRequest request) {
+    public boolean verifyDevice(HttpServletRequest request) {
         log.info("Veryfing device...");
         String ip = getIpAddress(request);
-        Optional<Device> device= deviceRepository.findByIp(ip);
-        if(device.isPresent()) return true;
-        return false;
+        Optional<Device> device = deviceRepository.findByIp(ip);
+        return device.isPresent();
     }
 
     @Override

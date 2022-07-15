@@ -1,19 +1,14 @@
 package pl.edu.pw.controller;
 
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.AccountRegistration;
-import pl.edu.pw.dto.JwtAuthenticationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AccountService;
@@ -37,15 +32,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("/api/web")
 @RequiredArgsConstructor
 public class WebAuthController {
-
-    @Value("${jwt.expirationTime}")
-    private long jwtExpirationTime;
-
-    @Value("${refreshToken.expirationTime}")
-    private long refreshTokenExpirationTime;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
     private static final Logger log = LoggerFactory.getLogger(WebAuthController.class);
     private final AccountService accountService;
@@ -80,8 +66,9 @@ public class WebAuthController {
         if (accountService.verify(request, httpRequest)) {
             Account account = accountRepository.findByClientId(request.getClientId()).orElse(null);
             Map<String, String> bodyResponse = new HashMap<>();
-            bodyResponse.put("access_token", JWTUtil.generateToken(jwtSecret, jwtExpirationTime, account, httpRequest));
-            bodyResponse.put("refresh_token", JWTUtil.generateToken(jwtSecret, refreshTokenExpirationTime, account, httpRequest));
+            bodyResponse.put("access_token", JWTUtil.getToken(account, httpRequest));
+            bodyResponse.put("refresh_token", JWTUtil.getToken(account, httpRequest));
+            bodyResponse = JWTUtil.getTokensWithRefreshToken(httpRequest);
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), bodyResponse);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -95,7 +82,7 @@ public class WebAuthController {
         Map<String, String> bodyResponse = new HashMap<>();
         response.setContentType(APPLICATION_JSON_VALUE);
         try {
-            bodyResponse = accountService.getTokensWithRefreshToken(request);
+            bodyResponse = JWTUtil.getTokensWithRefreshToken(request);
         } catch (Exception e) {
             response.setStatus(FORBIDDEN.value());
             bodyResponse.put("error_message", e.getMessage());

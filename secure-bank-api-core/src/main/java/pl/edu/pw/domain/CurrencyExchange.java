@@ -17,12 +17,18 @@ public class CurrencyExchange {
     @Column
     private Date orderedOn;
 
-    @Column @Enumerated(EnumType.STRING) private Currency currencyBought;
-    @Column private double amountBought;
-    @Column @Enumerated(EnumType.STRING) private Currency currencySold;
-    @Column private double amountSold;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Currency currencyBought;
+    @Column
+    private double amountBought;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Currency currencySold;
+    @Column
+    private double amountSold;
 
     @ManyToOne
-    @JoinColumn(name="client_id",nullable=false)
+    @JoinColumn(name = "client_id", nullable = false)
     private Account account;
 }

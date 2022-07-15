@@ -17,8 +17,6 @@ import pl.edu.pw.security.filter.AuthorizationFilter;
 import pl.edu.pw.security.filter.MobileAuthenticationFilter;
 import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
-import pl.edu.pw.service.email.EmailSenderServiceImpl;
-import pl.edu.pw.service.otp.OtpService;
 
 @Configuration
 @EnableWebSecurity
@@ -33,10 +31,6 @@ public class WebSecurityConfig {
     private AccountHashRepository accountHashRepository;
     private DevicesServiceImpl devicesService;
 
-    private EmailSenderServiceImpl emailSenderService;
-    private OtpService otpService;
-
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        desktop app processing
@@ -47,14 +41,13 @@ public class WebSecurityConfig {
         MobileAuthenticationFilter mobileAuthenticationFilter = new MobileAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository);
         mobileAuthenticationFilter.setFilterProcessesUrl("/api/mobile/login");
 
-
         http
                 .cors()
                 .and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**","/api/web/login/verify/**").permitAll()
+                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**", "/api/web/login/verify/**").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/api/web/register/**").permitAll()
                 .and()
@@ -76,7 +69,7 @@ public class WebSecurityConfig {
     }
 
     private WebAuthenticationFilter getAuthenticationFilter() throws Exception {
-        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository, devicesService, otpService, emailSenderService);
+        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository, devicesService);
         webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
         webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
         webAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);

@@ -15,7 +15,7 @@ public class CredentialGenerator {
                 credentialExists = false;
                 uniqueCredential = credential;
             }
-        } while(credentialExists);
+        } while (credentialExists);
 
         return uniqueCredential;
     }
@@ -26,7 +26,7 @@ public class CredentialGenerator {
         StringBuilder accountNumber = new StringBuilder(credentialLength);
 
         for (int i = 0; i < credentialLength; i++) {
-            int randomDigit = random.nextInt(minDigit, maxDigit+1);
+            int randomDigit = random.nextInt(minDigit, maxDigit + 1);
             accountNumber.append(randomDigit);
         }
         return accountNumber.toString();

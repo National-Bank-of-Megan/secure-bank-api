@@ -15,12 +15,9 @@ import pl.edu.pw.domain.AccountHash;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
-import pl.edu.pw.service.email.EmailSenderServiceImpl;
-import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.util.JWTUtil;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -39,8 +36,6 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final AccountHashRepository accountHashRepository;
     private final DevicesServiceImpl devicesService;
     private final SecureRandom random;
-    private final OtpService otpService;
-    private final EmailSenderServiceImpl emailSenderService;
 
     @Value("${jwt.expirationTime}")
     private long jwtExpirationTime;
@@ -52,15 +47,12 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private String jwtSecret;
 
     public WebAuthenticationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository,
-                                   AccountHashRepository accountHashRepository, DevicesServiceImpl devicesService,
-                                   OtpService otpService, EmailSenderServiceImpl emailSenderService) {
+                                   AccountHashRepository accountHashRepository, DevicesServiceImpl devicesService) {
 
         this.authenticationManager = authenticationManager;
         this.accountRepository = accountRepository;
         this.accountHashRepository = accountHashRepository;
         this.devicesService = devicesService;
-        this.otpService = otpService;
-        this.emailSenderService = emailSenderService;
         this.random = new SecureRandom();
     }
 
@@ -101,8 +93,8 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             setOtherHashCombination(fetchedAccount, allByAccountAccountNumber);
 
             Map<String, String> tokens = new HashMap<>();
-            tokens.put("access_token", JWTUtil.generateToken(jwtSecret, jwtExpirationTime, account, request));
-            tokens.put("refresh_token", JWTUtil.generateToken(jwtSecret, refreshTokenExpirationTime, account, request));
+            tokens.put("access_token", JWTUtil.getToken(account, request));
+            tokens.put("refresh_token", JWTUtil.getToken(account, request));
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), tokens);
         }
