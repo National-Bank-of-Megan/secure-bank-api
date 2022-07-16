@@ -53,6 +53,10 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Override
     public void registerAccount(AccountRegistration registerData) {
+        if (accountRepository.findByAccountDetailsEmail(registerData.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("This email is already taken.");
+        }
+
         String rawPassword = registerData.getPassword();
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
         List<Account> allAccounts = accountRepository.findAll();

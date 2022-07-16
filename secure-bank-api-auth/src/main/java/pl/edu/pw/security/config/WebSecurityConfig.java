@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.security.filter.AuthorizationFilter;
@@ -20,6 +23,8 @@ import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.service.email.EmailSenderServiceImpl;
 import pl.edu.pw.service.otp.OtpService;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -104,5 +109,18 @@ public class WebSecurityConfig {
 //        webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
         webAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);
         return webAuthenticationFilter;
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept"));
+
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
