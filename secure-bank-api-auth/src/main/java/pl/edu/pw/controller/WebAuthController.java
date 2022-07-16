@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
@@ -36,6 +37,7 @@ public class WebAuthController {
     private static final Logger log = LoggerFactory.getLogger(WebAuthController.class);
     private final AccountService accountService;
     private final AccountRepository accountRepository;
+    private final JWTUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
@@ -66,9 +68,9 @@ public class WebAuthController {
         if (accountService.verify(request, httpRequest)) {
             Account account = accountRepository.findByClientId(request.getClientId()).orElse(null);
             Map<String, String> bodyResponse = new HashMap<>();
-            bodyResponse.put("access_token", JWTUtil.getToken(account, httpRequest));
-            bodyResponse.put("refresh_token", JWTUtil.getToken(account, httpRequest));
-            bodyResponse = JWTUtil.getTokensWithRefreshToken(httpRequest);
+            bodyResponse.put("access_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.ACCESS));
+            bodyResponse.put("refresh_token", jwtUtil.getToken(account, httpRequest,JsonWebTokenType.REFRESH));
+
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), bodyResponse);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -82,7 +84,7 @@ public class WebAuthController {
         Map<String, String> bodyResponse = new HashMap<>();
         response.setContentType(APPLICATION_JSON_VALUE);
         try {
-            bodyResponse = JWTUtil.getTokensWithRefreshToken(request);
+            bodyResponse = jwtUtil.getTokensWithRefreshToken(request);
         } catch (Exception e) {
             response.setStatus(FORBIDDEN.value());
             bodyResponse.put("error_message", e.getMessage());

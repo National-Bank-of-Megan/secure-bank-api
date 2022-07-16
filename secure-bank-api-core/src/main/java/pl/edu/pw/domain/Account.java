@@ -9,10 +9,7 @@ import pl.edu.pw.auth.logic.CredentialGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -54,6 +51,12 @@ public class Account implements UserDetails {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_hash_id")
     private AccountHash currentAuthenticationHash;
+
+
+    @OneToMany(mappedBy = "account")
+    @MapKey(name="currency")
+    private Map<Currency,SubAccount> subAccounts;
+
 
     @Column
     @OneToMany(mappedBy = "account")
@@ -127,6 +130,10 @@ public class Account implements UserDetails {
             this.accountDevices.remove(device);
             device.setAccount(null);
         }
+    }
+
+    public void addSubAccount(Currency currency){
+        this.subAccounts.put(currency,new SubAccount(this,currency));
     }
 
     public void setCurrentAuthenticationHash(AccountHash accountHash) {

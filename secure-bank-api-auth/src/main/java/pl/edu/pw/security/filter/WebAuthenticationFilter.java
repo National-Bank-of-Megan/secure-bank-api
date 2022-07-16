@@ -12,6 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.AccountHash;
+import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
@@ -36,24 +37,18 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final AccountHashRepository accountHashRepository;
     private final DevicesServiceImpl devicesService;
     private final SecureRandom random;
+    private final JWTUtil jwtUtil;
 
-    @Value("${jwt.expirationTime}")
-    private long jwtExpirationTime;
-
-    @Value("${refreshToken.expirationTime}")
-    private long refreshTokenExpirationTime;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
     public WebAuthenticationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository,
-                                   AccountHashRepository accountHashRepository, DevicesServiceImpl devicesService) {
+                                   AccountHashRepository accountHashRepository, DevicesServiceImpl devicesService, JWTUtil jwtUtil) {
 
         this.authenticationManager = authenticationManager;
         this.accountRepository = accountRepository;
         this.accountHashRepository = accountHashRepository;
         this.devicesService = devicesService;
         this.random = new SecureRandom();
+        this.jwtUtil=jwtUtil;
     }
 
     @Override
@@ -94,8 +89,8 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             setOtherHashCombination(fetchedAccount, allByAccountAccountNumber);
 
             Map<String, String> tokens = new HashMap<>();
-            tokens.put("access_token", JWTUtil.getToken(account, request));
-            tokens.put("refresh_token", JWTUtil.getToken(account, request));
+            tokens.put("access_token", jwtUtil.getToken(account, request, JsonWebTokenType.ACCESS));
+            tokens.put("refresh_token", jwtUtil.getToken(account, request,JsonWebTokenType.REFRESH));
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), tokens);
         }

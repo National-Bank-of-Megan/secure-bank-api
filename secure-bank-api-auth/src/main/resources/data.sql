@@ -9,4 +9,7 @@ INSERT INTO ACCOUNT(client_id,password,secret, account_number, current_hash_id) 
     ('12345678','$2a$12$T1jPgI8pJScKKNN6RXdH7uoKtVVU0T8gvjdwykFTrBwsmgiGx1fC2','2IHXSDQ3RJZ2XVJTKSS6U3YQWW5EKFCT','31570775012720354348035486',1);
 
 INSERT INTO ACCOUNT_DETAILS(client_id, first_name, last_name, email, phone) VALUES
-    ('12345678','Megan Thee','Stallion','quuen_megan@email.com','911911911')
+    ('12345678','Megan Thee','Stallion','quuen_megan@email.com','911911911');
+
+INSERT INTO SUB_ACCOUNT (client_id,currency, balance) VALUES
+    ('12345678', 'USD', 1025.25);
