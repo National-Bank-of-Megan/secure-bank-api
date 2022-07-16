@@ -60,7 +60,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         Set<String> existingClientIds = allAccounts.stream().map(Account::getClientId).collect(Collectors.toSet());
         Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
         setAccountHashes(accountToRegister, rawPassword);
-        accountToRegister.setAccountDetails(new AccountDetails(null, null, registerData.getEmail(), null));
+        accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), null));
         accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
         accountRepository.save(accountToRegister);
     }
@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Override
     public Account getAccount(String accountNumber) {
-        return accountRepository.findByClientId(Long.valueOf(accountNumber)).orElse(null);
+        return accountRepository.findById(accountNumber).orElse(null);
     }
 
     @Override

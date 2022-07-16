@@ -1,6 +1,7 @@
 package pl.edu.pw.security.config;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +24,6 @@ import pl.edu.pw.service.otp.OtpService;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@AllArgsConstructor
 public class WebSecurityConfig {
 
     private AuthenticationConfiguration authenticationConfiguration;
@@ -32,9 +32,28 @@ public class WebSecurityConfig {
     private AccountRepository accountRepository;
     private AccountHashRepository accountHashRepository;
     private DevicesServiceImpl devicesService;
-
     private EmailSenderServiceImpl emailSenderService;
     private OtpService otpService;
+
+    public WebSecurityConfig(AuthenticationConfiguration authenticationConfiguration, RestAuthenticationSuccessHandler successHandler, RestAuthenticationFailureHandler failureHandler, AccountRepository accountRepository, AccountHashRepository accountHashRepository, DevicesServiceImpl devicesService, EmailSenderServiceImpl emailSenderService, OtpService otpService) {
+        this.authenticationConfiguration = authenticationConfiguration;
+        this.successHandler = successHandler;
+        this.failureHandler = failureHandler;
+        this.accountRepository = accountRepository;
+        this.accountHashRepository = accountHashRepository;
+        this.devicesService = devicesService;
+        this.emailSenderService = emailSenderService;
+        this.otpService = otpService;
+    }
+
+    @Value("${jwt.expirationTime}")
+    private long jwtExpirationTime;
+
+    @Value("${refreshToken.expirationTime}")
+    private long refreshTokenExpirationTime;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
 
     @Bean
@@ -76,9 +95,13 @@ public class WebSecurityConfig {
     }
 
     private WebAuthenticationFilter getAuthenticationFilter() throws Exception {
-        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository, devicesService, otpService, emailSenderService);
+        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(
+                                authenticationManagerBean(authenticationConfiguration),
+                                accountRepository, accountHashRepository, devicesService, otpService, emailSenderService,
+                                jwtExpirationTime, refreshTokenExpirationTime, jwtSecret);
+
         webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
-        webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
+//        webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
         webAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);
         return webAuthenticationFilter;
     }

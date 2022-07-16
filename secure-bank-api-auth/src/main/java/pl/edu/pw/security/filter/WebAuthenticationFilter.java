@@ -3,7 +3,6 @@ package pl.edu.pw.security.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +19,6 @@ import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.util.JWTUtil;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -42,18 +40,13 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final OtpService otpService;
     private final EmailSenderServiceImpl emailSenderService;
 
-    @Value("${jwt.expirationTime}")
     private long jwtExpirationTime;
-
-    @Value("${refreshToken.expirationTime}")
     private long refreshTokenExpirationTime;
-
-    @Value("${jwt.secret}")
     private String jwtSecret;
 
     public WebAuthenticationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository,
                                    AccountHashRepository accountHashRepository, DevicesServiceImpl devicesService,
-                                   OtpService otpService, EmailSenderServiceImpl emailSenderService) {
+                                   OtpService otpService, EmailSenderServiceImpl emailSenderService, long jwtExpirationTime, long refreshTokenExpirationTime, String jwtSecret) {
 
         this.authenticationManager = authenticationManager;
         this.accountRepository = accountRepository;
@@ -61,6 +54,9 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.devicesService = devicesService;
         this.otpService = otpService;
         this.emailSenderService = emailSenderService;
+        this.jwtExpirationTime = jwtExpirationTime;
+        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+        this.jwtSecret = jwtSecret;
         this.random = new SecureRandom();
     }
 
@@ -88,7 +84,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("Machine trying to access api: " + ipAddress);
 
 //        todo integracja z serwisem urządzeń
-        boolean isNewDevice = true;
+        boolean isNewDevice = false;
 
         Account account = (Account) authResult.getPrincipal();
         if (isNewDevice) {

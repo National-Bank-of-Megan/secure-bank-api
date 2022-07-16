@@ -13,7 +13,7 @@ public class JWTUtil {
 
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes());
         String token = JWT.create()
-                .withSubject(user.getClientId().toString())
+                .withSubject(user.getClientId())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
