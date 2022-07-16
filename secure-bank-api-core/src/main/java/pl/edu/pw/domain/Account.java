@@ -18,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"exchanges","accountDevices"})
 public class Account implements UserDetails {
     private static final int ACCOUNT_NUMBER_LENGTH = 26;
     private static final int CLIENT_ID_LENGTH = 8;
