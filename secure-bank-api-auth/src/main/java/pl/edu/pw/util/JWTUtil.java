@@ -2,6 +2,7 @@ package pl.edu.pw.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Component
+@Data
 @NoArgsConstructor
 public class JWTUtil {
 

@@ -1,6 +1,7 @@
 package service;
 
 import dto.CurrencyExchangeRequest;
+import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
 import pl.edu.pw.domain.SubAccount;
@@ -9,6 +10,7 @@ import pl.edu.pw.util.CurrentUserUtil;
 import java.util.Map;
 import java.util.Set;
 
+@Service
 public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
     @Override

@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+
 public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private static final Logger log = LoggerFactory.getLogger(WebAuthenticationFilter.class);
@@ -78,7 +79,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info(account.getClientId());
 
 //        todo integracja z serwisem urządzeń
-        boolean isNewDevice = true;
+        boolean isNewDevice = false;
         if (isNewDevice) {
             account.setShouldBeVerified(true);
             accountRepository.save(account);
@@ -87,7 +88,6 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             Account fetchedAccount = accountRepository.findByAccountNumber(account.getAccountNumber()).get();
             List<AccountHash> allByAccountAccountNumber = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
             setOtherHashCombination(fetchedAccount, allByAccountAccountNumber);
-
             Map<String, String> tokens = new HashMap<>();
             tokens.put("access_token", jwtUtil.getToken(account, request, JsonWebTokenType.ACCESS));
             tokens.put("refresh_token", jwtUtil.getToken(account, request,JsonWebTokenType.REFRESH));
