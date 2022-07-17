@@ -36,6 +36,9 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Override
     public String registerAccount(AccountRegistration registerData) {
+        if (accountRepository.findByAccountDetailsEmail(registerData.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("This email is already taken.");
+        }
         String rawPassword = registerData.getPassword();
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
         List<Account> allAccounts = accountRepository.findAll();
@@ -43,7 +46,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         Set<String> existingClientIds = allAccounts.stream().map(Account::getClientId).collect(Collectors.toSet());
         Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
         setAccountHashes(accountToRegister, rawPassword);
-        accountToRegister.setAccountDetails(new AccountDetails(null, null, registerData.getEmail(), null));
+        accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), null));
         accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
         String secret = otpService.generateSecret();
         accountToRegister.setSecret(secret);
@@ -60,7 +63,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Override
     public Account getAccount(String accountNumber) {
-        return accountRepository.findByClientId(accountNumber).orElse(null);
+        return accountRepository.findById(accountNumber).orElse(null);
     }
 
     @Override
@@ -90,9 +93,9 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public static class AccountMapper {
         public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers, Set<String> existingClientIds) {
             return new Account(
-                    existingClientIds,
-                    existingAccountsNumbers,
-                    registerData.getPassword()
+                existingClientIds,
+                existingAccountsNumbers,
+                registerData.getPassword()
             );
         }
     }
