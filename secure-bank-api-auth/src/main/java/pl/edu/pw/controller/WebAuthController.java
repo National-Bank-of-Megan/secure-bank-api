@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.dto.AccountRegistration;
+import pl.edu.pw.dto.LoginCombinationDto;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AccountService;
@@ -58,8 +59,9 @@ public class WebAuthController {
     }
 
     @GetMapping("/login/combination")
-    public String getLoginCombination(@Valid @RequestParam String clientId) {
-        return accountService.getLoginCombination(clientId);
+    public LoginCombinationDto getLoginCombination(@Valid @RequestParam String clientId) {
+        String combination = accountService.getLoginCombination(clientId);
+        return new LoginCombinationDto(clientId,combination);
     }
 
     @PostMapping("/login/verify")
