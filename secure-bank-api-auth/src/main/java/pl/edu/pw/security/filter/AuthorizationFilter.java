@@ -68,7 +68,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);
         String accountNumber = decodedJWT.getSubject();
-        Account account = accountRepository.findByClientId(accountNumber).orElseThrow();
+        Account account = accountRepository.findById(accountNumber).orElseThrow();
         return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), null);
     }
 
