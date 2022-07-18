@@ -1,6 +1,8 @@
 package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +17,7 @@ import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.service.otp.OtpService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +33,8 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService, UserDetailsService {
     private static final String NO_SUCH_ACCOUNT_MESSAGE = "No such account";
 
+
+    private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.class);
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
@@ -40,17 +45,29 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
             throw new IllegalArgumentException("This email is already taken.");
         }
         String rawPassword = registerData.getPassword();
+        log.info("Getting raw password");
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
         List<Account> allAccounts = accountRepository.findAll();
+        log.info("getting existsing account numbers");
         Set<String> existingAccountsNumbers = allAccounts.stream().map(Account::getAccountNumber).collect(Collectors.toSet());
+        log.info("getting existsing client ids");
         Set<String> existingClientIds = allAccounts.stream().map(Account::getClientId).collect(Collectors.toSet());
+        log.info("mapping account dto");
         Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
+        log.info("setting password hashes");
         setAccountHashes(accountToRegister, rawPassword);
+
+        log.info("setting account details");
         accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), null));
+        log.info("adding new device");
         accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
+        log.info("generating otp secret");
         String secret = otpService.generateSecret();
+        log.info("setting otp secret");
         accountToRegister.setSecret(secret);
+        log.info("saving account");
         accountRepository.save(accountToRegister);
+        log.info("getting url for qr code image");
         return otpService.getUriForImage(secret);
     }
 
