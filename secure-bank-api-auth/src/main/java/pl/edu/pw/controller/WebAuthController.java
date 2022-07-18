@@ -70,7 +70,7 @@ public class WebAuthController {
     public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
 
         if (accountService.verify(request, httpRequest)) {
-            Account account = accountRepository.findByClientId(request.getClientId()).orElse(null);
+            Account account = accountRepository.findById(request.getClientId()).orElse(null);
             Map<String, String> bodyResponse = new HashMap<>();
             bodyResponse.put("access_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.ACCESS));
             bodyResponse.put("refresh_token", jwtUtil.getToken(account, httpRequest,JsonWebTokenType.REFRESH));
