@@ -15,9 +15,9 @@ import pl.edu.pw.domain.AccountHash;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
+import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.service.otp.OtpService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     private final OtpService otpService;
 
     @Override
-    public String registerAccount(AccountRegistration registerData) {
+    public SuccessfulRegistrationResponse registerAccount(AccountRegistration registerData) {
         if (accountRepository.findByAccountDetailsEmail(registerData.getEmail()).isPresent()) {
             throw new IllegalArgumentException("This email is already taken.");
         }
@@ -66,9 +66,11 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         log.info("setting otp secret");
         accountToRegister.setSecret(secret);
         log.info("saving account");
-        accountRepository.save(accountToRegister);
+        String generatedClientId = accountRepository.save(accountToRegister).getClientId();
         log.info("getting url for qr code image");
-        return otpService.getUriForImage(secret);
+        otpService.getUriForImage(secret);
+        String qrImageUri = otpService.getUriForImage(secret);
+        return new SuccessfulRegistrationResponse(generatedClientId, qrImageUri);
     }
 
     private void setAccountHashes(Account accountToRegister, String rawPassword) {
@@ -86,7 +88,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     @Override
     public boolean verify(VerifyCodeRequest verifyRequest, HttpServletRequest httpRequest) {
 //        todo check whether devices are the same (login and verification)
-        Account account = accountRepository.findByClientId(verifyRequest.getClientId()).orElse(null);
+        Account account = accountRepository.findById(verifyRequest.getClientId()).orElse(null);
         if (account == null) return false;
         else {
             //      jak bd coś takiego spr. to można dawać komunikaty o podejrzanej aktywności
@@ -102,7 +104,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     public String getLoginCombination(String clientId) {
-        Account account = accountRepository.findByClientId(clientId).orElse(null);
+        Account account = accountRepository.findById(clientId).orElse(null);
         return account != null ? account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition()
                 : (NO_SUCH_ACCOUNT_MESSAGE + " with client id " + clientId);
     }
@@ -131,7 +133,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     // TODO: do wywalenia?
     @Override
     public UserDetails loadUserByUsername(String clientId) throws UsernameNotFoundException {
-        return accountRepository.findByClientId(clientId).
+        return accountRepository.findById(clientId).
                 orElseThrow(() -> new UsernameNotFoundException(String.format("Client %s not found", clientId)));
     }
 

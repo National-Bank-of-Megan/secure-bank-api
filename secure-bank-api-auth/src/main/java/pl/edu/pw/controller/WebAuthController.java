@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.dto.AccountRegistration;
+import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.LoginCombinationDto;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
@@ -40,12 +42,12 @@ public class WebAuthController {
     private final AccountRepository accountRepository;
     private final JWTUtil jwtUtil;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
+    @PostMapping(value = "/register", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessfulRegistrationResponse> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
         registration.setLocalIp(getLocalIpAddress());
         registration.setPublicIp(HttpRequestUtils.getClientIpAddressFromRequest(request));
-        String qr = accountService.registerAccount(registration);
-        return ResponseEntity.created(URI.create("/register")).body(qr);
+        SuccessfulRegistrationResponse registerResponseData = accountService.registerAccount(registration);
+        return ResponseEntity.created(URI.create("/register")).body(registerResponseData);
     }
 
     private String getLocalIpAddress() {
