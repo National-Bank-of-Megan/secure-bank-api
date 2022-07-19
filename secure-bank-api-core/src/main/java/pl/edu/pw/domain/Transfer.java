@@ -1,13 +1,16 @@
 package pl.edu.pw.domain;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table
-@Data
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Transfer {
 
     @Id
@@ -15,7 +18,16 @@ public class Transfer {
     private Long id;
 
     @Column
-    private Date orderedOn;
+    private Date requestDate;
+
+    @Column
+    private Date doneDate;
+
+    @Column
+    private Status status;
+
+    @Column
+    private String receiverName;
 
     @ManyToOne
 //    @JoinColumn(name="client_id",nullable=false)
@@ -33,5 +45,4 @@ public class Transfer {
     @Column
     @Enumerated(EnumType.STRING)
     private TransferType transferType;
-
 }
