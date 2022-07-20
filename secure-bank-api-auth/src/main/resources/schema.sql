@@ -26,11 +26,12 @@ CREATE TABLE account_details
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 
-CREATE TABLE sub_account(
+CREATE TABLE sub_account
+(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    client_id VARCHAR(8),
-    currency VARCHAR(3),
-    balance DOUBLE default 0.00,
+    client_id VARCHAR(16) NOT NULL,
+    currency ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
+    balance DOUBLE DEFAULT 0.00,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 
@@ -54,5 +55,22 @@ CREATE TABLE device
     name      VARCHAR(200),
     ip        VARCHAR(50) NOT NULL,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
+);
+
+CREATE TABLE transfer
+(
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    sender_id   VARCHAR(16) NOT NULL,
+    receiver_id VARCHAR(16) NOT NULL,
+    request_date  DATETIME NOT NULL,
+    done_date  DATETIME NOT NULL,
+    amount      DOUBLE   NOT NULL,
+    currency    ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
+    type        ENUM ('CLASSIC', 'MOBILE'),
+    status		ENUM ('PENDING', 'DONE'),
+    FOREIGN KEY (sender_id)
+        REFERENCES account (client_id),
+    FOREIGN KEY (receiver_id)
+        REFERENCES account (client_id)
 );
 

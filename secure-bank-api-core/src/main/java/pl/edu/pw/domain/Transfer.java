@@ -24,25 +24,25 @@ public class Transfer {
     private Date doneDate;
 
     @Column
-    private Status status;
-
-    @Column
-    private String receiverName;
-
-    @ManyToOne
-//    @JoinColumn(name="client_id",nullable=false)
-    private Account receiver;
-
-    @ManyToOne
-//    @JoinColumn(name="client_id",nullable=false)
-    private Account sender;
-
-    @Column
     private double amount;
+
     @Column
     @Enumerated(EnumType.STRING)
     private Currency currency;
+
     @Column
     @Enumerated(EnumType.STRING)
     private TransferType transferType;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @ManyToOne
+    @JoinColumn(name="sender_id")
+    private Account sender;
+
+    @ManyToOne
+    @JoinColumn(name="receiver_id")
+    private Account receiver;
 }

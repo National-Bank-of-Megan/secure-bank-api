@@ -52,11 +52,13 @@ public class Account implements UserDetails {
     @JoinColumn(name = "current_hash_id")
     private AccountHash currentAuthenticationHash;
 
-
-    @OneToMany(mappedBy = "account")
+    @OneToMany(
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @MapKey(name="currency")
-    private Map<Currency,SubAccount> subAccounts;
-
+    private Map<Currency, SubAccount> subAccounts = new HashMap<>();
 
     @Column
     @OneToMany(mappedBy = "account")
@@ -69,9 +71,19 @@ public class Account implements UserDetails {
     )
     private List<Device> accountDevices = new ArrayList<>();
 
-//    @Column
-//    @OneToMany(mappedBy = )
-//    private Set<Transfer> transfers;
+    @OneToMany(
+            mappedBy = "receiver",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Transfer> receiverTransfers = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "sender",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Transfer> senderTransfers = new ArrayList<>();
 
     public Account(Set<String> existingClientIds, Set<String> existingAccountNumbers, String encryptedPassword) {
         this.clientId = generateClientId(existingClientIds);
@@ -132,12 +144,24 @@ public class Account implements UserDetails {
         }
     }
 
-    public void addSubAccount(Currency currency){
-        this.subAccounts.put(currency,new SubAccount(this,currency));
+    public void addSubAccounts(Currency[] currencies) {
+        for (Currency currency : currencies) {
+            addSubAccount(currency);
+        }
+    }
+
+    public void addSubAccount(Currency currency) {
+        this.subAccounts.put(currency, new SubAccount(this, currency));
+        this.subAccounts.get(currency).setAccount(this);
     }
 
     public void setCurrentAuthenticationHash(AccountHash accountHash) {
         this.currentAuthenticationHash = accountHash;
+    }
+
+    public void addCurrencyBalance(Currency currency, double amount) {
+        SubAccount subAccount = this.subAccounts.get(currency);
+        subAccount.addToBalance(amount);
     }
 
     @Override

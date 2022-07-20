@@ -8,7 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.domain.Account;
-import pl.edu.pw.service.account.AccountService;
+import pl.edu.pw.service.account.AuthService;
 
 import java.util.ArrayList;
 
@@ -16,14 +16,14 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final AccountService accountService;
+    private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
-        Account account = accountService.getAccount(name);
+        Account account = authService.getAccount(name);
         if (account != null) {
             String hashedPasswordPart = account.getCurrentAuthenticationHash().getPasswordPart();
             System.out.println(hashedPasswordPart);

@@ -11,15 +11,16 @@ import javax.persistence.*;
 public class SubAccount {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    Account account;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Account account;
 
     @Column
     @Enumerated(EnumType.STRING)
-    Currency currency;
+    private Currency currency;
 
     @Column
     private double balance;
@@ -27,5 +28,11 @@ public class SubAccount {
     public SubAccount(Account account, Currency currency) {
         this.account = account;
         this.currency = currency;
+    }
+
+    public void addToBalance(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
     }
 }

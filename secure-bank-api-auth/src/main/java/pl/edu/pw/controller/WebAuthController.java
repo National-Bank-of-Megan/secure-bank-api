@@ -14,7 +14,7 @@ import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.LoginCombinationDto;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.service.account.AccountService;
+import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.util.JWTUtil;
 import pl.edu.pw.util.http.HttpRequestUtils;
 
@@ -37,7 +37,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class WebAuthController {
 
     private static final Logger log = LoggerFactory.getLogger(WebAuthController.class);
-    private final AccountService accountService;
+    private final AuthService authService;
     private final AccountRepository accountRepository;
     private final JWTUtil jwtUtil;
 
@@ -45,7 +45,7 @@ public class WebAuthController {
     public ResponseEntity<SuccessfulRegistrationResponse> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
         registration.setLocalIp(getLocalIpAddress());
         registration.setPublicIp(HttpRequestUtils.getClientIpAddressFromRequest(request));
-        SuccessfulRegistrationResponse registerResponseData = accountService.registerAccount(registration);
+        SuccessfulRegistrationResponse registerResponseData = authService.registerAccount(registration);
         return ResponseEntity.created(URI.create("/register")).body(registerResponseData);
     }
 
@@ -61,14 +61,14 @@ public class WebAuthController {
 
     @GetMapping("/login/combination")
     public LoginCombinationDto getLoginCombination(@Valid @RequestParam String clientId) {
-        String combination = accountService.getLoginCombination(clientId);
+        String combination = authService.getLoginCombination(clientId);
         return new LoginCombinationDto(clientId,combination);
     }
 
     @PostMapping("/login/verify")
     public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
 
-        if (accountService.verify(request, httpRequest)) {
+        if (authService.verify(request, httpRequest)) {
             Account account = accountRepository.findById(request.getClientId()).orElse(null);
             Map<String, String> bodyResponse = new HashMap<>();
             bodyResponse.put("access_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.ACCESS));

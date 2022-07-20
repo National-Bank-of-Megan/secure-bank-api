@@ -1,18 +1,13 @@
 package pl.edu.pw.service.account;
 
 import pl.edu.pw.domain.Account;
-import pl.edu.pw.dto.AccountRegistration;
-import pl.edu.pw.dto.SuccessfulRegistrationResponse;
-import pl.edu.pw.dto.VerifyCodeRequest;
+import pl.edu.pw.dto.AccountCurrencyBalance;
+import pl.edu.pw.dto.AddCurrency;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public interface AccountService {
-    SuccessfulRegistrationResponse registerAccount(AccountRegistration registerData);
+    void addCurrencyBalance(Account account, AddCurrency addCurrency);
 
-    Account getAccount(String accountNumber);
-
-    String getLoginCombination(String username);
-
-    boolean verify(VerifyCodeRequest request, HttpServletRequest httpRequest);
+    List<AccountCurrencyBalance> getAccountCurrenciesBalance(Account account);
 }
