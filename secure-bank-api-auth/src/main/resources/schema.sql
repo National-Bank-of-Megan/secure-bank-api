@@ -28,12 +28,21 @@ CREATE TABLE account_details
 
 CREATE TABLE sub_account
 (
-    id INT AUTO_INCREMENT PRIMARY KEY,
     client_id VARCHAR(16) NOT NULL,
     currency ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
     balance DOUBLE DEFAULT 0.00,
-    FOREIGN KEY (client_id) REFERENCES account (client_id)
+    FOREIGN KEY (client_id) REFERENCES account (client_id),
+    PRIMARY KEY (client_id,currency)
 );
+
+-- CREATE TABLE ACCOUNT_SUB_ACCOUNT(
+--     client_id VARCHAR(16) NOT NULL,
+--     sub_account_id INT NOT NULL,
+--     FOREIGN KEY (client_id) REFERENCES account (client_id),
+--     FOREIGN KEY (sub_account_id) REFERENCES sub_account (id),
+--     primary key (client_id,sub_account_id)
+--
+-- );
 
 CREATE TABLE account_hash
 (

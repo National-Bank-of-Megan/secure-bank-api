@@ -13,3 +13,4 @@ INSERT INTO ACCOUNT_DETAILS(client_id, first_name, last_name, email, phone) VALU
 
 INSERT INTO SUB_ACCOUNT (client_id,currency, balance) VALUES
     ('12345678', 'USD', 1025.25);
+

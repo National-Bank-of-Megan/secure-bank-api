@@ -3,6 +3,9 @@ package pl.edu.pw.domain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.IndexColumn;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.edu.pw.auth.logic.CredentialGenerator;
@@ -15,7 +18,7 @@ import java.util.*;
 @NoArgsConstructor
 @Entity
 @Table
-@EqualsAndHashCode(exclude = {"exchanges","accountDevices"})
+@EqualsAndHashCode(exclude = {"exchanges","accountDevices","subAccounts"})
 public class Account implements UserDetails {
     private static final int ACCOUNT_NUMBER_LENGTH = 26;
     private static final int CLIENT_ID_LENGTH = 8;
@@ -52,13 +55,20 @@ public class Account implements UserDetails {
     @JoinColumn(name = "current_hash_id")
     private AccountHash currentAuthenticationHash;
 
-    @OneToMany(
-            mappedBy = "account",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    @MapKey(name="currency")
-    private Map<Currency, SubAccount> subAccounts = new HashMap<>();
+//    unidirectional relationship
+//    @OneToMany(
+//            orphanRemoval = (true),
+//            mappedBy = "id.clientId",
+//            fetch = FetchType.EAGER
+//    )
+
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.clientId")
+//    @JoinTable(name = "account_sub_accounts",
+//            joinColumns = {@JoinColumn(name = "clientId", referencedColumnName = "clientId")},
+//            inverseJoinColumns = {@JoinColumn(name = "id", referencedColumnName = "client_id")})
+    @MapKey(name = "id.currency")
+    private Map<Currency,SubAccount> subAccounts = new HashMap<>();
 
     @Column
     @OneToMany(mappedBy = "account")
@@ -151,8 +161,8 @@ public class Account implements UserDetails {
     }
 
     public void addSubAccount(Currency currency) {
-        this.subAccounts.put(currency, new SubAccount(this, currency));
-        this.subAccounts.get(currency).setAccount(this);
+        this.subAccounts.put(currency, new SubAccount(new SubAccountId(this, currency),0.00));
+        this.subAccounts.get(currency).setId(new SubAccountId(this,currency));
     }
 
     public void setCurrentAuthenticationHash(AccountHash accountHash) {

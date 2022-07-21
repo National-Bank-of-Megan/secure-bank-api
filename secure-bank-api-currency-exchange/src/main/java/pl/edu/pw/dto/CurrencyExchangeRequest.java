@@ -1,4 +1,4 @@
-package dto;
+package pl.edu.pw.dto;
 
 import com.sun.istack.NotNull;
 import lombok.Data;
@@ -18,7 +18,8 @@ public class CurrencyExchangeRequest {
 
     @NotNull
 //    x sold = 1 bought
-    private String exchangeRate;
+//    if exchangeRate != CurrencyAPI.getRateOnTime(exchangeTime) -> block account for fraud
+    private double exchangeRate;
 
     @NotNull
     private Date exchangeTime;

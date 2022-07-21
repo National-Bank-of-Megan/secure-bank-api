@@ -1,12 +1,11 @@
-package controller;
+package pl.edu.pw.controller;
 
-import dto.CurrencyExchangeRequest;
+import pl.edu.pw.dto.CurrencyExchangeRequest;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import service.CurrencyExchangeService;
+import pl.edu.pw.service.CurrencyExchangeService;
 
 @RestController
 @RequestMapping(path="/api/exchange")
@@ -16,8 +15,8 @@ public class CurrencyExchangeController {
     private  CurrencyExchangeService currencyExchangeService;
 
     @PostMapping("/")
-    public ResponseEntity exchangeCurrency(){
-        currencyExchangeService.exchangeCurrency(new CurrencyExchangeRequest());
+    public ResponseEntity exchangeCurrency(@RequestBody CurrencyExchangeRequest request){
+        currencyExchangeService.exchangeCurrency(request);
         return new ResponseEntity(HttpStatus.OK);
     }
 

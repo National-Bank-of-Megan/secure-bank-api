@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         Set<String> existingAccountsNumbers = allAccounts.stream().map(Account::getAccountNumber).collect(Collectors.toSet());
         log.info("getting existsing client ids");
         Set<String> existingClientIds = allAccounts.stream().map(Account::getClientId).collect(Collectors.toSet());
-        log.info("mapping account dto");
+        log.info("mapping account pl.edu.pw.dto");
         Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
         log.info("setting password hashes");
         setAccountHashes(accountToRegister, rawPassword);

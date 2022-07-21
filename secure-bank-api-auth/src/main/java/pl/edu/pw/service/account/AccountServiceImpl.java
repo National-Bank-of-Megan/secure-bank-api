@@ -32,18 +32,18 @@ public class AccountServiceImpl implements AccountService {
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Currency " + addCurrency.getCurrency() + " not found.");
         }
-        account.addCurrencyBalance(currency, addCurrency.getAmount());
+//        account.addCurrencyBalance(currency, addCurrency.getAmount());
     }
 
     @Override
     public List<AccountCurrencyBalance> getAccountCurrenciesBalance(Account account) {
         List<AccountCurrencyBalance> accountCurrencyBalanceList = new ArrayList<>();
-        Map<Currency, SubAccount> accountSubAccounts = account.getSubAccounts();
-        for (Currency currency : accountSubAccounts.keySet()) {
-            String currencyName = currency.name();
-            double balance = accountSubAccounts.get(currency).getBalance();
-            accountCurrencyBalanceList.add(new AccountCurrencyBalance(currencyName, balance));
-        }
+//        Map<Currency, SubAccount> accountSubAccounts = account.getSubAccounts();
+//        for (Currency currency : accountSubAccounts.keySet()) {
+//            String currencyName = currency.name();
+//            double balance = accountSubAccounts.get(currency).getBalance();
+//            accountCurrencyBalanceList.add(new AccountCurrencyBalance(currencyName, balance));
+//        }
         return accountCurrencyBalanceList;
     }
 }
