@@ -26,9 +26,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         Account account = authService.getAccount(name);
         if (account != null) {
             String hashedPasswordPart = account.getCurrentAuthenticationHash().getPasswordPart();
-            System.out.println(hashedPasswordPart);
-//            if (passwordEncoder.matches(password, hashedPasswordPart)) {
-            if (passwordEncoder.matches(password, account.getPassword())) { // temporary for easier testing
+            if (passwordEncoder.matches(password, hashedPasswordPart)) {
                 return new UsernamePasswordAuthenticationToken(account, new ArrayList<>());
             }
         }
