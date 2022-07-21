@@ -1,5 +1,6 @@
 package pl.edu.pw.service.account;
 
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
+import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.otp.OtpService;
 
@@ -103,9 +105,10 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     }
 
     public String getLoginCombination(String clientId) {
-        Account account = accountRepository.findById(clientId).orElse(null);
-        return account != null ? account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition()
-                : (NO_SUCH_ACCOUNT_MESSAGE + " with client id " + clientId);
+        Account account = accountRepository.findById(clientId).
+                orElseThrow(() -> new ResourceNotFoundException(NO_SUCH_ACCOUNT_MESSAGE + " with client id " + clientId));
+
+        return account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition();
     }
 
     public static class AccountMapper {
