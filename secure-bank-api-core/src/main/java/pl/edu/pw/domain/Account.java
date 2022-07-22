@@ -63,7 +63,7 @@ public class Account implements UserDetails {
 //    )
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.clientId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.clientId",fetch = FetchType.EAGER)
 //    @JoinTable(name = "account_sub_accounts",
 //            joinColumns = {@JoinColumn(name = "clientId", referencedColumnName = "clientId")},
 //            inverseJoinColumns = {@JoinColumn(name = "id", referencedColumnName = "client_id")})

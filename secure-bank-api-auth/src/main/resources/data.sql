@@ -12,5 +12,9 @@ INSERT INTO ACCOUNT_DETAILS(client_id, first_name, last_name, email, phone) VALU
     ('12345678','Megan Thee','Stallion','quuen_megan@email.com','911911911');
 
 INSERT INTO SUB_ACCOUNT (client_id,currency, balance) VALUES
-    ('12345678', 'USD', 1025.25);
+    ('12345678', 'USD', 1025.25),
+    ('12345678', 'PLN', 1025.25),
+    ('12345678', 'CHF', 1025.25),
+    ('12345678', 'EUR', 1025.25),
+    ('12345678', 'GBP', 1025.25);
 

@@ -9,12 +9,14 @@ import pl.edu.pw.dto.CurrencyExchangeRequest;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.SubAccount;
+import pl.edu.pw.exception.ExternalApiException;
+import pl.edu.pw.exception.InvalidCurrencyException;
+import pl.edu.pw.exception.SubAccountBalanceException;
 import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.SubAccountRepository;
-import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.util.CurrentUserUtil;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Map;
 
 @Service
@@ -27,27 +29,53 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     @Override
     public void exchangeCurrency(CurrencyExchangeRequest request) {
         Account user = CurrentUserUtil.getCurrentUser();
-        log.info("Current client: ", user.getClientId());
+        Map<Currency, SubAccount> subAccounts = user.getSubAccounts();
+        Currency currencySold;
+        Currency currencyBought;
+        try {
+            currencyBought = Currency.valueOf(request.getCurrencyBought());
+            currencySold = Currency.valueOf(request.getCurrencySold());
+        } catch (Exception e) {
+            throw new InvalidCurrencyException("Invalid currency provided");
+        }
 
-//        todo delete, only temporary helper
-        List<SubAccount> subAccounts = user.getSubAccounts();
-        subAccounts.forEach((a) -> {
-            log.info("Subaccount: ", a.getId().getCurrency());
-        });
-//        =================================================
-
+//        check whether sub accounts exist
         SubAccount soldSubAccount =
-                subAccountRepository.findById(new SubAccountId(user, Currency.valueOf(request.getCurrencySold()))).orElseThrow(
-                        () -> new SubAccountNotFoundException("You are trying to sell currency form sub account that does not exists")
+                subAccountRepository.findById(new SubAccountId(user, currencySold)).orElseThrow(
+                        () -> new SubAccountNotFoundException("You are trying to sell currency from sub account that does not exists")
                 );
 
-        SubAccount boughtSubAccount = subAccountRepository.findById(new SubAccountId(user, Currency.valueOf(request.getCurrencyBought()))).orElseGet(
-                ()-> createNewSubAccount(user, Currency.valueOf(request.getCurrencyBought()))
-                );
+        SubAccount boughtSubAccount = subAccountRepository.findById(new SubAccountId(user, currencyBought)).orElseGet(
+                () -> createNewSubAccount(user, Currency.valueOf(request.getCurrencyBought()))
+        );
+
+        //        check if there is enough money to be sold and delete from balance
+        SubAccount sellingSubAccount = subAccounts.get(currencySold);
+        double balance = sellingSubAccount.getBalance();
+        if (balance < request.getSold())
+            throw new SubAccountBalanceException("Not enough money on the " + request.getCurrencySold() + " sub account");
+        sellingSubAccount.setBalance(balance - request.getSold());
+
+        double bought;
+        try {
+            bought = ExternalCurrencyApiUtil.exchangeCurrency(currencySold,request.getSold(),request.getExchangeTime(),currencyBought);
+        } catch (IOException e) {
+            throw new ExternalApiException();
+        }
+
+////        Add bought money to another sub account
+        SubAccount buyingSubAccount = subAccounts.get(Currency.valueOf(request.getCurrencyBought()));
+        buyingSubAccount.addToBalance(bought);
+        subAccountRepository.save(buyingSubAccount);
+        subAccountRepository.save(sellingSubAccount);
+
+//        add to exchange to history
 
 
-//        check if user has enough given currency to sell
-//        if(subAccounts.)
+
+
+
+
 
 
     }
