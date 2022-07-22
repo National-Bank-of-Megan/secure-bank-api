@@ -1,10 +1,11 @@
 DROP TABLE IF EXISTS DEVICE;
 DROP TABLE IF EXISTS TRANSFER;
-DROP TABLE IF EXISTS CURRENCY_EXCHANGE;
 DROP TABLE IF EXISTS ACCOUNT_DETAILS;
 DROP TABLE IF EXISTS SUB_ACCOUNT;
+DROP TABLE IF EXISTS CURRENCY_EXCHANGE;
 DROP TABLE IF EXISTS ACCOUNT;
 DROP TABLE IF EXISTS ACCOUNT_HASH;
+
 
 CREATE TABLE account
 (
@@ -81,5 +82,17 @@ CREATE TABLE transfer
         REFERENCES account (client_id),
     FOREIGN KEY (receiver_id)
         REFERENCES account (client_id)
+);
+
+CREATE TABLE currency_exchange(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    client_id VARCHAR(16),
+    ordered_on DATETIME,
+    currency_bought ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
+    currency_sold ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
+    amount_bought DOUBLE,
+    amount_sold DOUBLE,
+    FOREIGN KEY (client_id) REFERENCES account (client_id)
+
 );
 

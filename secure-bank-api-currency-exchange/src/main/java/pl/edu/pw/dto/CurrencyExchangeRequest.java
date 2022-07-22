@@ -4,7 +4,8 @@ import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.sql.Date;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Data
@@ -17,8 +18,7 @@ public class CurrencyExchangeRequest {
     private String currencySold;
 
     @NotNull
-    private Date exchangeTime;
-
+    private LocalDateTime exchangeTime;
 
     @NotNull
     private double sold;
