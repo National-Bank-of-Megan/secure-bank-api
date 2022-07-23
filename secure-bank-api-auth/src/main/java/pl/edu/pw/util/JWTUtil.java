@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 @Component
 @Data
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class JWTUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    public  String getToken(Account user, HttpServletRequest request, JsonWebTokenType type) {
+    public String getToken(Account user, HttpServletRequest request, JsonWebTokenType type) {
 
         Algorithm algorithm = Algorithm.HMAC256(this.jwtSecret.getBytes());
 
@@ -42,13 +43,13 @@ public class JWTUtil {
         return token;
     }
 
-    public  Map<String, String> getTokensWithRefreshToken(HttpServletRequest request) {
+    public Map<String, String> getTokensWithRefreshToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             Account account = (Account) SecurityContextHolder.getContext().getAuthentication();
             Map<String, String> tokens = new HashMap<>();
-            tokens.put("access_token", this.getToken(account, request,JsonWebTokenType.ACCESS));
-            tokens.put("refresh_token", this.getToken(account, request,JsonWebTokenType.REFRESH));
+            tokens.put("access_token", this.getToken(account, request, JsonWebTokenType.ACCESS));
+            tokens.put("refresh_token", this.getToken(account, request, JsonWebTokenType.REFRESH));
             return tokens;
         } else {
             throw new RuntimeException("There is no \"Bearer\" header in your request.");

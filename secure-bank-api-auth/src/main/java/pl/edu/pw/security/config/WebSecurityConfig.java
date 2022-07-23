@@ -42,7 +42,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        desktop app processing
         WebAuthenticationFilter webAuthenticationFilter = getAuthenticationFilter();
-        AuthorizationFilter authorizationFilter = new AuthorizationFilter(accountRepository,jwtUtil.getJwtSecret());
+        AuthorizationFilter authorizationFilter = new AuthorizationFilter(accountRepository, jwtUtil.getJwtSecret());
 
 //        mobile app processing
         MobileAuthenticationFilter mobileAuthenticationFilter = new MobileAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository);

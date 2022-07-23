@@ -29,11 +29,11 @@ CREATE TABLE account_details
 
 CREATE TABLE sub_account
 (
-    client_id VARCHAR(16) NOT NULL,
-    currency ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
-    balance DOUBLE DEFAULT 0.00,
+    client_id VARCHAR(16)                              NOT NULL,
+    currency  ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
+    balance   DOUBLE DEFAULT 0.00,
     FOREIGN KEY (client_id) REFERENCES account (client_id),
-    PRIMARY KEY (client_id,currency)
+    PRIMARY KEY (client_id, currency)
 );
 
 -- CREATE TABLE ACCOUNT_SUB_ACCOUNT(
@@ -69,29 +69,30 @@ CREATE TABLE device
 
 CREATE TABLE transfer
 (
-    id          INT PRIMARY KEY AUTO_INCREMENT,
-    sender_id   VARCHAR(16) NOT NULL,
-    receiver_id VARCHAR(16) NOT NULL,
-    request_date  DATETIME NOT NULL,
-    done_date  DATETIME NOT NULL,
-    amount      DOUBLE   NOT NULL,
-    currency    ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
-    type        ENUM ('CLASSIC', 'MOBILE'),
-    status		ENUM ('PENDING', 'DONE'),
+    id           INT PRIMARY KEY AUTO_INCREMENT,
+    sender_id    VARCHAR(16) NOT NULL,
+    receiver_id  VARCHAR(16) NOT NULL,
+    request_date DATETIME    NOT NULL,
+    done_date    DATETIME    NOT NULL,
+    amount       DOUBLE      NOT NULL,
+    currency     ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
+    type         ENUM ('CLASSIC', 'MOBILE'),
+    status       ENUM ('PENDING', 'DONE'),
     FOREIGN KEY (sender_id)
         REFERENCES account (client_id),
     FOREIGN KEY (receiver_id)
         REFERENCES account (client_id)
 );
 
-CREATE TABLE currency_exchange(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    client_id VARCHAR(16),
-    ordered_on DATETIME,
+CREATE TABLE currency_exchange
+(
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    client_id       VARCHAR(16),
+    ordered_on      DATETIME,
     currency_bought ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
-    currency_sold ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
-    amount_bought DOUBLE,
-    amount_sold DOUBLE,
+    currency_sold   ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
+    amount_bought   DOUBLE,
+    amount_sold     DOUBLE,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 
 );

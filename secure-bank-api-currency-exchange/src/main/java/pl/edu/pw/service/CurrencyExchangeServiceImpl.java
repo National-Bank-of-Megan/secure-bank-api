@@ -3,9 +3,10 @@ package pl.edu.pw.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.edu.pw.domain.*;
-import pl.edu.pw.dto.CurrencyExchangeRequest;
 import org.springframework.stereotype.Service;
+import pl.edu.pw.domain.*;
+import pl.edu.pw.dto.CurrencyExchangeDto;
+import pl.edu.pw.dto.CurrencyExchangeRequest;
 import pl.edu.pw.exception.ExternalApiException;
 import pl.edu.pw.exception.InvalidCurrencyException;
 import pl.edu.pw.exception.SubAccountBalanceException;
@@ -15,8 +16,9 @@ import pl.edu.pw.repository.SubAccountRepository;
 import pl.edu.pw.util.CurrentUserUtil;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +60,7 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
         double bought;
         try {
-            bought = ExternalCurrencyApiUtil.exchangeCurrency(currencySold,request.getSold(),request.getExchangeTime(),currencyBought);
+            bought = ExternalCurrencyApiUtil.exchangeCurrency(currencySold, request.getSold(), request.getExchangeTime(), currencyBought);
         } catch (IOException e) {
             throw new ExternalApiException();
         }
@@ -82,9 +84,25 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
         currencyExchangeRepository.save(exchange);
     }
 
+    @Override
+    public List<CurrencyExchangeDto> getUserExchanges() {
+        Account user = CurrentUserUtil.getCurrentUser();
+        return user.getExchanges().stream().map(CurrencyExchangeServiceImpl::map).collect(Collectors.toList());
+    }
+
     private SubAccount createNewSubAccount(Account account, Currency currency) {
         SubAccount newSubAccount = new SubAccount(new SubAccountId(account, currency), 0.00);
         subAccountRepository.save(newSubAccount);
         return newSubAccount;
+    }
+
+    private static CurrencyExchangeDto map(CurrencyExchange currencyExchange) {
+        return new CurrencyExchangeDto(
+                currencyExchange.getOrderedOn(),
+                currencyExchange.getCurrencyBought().toString(),
+                currencyExchange.getAmountBought(),
+                currencyExchange.getCurrencySold().toString(),
+                currencyExchange.getAmountSold()
+        );
     }
 }

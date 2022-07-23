@@ -1,6 +1,5 @@
 package pl.edu.pw.service.account;
 
-import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,9 +113,9 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     public static class AccountMapper {
         public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers, Set<String> existingClientIds) {
             return new Account(
-                existingClientIds,
-                existingAccountsNumbers,
-                registerData.getPassword()
+                    existingClientIds,
+                    existingAccountsNumbers,
+                    registerData.getPassword()
             );
         }
     }

@@ -48,7 +48,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.accountHashRepository = accountHashRepository;
         this.devicesService = devicesService;
         this.random = new SecureRandom();
-        this.jwtUtil=jwtUtil;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             setOtherHashCombination(fetchedAccount, allByAccountAccountNumber);
             Map<String, String> tokens = new HashMap<>();
             tokens.put("access_token", jwtUtil.getToken(account, request, JsonWebTokenType.ACCESS));
-            tokens.put("refresh_token", jwtUtil.getToken(account, request,JsonWebTokenType.REFRESH));
+            tokens.put("refresh_token", jwtUtil.getToken(account, request, JsonWebTokenType.REFRESH));
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), tokens);
         }

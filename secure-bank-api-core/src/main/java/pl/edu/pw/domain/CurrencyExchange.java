@@ -1,11 +1,9 @@
 package pl.edu.pw.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +16,7 @@ public class CurrencyExchange {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="ordered_on")
+    @Column(name = "ordered_on")
     private LocalDateTime orderedOn;
 
     @Column
@@ -35,7 +33,7 @@ public class CurrencyExchange {
     @Column
     private double amountSold;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Account account;
 

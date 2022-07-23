@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
-import pl.edu.pw.domain.SubAccount;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AddCurrency;
 import pl.edu.pw.repository.AccountRepository;
@@ -12,7 +11,6 @@ import pl.edu.pw.repository.AccountRepository;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.dto.AccountRegistration;
-import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.LoginCombinationDto;
+import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AuthService;
@@ -62,7 +62,7 @@ public class WebAuthController {
     @GetMapping("/login/combination")
     public LoginCombinationDto getLoginCombination(@Valid @RequestParam String clientId) {
         String combination = authService.getLoginCombination(clientId);
-        return new LoginCombinationDto(clientId,combination);
+        return new LoginCombinationDto(clientId, combination);
     }
 
     @PostMapping("/login/verify")
@@ -72,7 +72,7 @@ public class WebAuthController {
             Account account = accountRepository.findById(request.getClientId()).orElse(null);
             Map<String, String> bodyResponse = new HashMap<>();
             bodyResponse.put("access_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.ACCESS));
-            bodyResponse.put("refresh_token", jwtUtil.getToken(account, httpRequest,JsonWebTokenType.REFRESH));
+            bodyResponse.put("refresh_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.REFRESH));
 
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), bodyResponse);

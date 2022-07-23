@@ -1,6 +1,9 @@
 package pl.edu.pw.domain;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -39,10 +42,10 @@ public class Transfer {
     private Status status;
 
     @ManyToOne
-    @JoinColumn(name="sender_id")
+    @JoinColumn(name = "sender_id")
     private Account sender;
 
     @ManyToOne
-    @JoinColumn(name="receiver_id")
+    @JoinColumn(name = "receiver_id")
     private Account receiver;
 }

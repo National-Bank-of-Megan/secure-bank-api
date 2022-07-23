@@ -3,7 +3,6 @@ package pl.edu.pw.service;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.pw.domain.Currency;
@@ -13,8 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Date;
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 
 public class ExternalCurrencyApiUtil {
@@ -24,7 +21,7 @@ public class ExternalCurrencyApiUtil {
     public static double exchangeCurrency(Currency currencySold, double amountSold, LocalDateTime time, Currency currencyBought) throws IOException {
 
 //        connect
-        String url_str = "https://api.exchangerate.host/convert?from="+currencySold+"&to="+currencyBought+"&date="+time;
+        String url_str = "https://api.exchangerate.host/convert?from=" + currencySold + "&to=" + currencyBought + "&date=" + time;
         URL url = new URL(url_str);
         HttpURLConnection request = (HttpURLConnection) url.openConnection();
         request.connect();
@@ -35,7 +32,7 @@ public class ExternalCurrencyApiUtil {
 
         String req_result = jsonobj.get("result").getAsString();
         double bought = Double.valueOf(req_result) * amountSold;
-        log.info("Selling "+amountSold+currencySold+" for "+bought+currencyBought);
+        log.info("Selling " + amountSold + currencySold + " for " + bought + currencyBought);
 
         return bought;
     }

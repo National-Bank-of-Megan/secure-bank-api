@@ -5,7 +5,7 @@ import pl.edu.pw.domain.Account;
 
 public class CurrentUserUtil {
 
-    public static Account getCurrentUser(){
+    public static Account getCurrentUser() {
         return (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

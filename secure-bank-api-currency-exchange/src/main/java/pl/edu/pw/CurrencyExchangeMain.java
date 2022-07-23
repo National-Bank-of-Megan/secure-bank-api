@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CurrencyExchangeMain {
 
     public static void main(String[] args) {
-        SpringApplication.run(CurrencyExchangeMain.class,args);
+        SpringApplication.run(CurrencyExchangeMain.class, args);
     }
 }
