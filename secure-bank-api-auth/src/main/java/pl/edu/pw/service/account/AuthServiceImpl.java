@@ -133,9 +133,9 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
     // TODO: do wywalenia?
     @Override
-    public UserDetails loadUserByUsername(String clientId) throws UsernameNotFoundException {
+    public Account loadUserByUsername(String clientId) throws UsernameNotFoundException {
         return accountRepository.findById(clientId).
-                orElseThrow(() -> new UsernameNotFoundException(String.format("Client %s not found", clientId)));
+                orElseThrow(() -> new UsernameNotFoundException(String.format("Account %s not found", clientId)));
     }
 
 }

@@ -54,7 +54,7 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**", "/api/web/login/verify/**").permitAll()
+                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**", "/api/web/login/verify/**", "/api/web/token/refresh").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/api/web/register/**").permitAll()
                 .and()
@@ -89,8 +89,9 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type", "Accept", "Cache-Control"));
+//        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-type"));
 
         source.registerCorsConfiguration("/**", configuration);
         return source;

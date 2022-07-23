@@ -25,13 +25,11 @@ import java.util.Map;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 
 @RequiredArgsConstructor
 public class AuthorizationFilter extends OncePerRequestFilter {
-    private static final String TOKEN_PREFIX = "Bearer ";
-
     private final AccountRepository accountRepository;
-
     private final String jwtSecret;
 
     private static final Logger log = LoggerFactory.getLogger(AuthorizationFilter.class);
@@ -39,7 +37,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override // według moich obliczeń powinno działać, a kod jest bardziej clean
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
-        if (!(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh") || request.getServletPath().equals("/api/web/login/verify"))) {
+        if (!(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/web/login/verify"))) {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 log.info("AuthorizationFilter->\tchecking jwt");

@@ -2,6 +2,7 @@ package pl.edu.pw.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,9 +35,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping("/api/web")
 @RequiredArgsConstructor
+@Log4j2
 public class WebAuthController {
 
-    private static final Logger log = LoggerFactory.getLogger(WebAuthController.class);
     private final AuthService authService;
     private final AccountRepository accountRepository;
     private final JWTUtil jwtUtil;
@@ -87,7 +88,7 @@ public class WebAuthController {
         Map<String, String> bodyResponse = new HashMap<>();
         response.setContentType(APPLICATION_JSON_VALUE);
         try {
-            bodyResponse = jwtUtil.getTokensWithRefreshToken(request);
+            bodyResponse = jwtUtil.getAuthTokenByRefreshToken(request);
         } catch (Exception e) {
             response.setStatus(FORBIDDEN.value());
             bodyResponse.put("error_message", e.getMessage());
