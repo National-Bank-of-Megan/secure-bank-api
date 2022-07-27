@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
+import pl.edu.pw.domain.SubAccount;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AddCurrency;
 import pl.edu.pw.repository.AccountRepository;
@@ -11,6 +12,7 @@ import pl.edu.pw.repository.AccountRepository;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -36,12 +38,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountCurrencyBalance> getAccountCurrenciesBalance(Account account) {
         List<AccountCurrencyBalance> accountCurrencyBalanceList = new ArrayList<>();
-//        Map<Currency, SubAccount> accountSubAccounts = account.getSubAccounts();
-//        for (Currency currency : accountSubAccounts.keySet()) {
-//            String currencyName = currency.name();
-//            double balance = accountSubAccounts.get(currency).getBalance();
-//            accountCurrencyBalanceList.add(new AccountCurrencyBalance(currencyName, balance));
-//        }
+        Map<Currency, SubAccount> accountSubAccounts = account.getSubAccounts();
+        for (Currency currency : accountSubAccounts.keySet()) {
+            String currencyName = currency.name();
+            double balance = accountSubAccounts.get(currency).getBalance();
+            accountCurrencyBalanceList.add(new AccountCurrencyBalance(currencyName, balance));
+        }
         return accountCurrencyBalanceList;
     }
 }
