@@ -3,6 +3,7 @@ package pl.edu.pw.domain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.edu.pw.auth.logic.CredentialGenerator;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.*;
 
 @Data
+@Log4j2
 @NoArgsConstructor
 @Entity
 @Table
@@ -60,7 +62,7 @@ public class Account implements UserDetails {
 //    )
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.clientId", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "id.clientId", fetch = FetchType.EAGER)
 //    @JoinTable(name = "account_sub_accounts",
 //            joinColumns = {@JoinColumn(name = "clientId", referencedColumnName = "clientId")},
 //            inverseJoinColumns = {@JoinColumn(name = "id", referencedColumnName = "client_id")})
@@ -168,6 +170,7 @@ public class Account implements UserDetails {
 
     public void addCurrencyBalance(Currency currency, double amount) {
         SubAccount subAccount = this.subAccounts.get(currency);
+        log.info("Dodaję kasę w wysokości {}", amount);
         subAccount.addToBalance(amount);
     }
 

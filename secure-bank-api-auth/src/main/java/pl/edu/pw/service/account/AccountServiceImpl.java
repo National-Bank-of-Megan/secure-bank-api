@@ -32,7 +32,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Currency " + addCurrency.getCurrency() + " not found.");
         }
-//        account.addCurrencyBalance(currency, addCurrency.getAmount());
+        account.addCurrencyBalance(currency, addCurrency.getAmount());
     }
 
     @Override
