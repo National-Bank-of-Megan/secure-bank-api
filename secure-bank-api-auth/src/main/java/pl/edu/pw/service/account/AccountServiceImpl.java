@@ -5,9 +5,14 @@ import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
 import pl.edu.pw.domain.SubAccount;
+import pl.edu.pw.domain.SubAccountId;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AddCurrency;
+import pl.edu.pw.exception.InvalidCurrencyException;
+import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.repository.SubAccountRepository;
+import pl.edu.pw.util.CurrentUserUtil;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -20,6 +25,7 @@ import java.util.Map;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+    private final SubAccountRepository subAccountRepository;
 
     @Override
     public void addCurrencyBalance(Account account, AddCurrency addCurrency) {
@@ -30,9 +36,14 @@ public class AccountServiceImpl implements AccountService {
         try {
             currency = Currency.valueOf(addCurrency.getCurrency());
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Currency " + addCurrency.getCurrency() + " not found.");
+            throw new InvalidCurrencyException("Currency " + addCurrency.getCurrency() + " not found.");
         }
-        account.addCurrencyBalance(currency, addCurrency.getAmount());
+//        account.addCurrencyBalance(currency, addCurrency.getAmount());
+//        todo catch exception when subaccount not found
+        SubAccount subAccount = subAccountRepository.findById(new SubAccountId(CurrentUserUtil.getCurrentUser(),currency)).orElseThrow(
+                ()-> new SubAccountNotFoundException("Subaccount not found. Something wrong with database")
+        );
+        subAccount.addToBalance(addCurrency.getAmount());
     }
 
     @Override
