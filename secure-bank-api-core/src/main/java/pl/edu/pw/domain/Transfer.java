@@ -21,6 +21,9 @@ public class Transfer {
     private Long id;
 
     @Column
+    private String title;
+
+    @Column
     private Date requestDate;
 
     @Column
@@ -33,7 +36,7 @@ public class Transfer {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @Column
+    @Column(name="type")
     @Enumerated(EnumType.STRING)
     private TransferType transferType;
 

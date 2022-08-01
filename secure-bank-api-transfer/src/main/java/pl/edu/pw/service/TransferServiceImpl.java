@@ -60,6 +60,7 @@ public class TransferServiceImpl implements TransferService {
         public static TransferDTO map(Transfer transfer) {
             return TransferDTO.builder()
                     .receiver("TODO")
+                    .title(transfer.getTitle())
                     .amount(transfer.getAmount())
                     .currency(transfer.getCurrency().name())
                     .requestDate(transfer.getRequestDate())
@@ -71,6 +72,7 @@ public class TransferServiceImpl implements TransferService {
         public static Transfer map(TransferCreate transferCreate, Account sender, Account receiver) {
             return Transfer.builder()
                     .requestDate(new Date())
+                    .title(transferCreate.getTitle())
                     .status(Status.PENDING)
                     .sender(sender)
                     .receiver(receiver)

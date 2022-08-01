@@ -59,12 +59,13 @@ ALTER TABLE account
 -- ALTER TABLE account_hash
 --     ADD FOREIGN KEY (client_id) REFERENCES account (client_id);
 
-CREATE TABLE favorite_receiver (
-	id INT PRIMARY KEY AUTO_INCREMENT,
-	client_id VARCHAR(16) NOT NULL,
-    name VARCHAR(50) NOT NULL,
+CREATE TABLE favorite_receiver
+(
+    id             INT PRIMARY KEY AUTO_INCREMENT,
+    client_id      VARCHAR(16)  NOT NULL,
+    name           VARCHAR(50)  NOT NULL,
     account_number VARCHAR(255) NOT NULL,
-    UNIQUE(client_id, account_number),
+    UNIQUE (client_id, account_number),
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 
@@ -80,6 +81,7 @@ CREATE TABLE device
 CREATE TABLE transfer
 (
     id           INT PRIMARY KEY AUTO_INCREMENT,
+    title        NVARCHAR(255),
     sender_id    VARCHAR(16) NOT NULL,
     receiver_id  VARCHAR(16) NOT NULL,
     request_date DATETIME    NOT NULL,

@@ -9,6 +9,7 @@ import java.util.Date;
 @Builder
 public class TransferDTO {
     private String receiver;
+    private String title;
     private double amount;
     private String currency;
     private Date requestDate;
