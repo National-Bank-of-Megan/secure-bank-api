@@ -2,15 +2,15 @@ package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.domain.Account;
-import pl.edu.pw.domain.Currency;
-import pl.edu.pw.domain.SubAccount;
-import pl.edu.pw.domain.SubAccountId;
+import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AddCurrency;
+import pl.edu.pw.dto.AddFavoriteReceiver;
+import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.exception.InvalidCurrencyException;
 import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.repository.FavoriteReceiverRepository;
 import pl.edu.pw.repository.SubAccountRepository;
 import pl.edu.pw.util.CurrentUserUtil;
 
@@ -26,6 +26,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final SubAccountRepository subAccountRepository;
+    private final FavoriteReceiverRepository favoriteReceiverRepository;
 
     @Override
     public void addCurrencyBalance(Account account, AddCurrency addCurrency) {
@@ -56,5 +57,35 @@ public class AccountServiceImpl implements AccountService {
             accountCurrencyBalanceList.add(new AccountCurrencyBalance(currencyName, balance));
         }
         return accountCurrencyBalanceList;
+    }
+
+    @Override
+    public List<FavoriteReceiverDTO> getAllFavoriteReceivers(Account account) {
+        return account.getFavoriteReceivers().stream().map(AccountMapper::map).toList();
+    }
+
+    @Override
+    public FavoriteReceiverDTO addFavoriteReceiver(Account loggedAccount, AddFavoriteReceiver addFavoriteReceiver) {
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
+        FavoriteReceiver favoriteReceiver = AccountMapper.map(addFavoriteReceiver);
+        account.addFavoriteReceiver(favoriteReceiver);
+        return AccountMapper.map(favoriteReceiverRepository.save(favoriteReceiver));
+    }
+
+    public static class AccountMapper {
+        public static FavoriteReceiverDTO map(FavoriteReceiver favoriteReceiver) {
+            return new FavoriteReceiverDTO(
+                    favoriteReceiver.getId(),
+                    favoriteReceiver.getName(),
+                    favoriteReceiver.getAccountNumber()
+            );
+        }
+
+        public static FavoriteReceiver map(AddFavoriteReceiver addFavoriteReceiver) {
+            return FavoriteReceiver.builder()
+                    .name(addFavoriteReceiver.getName())
+                    .accountNumber(addFavoriteReceiver.getAccountNumber())
+                    .build();
+        }
     }
 }
