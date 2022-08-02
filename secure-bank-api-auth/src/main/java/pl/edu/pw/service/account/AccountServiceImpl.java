@@ -60,7 +60,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<FavoriteReceiverDTO> getAllFavoriteReceivers(Account account) {
+    public List<FavoriteReceiverDTO> getAllFavoriteReceivers(Account loggedAccount) {
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
         return account.getFavoriteReceivers().stream().map(AccountMapper::map).toList();
     }
 
