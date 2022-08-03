@@ -54,6 +54,13 @@ public class Account implements UserDetails {
     @JoinColumn(name = "current_hash_id")
     private AccountHash currentAuthenticationHash;
 
+    @OneToMany(
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<FavoriteReceiver> favoriteReceivers = new ArrayList<>();
+
 //    unidirectional relationship
 //    @OneToMany(
 //            orphanRemoval = (true),
@@ -156,6 +163,13 @@ public class Account implements UserDetails {
     public void addSubAccounts(Currency[] currencies) {
         for (Currency currency : currencies) {
             addSubAccount(currency);
+        }
+    }
+
+    public void addFavoriteReceiver(FavoriteReceiver favoriteReceiver) {
+        if (favoriteReceiver != null) {
+            this.favoriteReceivers.add(favoriteReceiver);
+            favoriteReceiver.setAccount(this);
         }
     }
 
