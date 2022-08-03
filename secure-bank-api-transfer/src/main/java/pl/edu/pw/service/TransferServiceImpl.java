@@ -40,8 +40,18 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public Transfer create(TransferCreate transferCreate) {
+        if (transferCreate.getAmount() <= 0) {
+            throw new IllegalArgumentException("Provide correct amount of money to transfer.");
+        }
+
         Account senderAccount = accountRepository.findById(transferCreate.getSenderId()).orElseThrow();
-        Account receiverAccount = accountRepository.findById(transferCreate.getReceiverId()).orElseThrow();
+        Account receiverAccount = accountRepository.findByAccountNumber(transferCreate.getReceiverAccountNumber()).orElseThrow();
+
+        if (transferCreate.getSenderId().equals(receiverAccount.getClientId())) {
+            throw new IllegalArgumentException("Cannot make transfer to yourself.");
+        }
+
+        senderAccount.chargeCurrencyBalance(Currency.valueOf(transferCreate.getCurrency()), transferCreate.getAmount());
         Transfer transferToSave = TransferMapper.map(transferCreate, senderAccount, receiverAccount);
         return transferRepository.save(transferToSave);
     }
@@ -71,13 +81,13 @@ public class TransferServiceImpl implements TransferService {
 
         public static Transfer map(TransferCreate transferCreate, Account sender, Account receiver) {
             return Transfer.builder()
-                    .requestDate(new Date())
                     .title(transferCreate.getTitle())
+                    .requestDate(new Date())
+                    .amount(transferCreate.getAmount())
+                    .currency(Currency.valueOf(transferCreate.getCurrency()))
                     .status(Status.PENDING)
                     .sender(sender)
-                    .receiver(receiver)
-                    .amount(transferCreate.getAmount())
-                    .currency(Currency.valueOf(transferCreate.getCurrency())).build();
+                    .receiver(receiver).build();
         }
     }
 }

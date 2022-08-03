@@ -22,16 +22,16 @@ public class TransferController {
 
     @GetMapping
     public ResponseEntity<List<TransferDTO>> getAll(@AuthenticationPrincipal Account account) {
-        return new ResponseEntity<>(transferService.getAll(account.getClientId()), HttpStatus.OK);
+        return ResponseEntity.ok(transferService.getAll(account.getClientId()));
     }
 
     @GetMapping("/{transferId}")
     public ResponseEntity<TransferDTO> getTransfer(@PathVariable Long transferId) {
-        return new ResponseEntity<>(transferService.getTransfer(transferId), HttpStatus.OK);
+        return ResponseEntity.ok(transferService.getTransfer(transferId));
     }
 
     @PostMapping
-    public ResponseEntity<Void> createTransfer(@RequestBody TransferCreate transferCreate) {
+    public ResponseEntity<Void> makeTransfer(@RequestBody TransferCreate transferCreate) {
         transferService.create(transferCreate);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -39,12 +39,12 @@ public class TransferController {
     @PutMapping
     public ResponseEntity<Void> updateTransfer(@RequestBody TransferUpdate transferUpdate) {
         transferService.update(transferUpdate);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{transferId}")
     public ResponseEntity<Void> deleteTransfer(@PathVariable Long transferId) {
         transferService.delete(transferId);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        return ResponseEntity.accepted().build();
     }
 }

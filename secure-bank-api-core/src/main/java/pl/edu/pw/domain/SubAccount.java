@@ -25,4 +25,10 @@ public class SubAccount {
             balance += amount;
         }
     }
+
+    public void chargeFromBalance(double amount) {
+        if (amount > 0) {
+            balance -= amount;
+        }
+    }
 }

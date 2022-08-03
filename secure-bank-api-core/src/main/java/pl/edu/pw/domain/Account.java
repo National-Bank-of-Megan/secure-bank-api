@@ -184,8 +184,12 @@ public class Account implements UserDetails {
 
     public void addCurrencyBalance(Currency currency, double amount) {
         SubAccount subAccount = this.subAccounts.get(currency);
-        log.info("Dodaję kasę w wysokości {}", amount);
         subAccount.addToBalance(amount);
+    }
+
+    public void chargeCurrencyBalance(Currency currency, double amount) {
+        SubAccount subAccount = this.subAccounts.get(currency);
+        subAccount.chargeFromBalance(amount);
     }
 
     @Override

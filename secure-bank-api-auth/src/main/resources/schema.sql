@@ -81,15 +81,15 @@ CREATE TABLE device
 CREATE TABLE transfer
 (
     id           INT PRIMARY KEY AUTO_INCREMENT,
-    title        NVARCHAR(255),
+    title        NVARCHAR(60) NOT NULL,
     sender_id    VARCHAR(16) NOT NULL,
     receiver_id  VARCHAR(16) NOT NULL,
     request_date DATETIME    NOT NULL,
-    done_date    DATETIME    NOT NULL,
+    done_date    DATETIME,
     amount       DOUBLE      NOT NULL,
-    currency     ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
+    currency     ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
     type         ENUM ('CLASSIC', 'MOBILE'),
-    status       ENUM ('PENDING', 'DONE'),
+    status       ENUM ('PENDING', 'DONE') NOT NULL,
     FOREIGN KEY (sender_id)
         REFERENCES account (client_id),
     FOREIGN KEY (receiver_id)
