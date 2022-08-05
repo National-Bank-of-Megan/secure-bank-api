@@ -10,11 +10,16 @@ import pl.edu.pw.domain.Transfer;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
 import pl.edu.pw.dto.TransferUpdate;
+import pl.edu.pw.logic.model.PendingTransfer;
+import pl.edu.pw.logic.producer.TransfersSender;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.TransferRepository;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+
+import static pl.edu.pw.service.TransferServiceImpl.TransferMapper.mapToPending;
 
 @Service
 @Transactional
@@ -23,6 +28,8 @@ public class TransferServiceImpl implements TransferService {
 
     private final TransferRepository transferRepository;
     private final AccountRepository accountRepository;
+
+    private final TransfersSender transfersSender;
 
     @Override
     public List<TransferDTO> getAll(String clientId) {
@@ -53,7 +60,9 @@ public class TransferServiceImpl implements TransferService {
 
         senderAccount.chargeCurrencyBalance(Currency.valueOf(transferCreate.getCurrency()), transferCreate.getAmount());
         Transfer transferToSave = TransferMapper.map(transferCreate, senderAccount, receiverAccount);
-        return transferRepository.save(transferToSave);
+        Transfer savedTransfer = transferRepository.save(transferToSave);
+        transfersSender.sendPendingTransfer(savedTransfer.getId(), mapToPending(savedTransfer));
+        return savedTransfer;
     }
 
     @Override
@@ -88,6 +97,10 @@ public class TransferServiceImpl implements TransferService {
                     .status(Status.PENDING)
                     .sender(sender)
                     .receiver(receiver).build();
+        }
+
+        public static PendingTransfer mapToPending(Transfer transfer) {
+            return new PendingTransfer(transfer.getId(), BigDecimal.valueOf(transfer.getAmount()));
         }
     }
 }
