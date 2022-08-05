@@ -29,6 +29,8 @@ public class SubAccount {
     public void chargeFromBalance(double amount) {
         if (amount > 0) {
             balance -= amount;
+        } else if (balance - amount < 0) {
+            throw new IllegalArgumentException("Insufficient amount of funds on the account.");
         }
     }
 }
