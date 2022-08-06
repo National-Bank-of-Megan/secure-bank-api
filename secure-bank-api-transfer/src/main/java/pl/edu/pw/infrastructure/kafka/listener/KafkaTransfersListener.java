@@ -13,7 +13,7 @@ public class KafkaTransfersListener {
 
     private final MessagesProcessing messagesProcessing;
 
-    @KafkaListener(topics = "${kafka.topic.pendingTransfersBus}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.pendingTransfersBus}", containerFactory = "kafkaListenerContainerFactory", autoStartup = "false")
     public void listen(@Payload PendingTransfer pendingTransfer) {
         messagesProcessing.processPendingTransfer(pendingTransfer);
     }

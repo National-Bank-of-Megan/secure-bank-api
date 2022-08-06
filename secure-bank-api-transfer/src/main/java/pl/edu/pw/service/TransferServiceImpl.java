@@ -80,6 +80,7 @@ public class TransferServiceImpl implements TransferService {
         Transfer foundPendingTransfer = transferRepository.findById(pendingTransfer.getId()).orElseThrow();
         Account receiver = foundPendingTransfer.getReceiver();
         receiver.addCurrencyBalance(pendingTransfer.getCurrency(), pendingTransfer.getAmount());
+        foundPendingTransfer.setDoneDate(new Date());
         foundPendingTransfer.setStatus(Status.DONE);
     }
 

@@ -13,6 +13,8 @@ public class MessagesProcessingImpl implements MessagesProcessing {
 
     @Override
     public void processPendingTransfer(PendingTransfer pendingTransfer) {
-        transferService.finalizeTransfer(pendingTransfer);
+        if (pendingTransfer != null) {
+            transferService.finalizeTransfer(pendingTransfer);
+        }
     }
 }
