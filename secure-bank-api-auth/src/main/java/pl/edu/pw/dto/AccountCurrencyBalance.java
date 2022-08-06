@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -14,5 +15,5 @@ public class AccountCurrencyBalance {
     private String currency;
 
     @NotBlank
-    private double balance;
+    private BigDecimal balance;
 }

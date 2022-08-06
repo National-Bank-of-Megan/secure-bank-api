@@ -15,6 +15,7 @@ import pl.edu.pw.repository.SubAccountRepository;
 import pl.edu.pw.util.CurrentUserUtil;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void addCurrencyBalance(Account account, AddCurrency addCurrency) {
         Currency currency;
-        if (addCurrency.getAmount() <= 0) {
+        if (addCurrency.getAmount().doubleValue() <= 0.0) {
             throw new IllegalArgumentException("Amount to add cannot be lower or equal to 0.");
         }
         try {
@@ -53,7 +54,7 @@ public class AccountServiceImpl implements AccountService {
         Map<Currency, SubAccount> accountSubAccounts = account.getSubAccounts();
         for (Currency currency : accountSubAccounts.keySet()) {
             String currencyName = currency.name();
-            double balance = accountSubAccounts.get(currency).getBalance();
+            BigDecimal balance = accountSubAccounts.get(currency).getBalance();
             accountCurrencyBalanceList.add(new AccountCurrencyBalance(currencyName, balance));
         }
         return accountCurrencyBalanceList;

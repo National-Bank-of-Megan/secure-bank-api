@@ -10,6 +10,7 @@ import pl.edu.pw.domain.Currency;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ public class ExternalCurrencyApiUtil {
 
     private static final Logger log = LoggerFactory.getLogger(ExternalCurrencyApiUtil.class);
 
-    public static double exchangeCurrency(Currency currencySold, double amountSold, LocalDateTime time, Currency currencyBought) throws IOException {
+    public static BigDecimal exchangeCurrency(Currency currencySold, BigDecimal amountSold, LocalDateTime time, Currency currencyBought) throws IOException {
 
 //        connect
         String url_str = "https://api.exchangerate.host/convert?from=" + currencySold + "&to=" + currencyBought + "&date=" + time;
@@ -31,7 +32,7 @@ public class ExternalCurrencyApiUtil {
         JsonObject jsonobj = root.getAsJsonObject();
 
         String req_result = jsonobj.get("result").getAsString();
-        double bought = Double.valueOf(req_result) * amountSold;
+        BigDecimal bought = new BigDecimal(req_result).multiply(amountSold);
         log.info("Selling " + amountSold + currencySold + " for " + bought + currencyBought);
 
         return bought;

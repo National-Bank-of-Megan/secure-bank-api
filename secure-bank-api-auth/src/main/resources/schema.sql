@@ -32,7 +32,7 @@ CREATE TABLE sub_account
 (
     client_id VARCHAR(16)                              NOT NULL,
     currency  ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
-    balance   DOUBLE DEFAULT 0.00,
+    balance   DECIMAL(15, 2) DEFAULT 0.00,
     FOREIGN KEY (client_id) REFERENCES account (client_id),
     PRIMARY KEY (client_id, currency)
 );
@@ -86,7 +86,7 @@ CREATE TABLE transfer
     receiver_id  VARCHAR(16) NOT NULL,
     request_date DATETIME    NOT NULL,
     done_date    DATETIME,
-    amount       DOUBLE      NOT NULL,
+    amount       DECIMAL(15, 2) NOT NULL,
     currency     ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
     type         ENUM ('CLASSIC', 'MOBILE'),
     status       ENUM ('PENDING', 'DONE') NOT NULL,
@@ -103,8 +103,8 @@ CREATE TABLE currency_exchange
     ordered_on      DATETIME,
     currency_bought ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
     currency_sold   ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP'),
-    amount_bought   DOUBLE,
-    amount_sold     DOUBLE,
+    amount_bought   DECIMAL(15, 2),
+    amount_sold     DECIMAL(15, 2),
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 
 );

@@ -10,6 +10,7 @@ import pl.edu.pw.auth.logic.CredentialGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Data
@@ -174,7 +175,7 @@ public class Account implements UserDetails {
     }
 
     public void addSubAccount(Currency currency) {
-        this.subAccounts.put(currency, new SubAccount(new SubAccountId(this, currency), 0.00));
+        this.subAccounts.put(currency, new SubAccount(new SubAccountId(this, currency), BigDecimal.ZERO));
         this.subAccounts.get(currency).setId(new SubAccountId(this, currency));
     }
 
@@ -182,12 +183,12 @@ public class Account implements UserDetails {
         this.currentAuthenticationHash = accountHash;
     }
 
-    public void addCurrencyBalance(Currency currency, double amount) {
+    public void addCurrencyBalance(Currency currency, BigDecimal amount) {
         SubAccount subAccount = this.subAccounts.get(currency);
         subAccount.addToBalance(amount);
     }
 
-    public void chargeCurrencyBalance(Currency currency, double amount) {
+    public void chargeCurrencyBalance(Currency currency, BigDecimal amount) {
         SubAccount subAccount = this.subAccounts.get(currency);
         subAccount.chargeFromBalance(amount);
     }

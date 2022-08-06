@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -19,13 +20,13 @@ public class CurrencyExchangeDto {
     private String currencyBought;
 
     @NotNull
-    private double amountBought;
+    private BigDecimal amountBought;
 
     @NotNull
     private String currencySold;
 
     @NotNull
-    private double amountSold;
+    private BigDecimal amountSold;
 
 
 }

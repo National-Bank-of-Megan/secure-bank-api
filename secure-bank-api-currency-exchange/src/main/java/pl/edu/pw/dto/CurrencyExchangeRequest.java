@@ -4,6 +4,7 @@ import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -20,6 +21,6 @@ public class CurrencyExchangeRequest {
     private LocalDateTime exchangeTime;
 
     @NotNull
-    private double sold;
+    private BigDecimal sold;
 
 }

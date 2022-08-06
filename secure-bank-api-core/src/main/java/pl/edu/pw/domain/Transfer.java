@@ -2,15 +2,17 @@ package pl.edu.pw.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
 @Table
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,7 +32,7 @@ public class Transfer {
     private Date doneDate;
 
     @Column
-    private double amount;
+    private BigDecimal amount;
 
     @Column
     @Enumerated(EnumType.STRING)

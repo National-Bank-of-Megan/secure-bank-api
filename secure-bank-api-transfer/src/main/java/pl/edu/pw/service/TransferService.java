@@ -4,6 +4,7 @@ import pl.edu.pw.domain.Transfer;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
 import pl.edu.pw.dto.TransferUpdate;
+import pl.edu.pw.logic.model.PendingTransfer;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface TransferService {
     void delete(Long transferId);
 
     void update(TransferUpdate transferUpdate);
+
+    void finalizeTransfer(PendingTransfer pendingTransfer);
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import java.math.BigDecimal;
 
 @Entity
 @Data
@@ -18,18 +19,18 @@ public class SubAccount {
     private SubAccountId id;
 
     @Column
-    private double balance;
+    private BigDecimal balance;
 
-    public void addToBalance(double amount) {
-        if (amount > 0) {
-            balance += amount;
+    public void addToBalance(BigDecimal amount) {
+        if (amount.doubleValue() > 0.0) {
+            balance = balance.add(amount);
         }
     }
 
-    public void chargeFromBalance(double amount) {
-        if (amount > 0) {
-            balance -= amount;
-        } else if (balance - amount < 0) {
+    public void chargeFromBalance(BigDecimal amount) {
+        if (amount.doubleValue() > 0.0) {
+            balance = balance.subtract(amount);
+        } else if (balance.subtract(amount).doubleValue() < 0.0) {
             throw new IllegalArgumentException("Insufficient amount of funds on the account.");
         }
     }

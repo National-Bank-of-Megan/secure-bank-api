@@ -16,6 +16,7 @@ import pl.edu.pw.repository.SubAccountRepository;
 import pl.edu.pw.util.CurrentUserUtil;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,12 +54,12 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
         //        check if there is enough money to be sold and delete from balance
         SubAccount sellingSubAccount = subAccounts.get(currencySold);
-        double balance = sellingSubAccount.getBalance();
-        if (balance < request.getSold())
+        BigDecimal balance = sellingSubAccount.getBalance();
+        if (balance.compareTo(request.getSold()) < 0)
             throw new SubAccountBalanceException("Not enough money on the " + request.getCurrencySold() + " sub account");
-        sellingSubAccount.setBalance(balance - request.getSold());
+        sellingSubAccount.setBalance(balance.subtract(request.getSold()));
 
-        double bought;
+        BigDecimal bought;
         try {
             bought = ExternalCurrencyApiUtil.exchangeCurrency(currencySold, request.getSold(), request.getExchangeTime(), currencyBought);
         } catch (IOException e) {
@@ -91,7 +92,7 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     }
 
     private SubAccount createNewSubAccount(Account account, Currency currency) {
-        SubAccount newSubAccount = new SubAccount(new SubAccountId(account, currency), 0.00);
+        SubAccount newSubAccount = new SubAccount(new SubAccountId(account, currency), BigDecimal.ZERO);
         subAccountRepository.save(newSubAccount);
         return newSubAccount;
     }

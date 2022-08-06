@@ -47,7 +47,7 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public Transfer create(TransferCreate transferCreate) {
-        if (transferCreate.getAmount() <= 0) {
+        if (transferCreate.getAmount().doubleValue() <= 0.0) {
             throw new IllegalArgumentException("Provide correct amount of money to transfer.");
         }
 
@@ -75,6 +75,14 @@ public class TransferServiceImpl implements TransferService {
 
     }
 
+    @Override
+    public void finalizeTransfer(PendingTransfer pendingTransfer) {
+        Transfer foundPendingTransfer = transferRepository.findById(pendingTransfer.getId()).orElseThrow();
+        Account receiver = foundPendingTransfer.getReceiver();
+        receiver.addCurrencyBalance(pendingTransfer.getCurrency(), pendingTransfer.getAmount());
+        foundPendingTransfer.setStatus(Status.DONE);
+    }
+
     public static class TransferMapper {
         public static TransferDTO map(Transfer transfer) {
             return TransferDTO.builder()
@@ -85,7 +93,7 @@ public class TransferServiceImpl implements TransferService {
                     .requestDate(transfer.getRequestDate())
                     .doneDate(transfer.getDoneDate())
                     .status(transfer.getStatus().name())
-                    .balanceAfter(123).build();
+                    .balanceAfter(new BigDecimal(123)).build();
         }
 
         public static Transfer map(TransferCreate transferCreate, Account sender, Account receiver) {
@@ -100,7 +108,7 @@ public class TransferServiceImpl implements TransferService {
         }
 
         public static PendingTransfer mapToPending(Transfer transfer) {
-            return new PendingTransfer(transfer.getId(), BigDecimal.valueOf(transfer.getAmount()));
+            return new PendingTransfer(transfer.getId(), transfer.getCurrency(), transfer.getAmount(), Status.PENDING);
         }
     }
 }

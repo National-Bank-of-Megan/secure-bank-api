@@ -3,6 +3,7 @@ package pl.edu.pw.dto;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -10,10 +11,10 @@ import java.util.Date;
 public class TransferDTO {
     private String receiver;
     private String title;
-    private double amount;
+    private BigDecimal amount;
     private String currency;
     private Date requestDate;
     private Date doneDate;
     private String status;
-    private double balanceAfter;
+    private BigDecimal balanceAfter;
 }
