@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.AccountCurrencyBalance;
+import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrency;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
@@ -21,6 +21,11 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+
+    @GetMapping("/profile")
+    public ResponseEntity<AccountDTO> getAccountData(@AuthenticationPrincipal Account account) {
+        return ResponseEntity.ok(accountService.getAccountData(account));
+    }
 
     @PutMapping("/currency")
     public ResponseEntity<Void> addCurrency(@AuthenticationPrincipal Account account, @RequestBody AddCurrency addCurrency) {

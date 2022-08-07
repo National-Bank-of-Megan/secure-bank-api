@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountCurrencyBalance;
+import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrency;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
@@ -19,6 +20,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static pl.edu.pw.service.account.AccountServiceImpl.AccountMapper.map;
 
 @Service
 @Transactional
@@ -69,9 +72,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public FavoriteReceiverDTO addFavoriteReceiver(Account loggedAccount, AddFavoriteReceiver addFavoriteReceiver) {
         Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
-        FavoriteReceiver favoriteReceiver = AccountMapper.map(addFavoriteReceiver);
+        FavoriteReceiver favoriteReceiver = map(addFavoriteReceiver);
         account.addFavoriteReceiver(favoriteReceiver);
-        return AccountMapper.map(favoriteReceiverRepository.save(favoriteReceiver));
+        return map(favoriteReceiverRepository.save(favoriteReceiver));
+    }
+
+    @Override
+    public AccountDTO getAccountData(Account loggedAccount) {
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
+        return map(account);
     }
 
     public static class AccountMapper {
@@ -88,6 +97,17 @@ public class AccountServiceImpl implements AccountService {
                     .name(addFavoriteReceiver.getName())
                     .accountNumber(addFavoriteReceiver.getAccountNumber())
                     .build();
+        }
+
+        public static AccountDTO map(Account account) {
+            return new AccountDTO (
+                account.getClientId(),
+                account.getAccountNumber(),
+                account.getAccountDetails().getFirstName(),
+                account.getAccountDetails().getLastName(),
+                account.getAccountDetails().getEmail(),
+                account.getAccountDetails().getPhone()
+            );
         }
     }
 }

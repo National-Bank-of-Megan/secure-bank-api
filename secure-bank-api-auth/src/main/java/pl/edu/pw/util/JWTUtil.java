@@ -45,9 +45,12 @@ public class JWTUtil {
 
         Algorithm algorithm = Algorithm.HMAC256(this.jwtSecret.getBytes());
 
+        // todo: remove firstName and lastName from refreshToken
         String token = JWT.create()
                 .withSubject(user.getClientId())
                 .withClaim(TOKEN_TYPE_CLAIM, tokenType.name())
+                .withClaim("firstName", user.getAccountDetails().getFirstName())
+                .withClaim("lastName", user.getAccountDetails().getLastName())
                 .withExpiresAt(new Date(System.currentTimeMillis() + (tokenType == JsonWebTokenType.ACCESS ? this.jwtExpirationTime : this.refreshTokenExpirationTime)))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);

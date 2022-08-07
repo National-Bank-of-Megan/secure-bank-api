@@ -41,7 +41,7 @@ public class Account implements UserDetails {
     private String password;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY, optional = false)
+            fetch = FetchType.EAGER, optional = false)
     private AccountDetails accountDetails;
 
     @OneToMany(
