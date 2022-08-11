@@ -19,3 +19,13 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
       - KAFKA_DEFAULT_REPLICATION_FACTOR=1
+  nginx-proxy:
+    image: 'nginx-proxy'
+    restart: always
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /usr/docker/nginx/conf.d:/etc/nginx/conf.d
+      - /usr/docker/nginx/ssl:/etc/nginx/ssl
