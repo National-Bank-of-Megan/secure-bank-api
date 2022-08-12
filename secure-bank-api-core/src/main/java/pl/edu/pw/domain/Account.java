@@ -34,6 +34,15 @@ public class Account implements UserDetails {
     private String secret;
 
     @Column
+    private Long loginAttempts;
+
+    @Column
+    private boolean accountNonLocked;
+
+    @Column(name = "lock_time")
+    private Date lockTime;
+
+    @Column
     private boolean shouldBeVerified = false;
 
     @Column
@@ -210,7 +219,7 @@ public class Account implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return this.accountNonLocked;
     }
 
     @Override
