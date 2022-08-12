@@ -14,8 +14,11 @@ public interface AccountService {
     void addCurrencyBalance(Account account, AddCurrency addCurrency);
     List<AccountCurrencyBalance> getAccountCurrenciesBalance(Account account);
     List<FavoriteReceiverDTO> getAllFavoriteReceivers(Account account);
-
     FavoriteReceiverDTO addFavoriteReceiver(Account account, AddFavoriteReceiver addFavoriteReceiver);
-
     AccountDTO getAccountData(Account account);
+    void resetLoginAttempts(Account account);
+    void updateLoginAttempts(Account account, long attempts);
+    void lockAccount(Account account);
+    void unlockAccount(Account account);
+
 }

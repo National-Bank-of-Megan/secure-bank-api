@@ -9,10 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface AuthService {
     SuccessfulRegistrationResponse registerAccount(AccountRegistration registerData);
-
     Account getAccount(String accountNumber);
-
     String getLoginCombination(String username);
-
     boolean verify(VerifyCodeRequest request, HttpServletRequest httpRequest);
+
 }

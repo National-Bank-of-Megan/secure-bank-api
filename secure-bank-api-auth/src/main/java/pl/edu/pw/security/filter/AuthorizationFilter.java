@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.util.http.CustomHttpServletRequestWrapper;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -53,7 +54,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                 }
             }
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String authorizationHeader) {

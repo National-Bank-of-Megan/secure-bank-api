@@ -77,6 +77,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Account account = (Account) authResult.getPrincipal();
         log.info(account.getClientId());
 
+
 //        todo integracja z serwisem urządzeń
         boolean isNewDevice = false;
         if (isNewDevice) {

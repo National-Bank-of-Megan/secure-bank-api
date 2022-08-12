@@ -1,6 +1,7 @@
 package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountCurrencyBalance;
@@ -18,6 +19,7 @@ import pl.edu.pw.util.CurrentUserUtil;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,9 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final SubAccountRepository subAccountRepository;
     private final FavoriteReceiverRepository favoriteReceiverRepository;
+
+    @Value(("${auth.lockTime}"))
+    private long LOCK_TIME;
 
     @Override
     public void addCurrencyBalance(Account account, AddCurrency addCurrency) {
@@ -81,6 +86,33 @@ public class AccountServiceImpl implements AccountService {
     public AccountDTO getAccountData(Account loggedAccount) {
         Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
         return map(account);
+    }
+
+    public void resetLoginAttempts(Account account){
+        account.setLoginAttempts(0l);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void updateLoginAttempts(Account account, long attempts) {
+        if(attempts <0) throw new IllegalArgumentException("Number of login attempts should be positive");
+        account.setLoginAttempts(attempts);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void lockAccount(Account account) {
+        account.setAccountNonLocked(false);
+        account.setLockTime(new Date());
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void unlockAccount(Account account) {
+        account.setAccountNonLocked(true);
+        account.setLockTime(null);
+        account.setLoginAttempts(0l);
+        accountRepository.save(account);
     }
 
     public static class AccountMapper {

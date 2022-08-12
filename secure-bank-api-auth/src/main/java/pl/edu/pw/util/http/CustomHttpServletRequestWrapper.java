@@ -1,4 +1,5 @@
 package pl.edu.pw.util.http;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
 
+@Getter
 public class CustomHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomHttpServletRequestWrapper.class);
