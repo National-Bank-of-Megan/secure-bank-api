@@ -10,6 +10,7 @@ import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrency;
 import pl.edu.pw.dto.AddFavoriteReceiver;
+import pl.edu.pw.dto.ChangePassword;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.service.account.AccountService;
 
@@ -49,5 +50,11 @@ public class AccountController {
                                                     @RequestBody AddFavoriteReceiver addFavoriteReceiver) {
         FavoriteReceiverDTO createdFavoriteReceiver = accountService.addFavoriteReceiver(account, addFavoriteReceiver);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFavoriteReceiver);
+    }
+
+    @PutMapping("/changePassword")
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal Account account, @RequestBody ChangePassword changePassword) {
+        accountService.changePassword(account, changePassword);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

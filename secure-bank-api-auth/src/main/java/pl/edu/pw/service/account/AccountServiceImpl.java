@@ -1,19 +1,24 @@
 package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrency;
 import pl.edu.pw.dto.AddFavoriteReceiver;
+import pl.edu.pw.dto.ChangePassword;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.exception.InvalidCurrencyException;
 import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.FavoriteReceiverRepository;
 import pl.edu.pw.repository.SubAccountRepository;
+import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.util.CurrentUserUtil;
+import pl.edu.pw.util.PasswordUtil;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -31,6 +36,8 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final SubAccountRepository subAccountRepository;
     private final FavoriteReceiverRepository favoriteReceiverRepository;
+    private final OtpService otpService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void addCurrencyBalance(Account account, AddCurrency addCurrency) {
@@ -81,6 +88,25 @@ public class AccountServiceImpl implements AccountService {
     public AccountDTO getAccountData(Account loggedAccount) {
         Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
         return map(account);
+    }
+
+    @Override
+    public void changePassword(Account loggedAccount, ChangePassword changePassword) {
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
+        String accountSecret = account.getSecret();
+        if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret)) {
+            throw new AuthenticationServiceException("Invalid one time password");
+        }
+        String currentHashedPassword = account.getPassword();
+        if (!passwordEncoder.matches(changePassword.getOldPassword(), currentHashedPassword)) {
+            throw new AuthenticationServiceException("Incorrect old password");
+        }
+        if (changePassword.getOldPassword().equals(changePassword.getNewPassword())) {
+            throw new IllegalArgumentException("New password cannot be the same as old password");
+        }
+        String newPasswordHashed = passwordEncoder.encode(changePassword.getNewPassword());
+        account.setPassword(newPasswordHashed);
+        PasswordUtil.updateAccountHashes(account, changePassword.getNewPassword(), passwordEncoder);
     }
 
     public static class AccountMapper {

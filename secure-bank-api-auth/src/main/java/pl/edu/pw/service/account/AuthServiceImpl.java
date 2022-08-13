@@ -3,12 +3,10 @@ package pl.edu.pw.service.account;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.auth.logic.PasswordHashesGenerator;
 import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
@@ -17,6 +15,7 @@ import pl.edu.pw.dto.VerifyCodeRequest;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.otp.OtpService;
+import pl.edu.pw.util.PasswordUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService, UserDetailsService {
     private static final String NO_SUCH_ACCOUNT_MESSAGE = "No such account";
-
 
     private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final AccountRepository accountRepository;
@@ -53,7 +51,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         log.info("mapping account pl.edu.pw.dto");
         Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
         log.info("setting password hashes");
-        setAccountHashes(accountToRegister, rawPassword);
+        PasswordUtil.addAccountHashes(accountToRegister, rawPassword, passwordEncoder);
         log.info("adding subaccounts");
         accountToRegister.addSubAccounts(Currency.values());
 
@@ -71,13 +69,6 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         otpService.getUriForImage(secret);
         String qrImageUri = otpService.getUriForImage(secret);
         return new SuccessfulRegistrationResponse(generatedClientId, qrImageUri);
-    }
-
-    private void setAccountHashes(Account accountToRegister, String rawPassword) {
-        List<PartPasswordHash> partPasswordHashes = PasswordHashesGenerator.generatePasswordHashes(rawPassword, passwordEncoder);
-        List<AccountHash> accountHashes = partPasswordHashes.stream().map(AccountHashMapper::map).toList();
-        accountToRegister.addAllAccountHashes(accountHashes);
-        accountToRegister.setCurrentAuthenticationHash(accountHashes.get(0));
     }
 
     @Override
