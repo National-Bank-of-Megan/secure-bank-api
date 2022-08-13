@@ -27,5 +27,4 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /usr/docker/nginx/conf.d:/etc/nginx/conf.d
       - /usr/docker/nginx/ssl:/etc/nginx/ssl
