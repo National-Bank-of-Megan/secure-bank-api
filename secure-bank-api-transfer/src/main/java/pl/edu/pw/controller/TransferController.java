@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
+import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
 import pl.edu.pw.dto.TransferUpdate;
@@ -23,6 +24,11 @@ public class TransferController {
     @GetMapping
     public ResponseEntity<List<TransferDTO>> getAll(@AuthenticationPrincipal Account account) {
         return ResponseEntity.ok(transferService.getAll(account.getClientId()));
+    }
+
+    @GetMapping("/recentActivity")
+    public ResponseEntity<List<MoneyBalanceOperation>> getRecentActivity(@AuthenticationPrincipal Account account) {
+        return ResponseEntity.ok(transferService.getRecentActivity(account.getClientId()));
     }
 
     @GetMapping("/{transferId}")

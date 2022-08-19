@@ -5,18 +5,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
+import pl.edu.pw.domain.CurrencyExchange;
 import pl.edu.pw.domain.Status;
 import pl.edu.pw.domain.Transfer;
+import pl.edu.pw.dto.CurrencyExchangeDto;
+import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
 import pl.edu.pw.dto.TransferUpdate;
 import pl.edu.pw.logic.model.PendingTransfer;
 import pl.edu.pw.logic.producer.TransfersSender;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.repository.CurrencyExchangeRepository;
 import pl.edu.pw.repository.TransferRepository;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static pl.edu.pw.service.TransferServiceImpl.TransferMapper.mapToPending;
@@ -28,7 +34,7 @@ public class TransferServiceImpl implements TransferService {
 
     private final TransferRepository transferRepository;
     private final AccountRepository accountRepository;
-
+    private final CurrencyExchangeRepository currencyExchangeRepository;
     private final TransfersSender transfersSender;
 
     @Override
@@ -80,14 +86,44 @@ public class TransferServiceImpl implements TransferService {
         Transfer foundPendingTransfer = transferRepository.findById(pendingTransfer.getId()).orElseThrow();
         Account receiver = foundPendingTransfer.getReceiver();
         receiver.addCurrencyBalance(pendingTransfer.getCurrency(), pendingTransfer.getAmount());
-        foundPendingTransfer.setDoneDate(new Date());
+        foundPendingTransfer.setDoneDate(LocalDateTime.now());
         foundPendingTransfer.setStatus(Status.DONE);
+    }
+
+    @Override
+    public List<MoneyBalanceOperation> getRecentActivity(String clientId) {
+        List<CurrencyExchangeDto> currencyExchangeDtoList = currencyExchangeRepository
+                .findTop5ByAccountClientIdOrderByOrderedOnDesc(clientId).stream().map(this::map).toList();
+        List<TransferDTO> transferDTOList = transferRepository
+                .findTop5ByReceiverClientIdOrSenderClientIdOrderByRequestDateDesc(clientId, clientId).stream()
+                .map(TransferMapper::map).toList();
+
+        List<MoneyBalanceOperation> recentActivityList = new ArrayList<>();
+        recentActivityList.addAll(currencyExchangeDtoList);
+        recentActivityList.addAll(transferDTOList);
+        recentActivityList.sort(Collections.reverseOrder());
+        final int numberOfRecentActivities = 4;
+
+        return recentActivityList.stream().limit(numberOfRecentActivities).toList();
+    }
+
+    private CurrencyExchangeDto map(CurrencyExchange currencyExchange) {
+        return new CurrencyExchangeDto(
+                currencyExchange.getOrderedOn(),
+                currencyExchange.getCurrencyBought().toString(),
+                currencyExchange.getAmountBought(),
+                currencyExchange.getCurrencySold().toString(),
+                currencyExchange.getAmountSold()
+        );
     }
 
     public static class TransferMapper {
         public static TransferDTO map(Transfer transfer) {
             return TransferDTO.builder()
-                    .receiver("TODO")
+                    .sender(transfer.getSender().getAccountDetails().getFirstName()
+                            + " " + transfer.getSender().getAccountDetails().getLastName())
+                    .receiver(transfer.getReceiver().getAccountDetails().getFirstName()
+                              + " " + transfer.getReceiver().getAccountDetails().getLastName())
                     .title(transfer.getTitle())
                     .amount(transfer.getAmount())
                     .currency(transfer.getCurrency().name())
@@ -100,7 +136,7 @@ public class TransferServiceImpl implements TransferService {
         public static Transfer map(TransferCreate transferCreate, Account sender, Account receiver) {
             return Transfer.builder()
                     .title(transferCreate.getTitle())
-                    .requestDate(new Date())
+                    .requestDate(LocalDateTime.now())
                     .amount(transferCreate.getAmount())
                     .currency(Currency.valueOf(transferCreate.getCurrency()))
                     .status(Status.PENDING)

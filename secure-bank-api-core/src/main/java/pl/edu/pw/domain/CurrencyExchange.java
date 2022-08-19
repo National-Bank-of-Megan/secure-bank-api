@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Table
 @Data
 @NoArgsConstructor
-public class CurrencyExchange {
+public class CurrencyExchange implements Comparable<CurrencyExchange> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,5 +45,10 @@ public class CurrencyExchange {
         this.currencySold = currencySold;
         this.amountSold = amountSold;
         this.account = account;
+    }
+
+    @Override
+    public int compareTo(CurrencyExchange currencyExchange) {
+        return getOrderedOn().compareTo(currencyExchange.getOrderedOn());
     }
 }

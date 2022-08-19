@@ -68,9 +68,8 @@ public class WebAuthController {
 
     @PostMapping("/login/verify")
     public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
-
         if (authService.verify(request, httpRequest)) {
-            Account account = accountRepository.findById(request.getClientId()).orElse(null);
+            Account account = accountRepository.findById(request.getClientId()).orElseThrow();
             Map<String, String> bodyResponse = new HashMap<>();
             bodyResponse.put("access_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.ACCESS));
             bodyResponse.put("refresh_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.REFRESH));

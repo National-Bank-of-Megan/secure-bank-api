@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -16,7 +17,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Transfer {
+public class Transfer implements Comparable<Transfer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +27,10 @@ public class Transfer {
     private String title;
 
     @Column
-    private Date requestDate;
+    private LocalDateTime requestDate;
 
     @Column
-    private Date doneDate;
+    private LocalDateTime doneDate;
 
     @Column
     private BigDecimal amount;
@@ -53,4 +54,9 @@ public class Transfer {
     @ManyToOne
     @JoinColumn(name = "receiver_id")
     private Account receiver;
+
+    @Override
+    public int compareTo(Transfer transfer) {
+        return getRequestDate().compareTo(transfer.getRequestDate());
+    }
 }

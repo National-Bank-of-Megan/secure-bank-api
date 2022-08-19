@@ -1,6 +1,7 @@
 package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import static pl.edu.pw.service.account.AccountServiceImpl.AccountMapper.map;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Log4j2
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
@@ -95,13 +97,16 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
         String accountSecret = account.getSecret();
         if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret)) {
+            log.error("Invalid one time password");
             throw new AuthenticationServiceException("Invalid one time password");
         }
         String currentHashedPassword = account.getPassword();
         if (!passwordEncoder.matches(changePassword.getOldPassword(), currentHashedPassword)) {
+            log.error("Incorrect old password");
             throw new AuthenticationServiceException("Incorrect old password");
         }
         if (changePassword.getOldPassword().equals(changePassword.getNewPassword())) {
+            log.error("New password cannot be the same as old password");
             throw new IllegalArgumentException("New password cannot be the same as old password");
         }
         String newPasswordHashed = passwordEncoder.encode(changePassword.getNewPassword());
