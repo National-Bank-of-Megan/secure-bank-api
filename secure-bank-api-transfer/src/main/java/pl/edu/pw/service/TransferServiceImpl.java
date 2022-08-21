@@ -52,14 +52,25 @@ public class TransferServiceImpl implements TransferService {
     @Override
     public Transfer create(TransferCreate transferCreate) {
         if (transferCreate.getAmount().doubleValue() <= 0.0) {
-            throw new IllegalArgumentException("Provide correct amount of money to transfer.");
+            throw new IllegalArgumentException("Provide correct amount of money to transfer");
+        }
+
+        Currency currency;
+        try {
+            currency = Currency.valueOf(transferCreate.getCurrency());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unknown currency " + transferCreate.getCurrency());
         }
 
         Account senderAccount = accountRepository.findById(transferCreate.getSenderId()).orElseThrow();
         Account receiverAccount = accountRepository.findByAccountNumber(transferCreate.getReceiverAccountNumber()).orElseThrow();
 
+        if (senderAccount.getSubAccounts().get(currency).getBalance().subtract(transferCreate.getAmount()).doubleValue() < 0.0) {
+            throw new IllegalArgumentException("Too low " + transferCreate.getCurrency() + " balance on your account");
+        }
+
         if (transferCreate.getSenderId().equals(receiverAccount.getClientId())) {
-            throw new IllegalArgumentException("Cannot make transfer to yourself.");
+            throw new IllegalArgumentException("Cannot make transfer to yourself");
         }
 
         senderAccount.chargeCurrencyBalance(Currency.valueOf(transferCreate.getCurrency()), transferCreate.getAmount());

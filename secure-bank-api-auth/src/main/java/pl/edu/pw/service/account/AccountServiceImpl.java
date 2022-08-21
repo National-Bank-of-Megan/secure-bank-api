@@ -12,6 +12,7 @@ import pl.edu.pw.dto.AddCurrency;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.ChangePassword;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
+import pl.edu.pw.exception.InvalidCredentialsException;
 import pl.edu.pw.exception.InvalidCurrencyException;
 import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
@@ -98,12 +99,12 @@ public class AccountServiceImpl implements AccountService {
         String accountSecret = account.getSecret();
         if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret)) {
             log.error("Invalid one time password");
-            throw new AuthenticationServiceException("Invalid one time password");
+            throw new InvalidCredentialsException("Invalid one time password");
         }
         String currentHashedPassword = account.getPassword();
         if (!passwordEncoder.matches(changePassword.getOldPassword(), currentHashedPassword)) {
             log.error("Incorrect old password");
-            throw new AuthenticationServiceException("Incorrect old password");
+            throw new InvalidCredentialsException("Incorrect old password");
         }
         if (changePassword.getOldPassword().equals(changePassword.getNewPassword())) {
             log.error("New password cannot be the same as old password");

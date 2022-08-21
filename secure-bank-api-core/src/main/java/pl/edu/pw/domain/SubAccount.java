@@ -28,10 +28,11 @@ public class SubAccount {
     }
 
     public void chargeFromBalance(BigDecimal amount) {
+        if (balance.subtract(amount).doubleValue() < 0.0) {
+            throw new IllegalArgumentException("Insufficient amount of funds on the account.");
+        }
         if (amount.doubleValue() > 0.0) {
             balance = balance.subtract(amount);
-        } else if (balance.subtract(amount).doubleValue() < 0.0) {
-            throw new IllegalArgumentException("Insufficient amount of funds on the account.");
         }
     }
 }

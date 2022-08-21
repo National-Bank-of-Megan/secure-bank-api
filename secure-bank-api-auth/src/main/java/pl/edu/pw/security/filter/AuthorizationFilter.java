@@ -31,7 +31,6 @@ import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 public class AuthorizationFilter extends OncePerRequestFilter {
     private final AccountRepository accountRepository;
     private final String jwtSecret;
-
     private static final Logger log = LoggerFactory.getLogger(AuthorizationFilter.class);
 
     @Override // według moich obliczeń powinno działać, a kod jest bardziej clean

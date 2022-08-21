@@ -37,6 +37,7 @@ public class WebSecurityConfig {
     private AccountHashRepository accountHashRepository;
     private DevicesServiceImpl devicesService;
     private JWTUtil jwtUtil;
+    private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -65,7 +66,9 @@ public class WebSecurityConfig {
                 .addFilter(webAuthenticationFilter)
                 .addFilter(mobileAuthenticationFilter)
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers().frameOptions().disable();
+                .headers().frameOptions().disable()
+                .and()
+                .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);
 
         return http.build();
     }
