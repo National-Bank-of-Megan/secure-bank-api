@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface TransferRepository extends JpaRepository<Transfer, Long> {
     List<Transfer> findTop5ByReceiverClientIdOrSenderClientIdOrderByRequestDateDesc(String receiverId, String senderId);
-
+    List<Transfer> findAllByReceiverClientIdOrSenderClientId(String receiverId, String senderId);
 }

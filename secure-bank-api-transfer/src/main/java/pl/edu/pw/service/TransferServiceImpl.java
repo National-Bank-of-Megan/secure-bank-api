@@ -9,6 +9,8 @@ import pl.edu.pw.domain.CurrencyExchange;
 import pl.edu.pw.domain.Status;
 import pl.edu.pw.domain.Transfer;
 import pl.edu.pw.dto.CurrencyExchangeDto;
+import pl.edu.pw.dto.HistoryTransferDTO;
+import pl.edu.pw.dto.TransferType;
 import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
@@ -19,7 +21,6 @@ import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.CurrencyExchangeRepository;
 import pl.edu.pw.repository.TransferRepository;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,16 +40,13 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public List<TransferDTO> getAll(String clientId) {
-        return transferRepository.findAll().stream().filter(transfer -> isClientTransfer(transfer, clientId)).map(TransferMapper::map).toList();
-    }
-
-    private boolean isClientTransfer(Transfer transfer, String clientId) {
-        return transfer.getReceiver().getClientId().equals(clientId) || transfer.getSender().getClientId().equals(clientId);
+        return transferRepository.findAllByReceiverClientIdOrSenderClientId(clientId, clientId).stream()
+                                 .map(transfer -> TransferMapper.map(transfer, clientId)).toList();
     }
 
     @Override
-    public TransferDTO getTransfer(Long transferId) {
-        return transferRepository.findById(transferId).map(TransferMapper::map).orElseThrow();
+    public TransferDTO getTransfer(Long transferId, String clientId) {
+        return transferRepository.findById(transferId).map(transfer -> TransferMapper.map(transfer, clientId)).orElseThrow();
     }
 
     @Override
@@ -96,7 +94,7 @@ public class TransferServiceImpl implements TransferService {
                 .findTop5ByAccountClientIdOrderByOrderedOnDesc(clientId).stream().map(this::map).toList();
         List<TransferDTO> transferDTOList = transferRepository
                 .findTop5ByReceiverClientIdOrSenderClientIdOrderByRequestDateDesc(clientId, clientId).stream()
-                .map(TransferMapper::map).toList();
+                .map(transfer -> TransferMapper.map(transfer, clientId)).toList();
 
         List<MoneyBalanceOperation> recentActivityList = new ArrayList<>();
         recentActivityList.addAll(currencyExchangeDtoList);
@@ -118,8 +116,16 @@ public class TransferServiceImpl implements TransferService {
     }
 
     public static class TransferMapper {
-        public static TransferDTO map(Transfer transfer) {
+        public static TransferDTO map(Transfer transfer, String clientId) {
+            TransferType transferType = null;
+            if (transfer.getReceiver().getClientId().equals(clientId)) {
+                transferType = TransferType.RECEIVED;
+            } else if (transfer.getSender().getClientId().equals(clientId)) {
+                transferType = TransferType.SENT;
+            }
+
             return TransferDTO.builder()
+                    .transferType(transferType)
                     .sender(transfer.getSender().getAccountDetails().getFirstName()
                             + " " + transfer.getSender().getAccountDetails().getLastName())
                     .receiver(transfer.getReceiver().getAccountDetails().getFirstName()
@@ -129,8 +135,7 @@ public class TransferServiceImpl implements TransferService {
                     .currency(transfer.getCurrency().name())
                     .requestDate(transfer.getRequestDate())
                     .doneDate(transfer.getDoneDate())
-                    .status(transfer.getStatus().name())
-                    .balanceAfter(new BigDecimal(123)).build();
+                    .status(transfer.getStatus().name()).build();
         }
 
         public static Transfer map(TransferCreate transferCreate, Account sender, Account receiver) {
@@ -146,6 +151,27 @@ public class TransferServiceImpl implements TransferService {
 
         public static PendingTransfer mapToPending(Transfer transfer) {
             return new PendingTransfer(transfer.getId(), transfer.getCurrency(), transfer.getAmount(), Status.PENDING);
+        }
+
+        public static HistoryTransferDTO mapToHistoryTransfer(Transfer transfer, String clientId) {
+            TransferType transferType;
+            if (transfer.getReceiver().getClientId().equals(clientId)) {
+                transferType = TransferType.RECEIVED;
+            } else {
+                transferType = TransferType.SENT;
+            }
+            return HistoryTransferDTO.builder()
+                    .transferType(transferType)
+                    .sender(transfer.getSender().getAccountDetails().getFirstName()
+                            + " " + transfer.getSender().getAccountDetails().getLastName())
+                    .receiver(transfer.getReceiver().getAccountDetails().getFirstName()
+                            + " " + transfer.getReceiver().getAccountDetails().getLastName())
+                    .title(transfer.getTitle())
+                    .amount(transfer.getAmount())
+                    .currency(transfer.getCurrency().name())
+                    .requestDate(transfer.getRequestDate())
+                    .doneDate(transfer.getDoneDate())
+                    .status(transfer.getStatus().name()).build();
         }
     }
 }

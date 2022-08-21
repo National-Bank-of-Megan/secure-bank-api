@@ -13,7 +13,7 @@ public interface TransferService {
 
     List<TransferDTO> getAll(String clientId);
 
-    TransferDTO getTransfer(Long transferId);
+    TransferDTO getTransfer(Long transferId, String clientId);
 
     Transfer create(TransferCreate transferCreate);
 

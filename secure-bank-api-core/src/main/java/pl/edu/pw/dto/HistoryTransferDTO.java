@@ -1,17 +1,13 @@
 package pl.edu.pw.dto;
 
-import lombok.Builder;
-import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import pl.edu.pw.model.MoneyBalanceOperation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 
-@Getter
 @SuperBuilder
-public class TransferDTO extends MoneyBalanceOperation {
+public class HistoryTransferDTO extends MoneyBalanceOperation {
     private TransferType transferType;
     private String sender;
     private String receiver;

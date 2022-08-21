@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
+import pl.edu.pw.dto.HistoryTransferDTO;
 import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
@@ -32,8 +33,8 @@ public class TransferController {
     }
 
     @GetMapping("/{transferId}")
-    public ResponseEntity<TransferDTO> getTransfer(@PathVariable Long transferId) {
-        return ResponseEntity.ok(transferService.getTransfer(transferId));
+    public ResponseEntity<TransferDTO> getTransfer(@AuthenticationPrincipal Account account, @PathVariable Long transferId) {
+        return ResponseEntity.ok(transferService.getTransfer(transferId, account.getClientId()));
     }
 
     @PostMapping
