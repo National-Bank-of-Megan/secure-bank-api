@@ -1,6 +1,7 @@
 package pl.edu.pw.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +14,7 @@ import pl.edu.pw.dto.TransferDTO;
 import pl.edu.pw.dto.TransferUpdate;
 import pl.edu.pw.service.TransferService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -32,26 +34,27 @@ public class TransferController {
         return ResponseEntity.ok(transferService.getRecentActivity(account.getClientId()));
     }
 
-    @GetMapping("/{transferId}")
-    public ResponseEntity<TransferDTO> getTransfer(@AuthenticationPrincipal Account account, @PathVariable Long transferId) {
-        return ResponseEntity.ok(transferService.getTransfer(transferId, account.getClientId()));
-    }
-
     @PostMapping
-    public ResponseEntity<Void> makeTransfer(@RequestBody TransferCreate transferCreate) {
-        transferService.create(transferCreate);
+    public ResponseEntity<Void> makeTransfer(@AuthenticationPrincipal Account account,
+                                             @RequestBody @Valid TransferCreate transferCreate) {
+        transferService.create(transferCreate, account.getClientId());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping
-    public ResponseEntity<Void> updateTransfer(@RequestBody TransferUpdate transferUpdate) {
-        transferService.update(transferUpdate);
-        return ResponseEntity.noContent().build();
-    }
+//    @GetMapping("/{transferId}")
+//    public ResponseEntity<TransferDTO> getTransfer(@AuthenticationPrincipal Account account, @PathVariable Long transferId) {
+//        return ResponseEntity.ok(transferService.getTransfer(transferId, account.getClientId()));
+//    }
 
-    @DeleteMapping("/{transferId}")
-    public ResponseEntity<Void> deleteTransfer(@PathVariable Long transferId) {
-        transferService.delete(transferId);
-        return ResponseEntity.accepted().build();
-    }
+//    @PutMapping
+//    public ResponseEntity<Void> updateTransfer(@RequestBody TransferUpdate transferUpdate) {
+//        transferService.update(transferUpdate);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    @DeleteMapping("/{transferId}")
+//    public ResponseEntity<Void> deleteTransfer(@PathVariable Long transferId) {
+//        transferService.delete(transferId);
+//        return ResponseEntity.accepted().build();
+//    }
 }

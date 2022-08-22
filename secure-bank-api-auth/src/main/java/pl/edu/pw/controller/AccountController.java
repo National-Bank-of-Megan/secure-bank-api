@@ -14,6 +14,7 @@ import pl.edu.pw.dto.ChangePassword;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.service.account.AccountService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -29,7 +30,8 @@ public class AccountController {
     }
 
     @PutMapping("/currency")
-    public ResponseEntity<Void> addCurrency(@AuthenticationPrincipal Account account, @RequestBody AddCurrency addCurrency) {
+    public ResponseEntity<Void> addCurrencyBalance(@AuthenticationPrincipal Account account,
+                                                   @RequestBody @Valid AddCurrency addCurrency) {
         accountService.addCurrencyBalance(account, addCurrency);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -47,13 +49,14 @@ public class AccountController {
 
     @PostMapping("/receiver")
     public ResponseEntity<FavoriteReceiverDTO> addFavoriteReceiver(@AuthenticationPrincipal Account account,
-                                                    @RequestBody AddFavoriteReceiver addFavoriteReceiver) {
+                                                                   @RequestBody @Valid AddFavoriteReceiver addFavoriteReceiver) {
         FavoriteReceiverDTO createdFavoriteReceiver = accountService.addFavoriteReceiver(account, addFavoriteReceiver);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFavoriteReceiver);
     }
 
     @PutMapping("/changePassword")
-    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal Account account, @RequestBody ChangePassword changePassword) {
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal Account account,
+                                               @RequestBody @Valid ChangePassword changePassword) {
         accountService.changePassword(account, changePassword);
         return new ResponseEntity<>(HttpStatus.OK);
     }

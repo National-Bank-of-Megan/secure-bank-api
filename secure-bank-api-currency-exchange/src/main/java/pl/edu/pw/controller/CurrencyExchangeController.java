@@ -8,6 +8,7 @@ import pl.edu.pw.dto.CurrencyExchangeDto;
 import pl.edu.pw.dto.CurrencyExchangeRequest;
 import pl.edu.pw.service.CurrencyExchangeService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,9 +19,9 @@ public class CurrencyExchangeController {
     private CurrencyExchangeService currencyExchangeService;
 
     @PostMapping("/")
-    public ResponseEntity exchangeCurrency(@RequestBody CurrencyExchangeRequest request) {
+    public ResponseEntity<Void> exchangeCurrency(@RequestBody @Valid CurrencyExchangeRequest request) {
         currencyExchangeService.exchangeCurrency(request);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/all")

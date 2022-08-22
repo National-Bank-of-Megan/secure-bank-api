@@ -15,7 +15,7 @@ public interface TransferService {
 
     TransferDTO getTransfer(Long transferId, String clientId);
 
-    Transfer create(TransferCreate transferCreate);
+    Transfer create(TransferCreate transferCreate, String senderId);
 
     void delete(Long transferId);
 

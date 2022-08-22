@@ -43,7 +43,8 @@ public class WebAuthController {
     private final JWTUtil jwtUtil;
 
     @PostMapping(value = "/register", produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessfulRegistrationResponse> register(@Valid @RequestBody AccountRegistration registration, HttpServletRequest request) {
+    public ResponseEntity<SuccessfulRegistrationResponse> register(@Valid @RequestBody AccountRegistration registration,
+                                                                   HttpServletRequest request) {
         registration.setLocalIp(getLocalIpAddress());
         registration.setPublicIp(HttpRequestUtils.getClientIpAddressFromRequest(request));
         SuccessfulRegistrationResponse registerResponseData = authService.registerAccount(registration);
@@ -61,7 +62,7 @@ public class WebAuthController {
     }
 
     @GetMapping("/login/combination")
-    public LoginCombinationDto getLoginCombination(@Valid @RequestParam String clientId) {
+    public LoginCombinationDto getLoginCombination(@RequestParam String clientId) {
         String combination = authService.getLoginCombination(clientId);
         return new LoginCombinationDto(clientId, combination);
     }

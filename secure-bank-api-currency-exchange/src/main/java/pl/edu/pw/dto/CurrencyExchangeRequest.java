@@ -3,7 +3,11 @@ package pl.edu.pw.dto;
 import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import pl.edu.pw.security.validation.Money;
+import pl.edu.pw.security.validation.ValidCurrency;
 
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -11,16 +15,18 @@ import java.time.LocalDateTime;
 @Data
 public class CurrencyExchangeRequest {
 
-    @NotNull
+    @NotBlank
+    @ValidCurrency
     private String currencyBought;
 
-    @NotNull
+    @NotBlank
+    @ValidCurrency
     private String currencySold;
 
     @NotNull
+    @DateTimeFormat
     private LocalDateTime exchangeTime;
 
-    @NotNull
+    @Money
     private BigDecimal sold;
-
 }

@@ -3,6 +3,8 @@ package pl.edu.pw.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.edu.pw.security.validation.Money;
+import pl.edu.pw.security.validation.ValidCurrency;
 
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
@@ -13,8 +15,9 @@ import java.math.BigDecimal;
 public class AddCurrency {
 
     @NotBlank
+    @ValidCurrency
     private String currency;
 
-    @NotBlank
+    @Money
     private BigDecimal amount;
 }
