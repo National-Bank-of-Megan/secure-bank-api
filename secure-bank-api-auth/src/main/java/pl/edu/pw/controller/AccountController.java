@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AccountDTO;
-import pl.edu.pw.dto.AddCurrency;
+import pl.edu.pw.dto.AddCurrencyBalance;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.ChangePassword;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
@@ -31,8 +31,8 @@ public class AccountController {
 
     @PutMapping("/currency")
     public ResponseEntity<Void> addCurrencyBalance(@AuthenticationPrincipal Account account,
-                                                   @RequestBody @Valid AddCurrency addCurrency) {
-        accountService.addCurrencyBalance(account, addCurrency);
+                                                   @RequestBody @Valid AddCurrencyBalance addCurrencyBalance) {
+        accountService.addCurrencyBalance(account, addCurrencyBalance);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

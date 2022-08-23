@@ -12,9 +12,11 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class AddFavoriteReceiver {
 
-    @NotBlank
+    @NotBlank(message = "Favorite receiver name cannot be blank")
+    @Size(max = 50, message = "Favorite receiver name cannot be longer than 50 characters")
     private String name;
 
-    @Pattern(regexp="[\\d]{26}")
+    @NotBlank(message = "Account number cannot be blank")
+    @Pattern(regexp="[\\d]{26}", message = "Account number must be 26 digits long")
     private String accountNumber;
 }

@@ -11,12 +11,15 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 public class ChangePassword {
 
-    @NotBlank
+    @NotBlank(message = "Old password cannot be blank")
     private String oldPassword;
 
-    @ValidPassword
+    @NotBlank(message = "New password cannot be blank")
+    @ValidPassword(message = "Password must be from 10 to 20 characters long, must contain 1 digit, " +
+            "1 upper case letter, 1 lower case letter and 1 special character")
     private String newPassword;
 
-    @Pattern(regexp="[\\d]{6}")
+    @NotBlank(message = "One time password cannot be blank")
+    @Pattern(regexp = "[\\d]{6}", message = "One time password must be 6 digits long")
     private String otpCode;
 }

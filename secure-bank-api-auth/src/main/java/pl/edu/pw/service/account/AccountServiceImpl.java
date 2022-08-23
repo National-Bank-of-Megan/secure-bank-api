@@ -2,13 +2,12 @@ package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AccountDTO;
-import pl.edu.pw.dto.AddCurrency;
+import pl.edu.pw.dto.AddCurrencyBalance;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.ChangePassword;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
@@ -43,22 +42,22 @@ public class AccountServiceImpl implements AccountService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void addCurrencyBalance(Account account, AddCurrency addCurrency) {
+    public void addCurrencyBalance(Account account, AddCurrencyBalance addCurrencyBalance) {
         Currency currency;
-        if (addCurrency.getAmount().doubleValue() <= 0.0) {
+        if (addCurrencyBalance.getAmount().doubleValue() <= 0.0) {
             throw new IllegalArgumentException("Amount to add cannot be lower or equal to 0.");
         }
         try {
-            currency = Currency.valueOf(addCurrency.getCurrency());
+            currency = Currency.valueOf(addCurrencyBalance.getCurrency());
         } catch (NullPointerException e) {
-            throw new InvalidCurrencyException("Currency " + addCurrency.getCurrency() + " not found.");
+            throw new InvalidCurrencyException("Currency " + addCurrencyBalance.getCurrency() + " not found.");
         }
 //        account.addCurrencyBalance(currency, addCurrency.getAmount());
 //        todo catch exception when subaccount not found
         SubAccount subAccount = subAccountRepository.findById(new SubAccountId(CurrentUserUtil.getCurrentUser(),currency)).orElseThrow(
                 ()-> new SubAccountNotFoundException("Subaccount not found. Something wrong with database")
         );
-        subAccount.addToBalance(addCurrency.getAmount());
+        subAccount.addToBalance(addCurrencyBalance.getAmount());
     }
 
     @Override
