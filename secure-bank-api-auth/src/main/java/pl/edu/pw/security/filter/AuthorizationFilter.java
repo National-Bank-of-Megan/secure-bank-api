@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.edu.pw.domain.Account;
+import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 
 import javax.servlet.FilterChain;
@@ -61,7 +62,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);
         String accountNumber = decodedJWT.getSubject();
-        Account account = accountRepository.findById(accountNumber).orElseThrow();
+        Account account = accountRepository.findById(accountNumber).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + accountNumber + " account number was not found"));
         return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), null);
     }
 

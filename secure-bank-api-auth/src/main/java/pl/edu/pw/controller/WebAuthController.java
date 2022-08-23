@@ -14,6 +14,7 @@ import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.LoginCombinationDto;
 import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.VerifyCodeRequest;
+import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.util.JWTUtil;
@@ -70,7 +71,8 @@ public class WebAuthController {
     @PostMapping("/login/verify")
     public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
         if (authService.verify(request, httpRequest)) {
-            Account account = accountRepository.findById(request.getClientId()).orElseThrow();
+            Account account = accountRepository.findById(request.getClientId()).orElseThrow(() ->
+                    new ResourceNotFoundException("Account with " + request.getClientId() + " client id was not found"));
             Map<String, String> bodyResponse = new HashMap<>();
             bodyResponse.put("access_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.ACCESS));
             bodyResponse.put("refresh_token", jwtUtil.getToken(account, httpRequest, JsonWebTokenType.REFRESH));

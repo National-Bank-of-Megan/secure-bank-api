@@ -11,6 +11,7 @@ import pl.edu.pw.domain.Transfer;
 import pl.edu.pw.dto.CurrencyExchangeDto;
 import pl.edu.pw.dto.HistoryTransferDTO;
 import pl.edu.pw.dto.TransferType;
+import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
@@ -46,7 +47,8 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public TransferDTO getTransfer(Long transferId, String clientId) {
-        return transferRepository.findById(transferId).map(transfer -> TransferMapper.map(transfer, clientId)).orElseThrow();
+        return transferRepository.findById(transferId).map(transfer -> TransferMapper.map(transfer, clientId)).orElseThrow(() ->
+                new ResourceNotFoundException("Transfer with " + transferId + " id was not found"));
     }
 
     @Override
@@ -62,8 +64,10 @@ public class TransferServiceImpl implements TransferService {
             throw new IllegalArgumentException("Unknown currency " + transferCreate.getCurrency());
         }
 
-        Account senderAccount = accountRepository.findById(senderId).orElseThrow();
-        Account receiverAccount = accountRepository.findByAccountNumber(transferCreate.getReceiverAccountNumber()).orElseThrow();
+        Account senderAccount = accountRepository.findById(senderId).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + senderId + " client id was not found"));
+        Account receiverAccount = accountRepository.findByAccountNumber(transferCreate.getReceiverAccountNumber()).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + transferCreate.getReceiverAccountNumber() + " account number was not found"));
 
         if (senderAccount.getSubAccounts().get(currency).getBalance().subtract(transferCreate.getAmount()).doubleValue() < 0.0) {
             throw new IllegalArgumentException("Too low " + transferCreate.getCurrency() + " balance on your account");
@@ -92,7 +96,8 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public void finalizeTransfer(PendingTransfer pendingTransfer) {
-        Transfer foundPendingTransfer = transferRepository.findById(pendingTransfer.getId()).orElseThrow();
+        Transfer foundPendingTransfer = transferRepository.findById(pendingTransfer.getId()).orElseThrow(() ->
+                new ResourceNotFoundException("Transfer with " + pendingTransfer.getId() + " id was not found"));
         Account receiver = foundPendingTransfer.getReceiver();
         receiver.addCurrencyBalance(pendingTransfer.getCurrency(), pendingTransfer.getAmount());
         foundPendingTransfer.setDoneDate(LocalDateTime.now());

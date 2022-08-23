@@ -13,6 +13,7 @@ import pl.edu.pw.dto.ChangePassword;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.exception.InvalidCredentialsException;
 import pl.edu.pw.exception.InvalidCurrencyException;
+import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.FavoriteReceiverRepository;
@@ -74,13 +75,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<FavoriteReceiverDTO> getAllFavoriteReceivers(Account loggedAccount) {
-        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + loggedAccount.getClientId() + " client id was not found"));
         return account.getFavoriteReceivers().stream().map(AccountMapper::map).toList();
     }
 
     @Override
     public FavoriteReceiverDTO addFavoriteReceiver(Account loggedAccount, AddFavoriteReceiver addFavoriteReceiver) {
-        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + loggedAccount.getClientId() + " client id was not found"));
         FavoriteReceiver favoriteReceiver = map(addFavoriteReceiver);
         account.addFavoriteReceiver(favoriteReceiver);
         return map(favoriteReceiverRepository.save(favoriteReceiver));
@@ -88,13 +91,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDTO getAccountData(Account loggedAccount) {
-        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + loggedAccount.getClientId() + " client id was not found"));
         return map(account);
     }
 
     @Override
     public void changePassword(Account loggedAccount, ChangePassword changePassword) {
-        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow();
+        Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + loggedAccount.getClientId() + " client id was not found"));
         String accountSecret = account.getSecret();
         if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret)) {
             log.error("Invalid one time password");

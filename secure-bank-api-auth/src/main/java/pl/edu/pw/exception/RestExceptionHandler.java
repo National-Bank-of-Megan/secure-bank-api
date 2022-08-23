@@ -38,13 +38,14 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, WebRequest request) {
         String errorMessage = FIELD_VALIDATION_FAILURE_DEFAULT_MESSAGE;
         if (e.getFieldError() != null) {
-            if (e.getFieldError().getRejectedValue() != null) {
-                errorMessage = e.getFieldError().getRejectedValue() + " - " + e.getFieldError().getDefaultMessage();
-            } else {
-                errorMessage = e.getFieldError().getField() + " - " + e.getFieldError().getDefaultMessage();
-            }
+            errorMessage = e.getMessage();
         }
         return new ResponseEntity<>(buildErrorMessageBody(errorMessage), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({ ResourceNotFoundException.class })
+    public ResponseEntity<Object> handleResourceNotFoundException(Exception e, WebRequest request) {
+        return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({ IllegalArgumentException.class })
