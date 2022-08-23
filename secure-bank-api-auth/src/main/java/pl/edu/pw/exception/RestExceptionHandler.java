@@ -34,11 +34,15 @@ public class RestExceptionHandler {
         }
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.UNAUTHORIZED);
     }
-    @ExceptionHandler({ MethodArgumentNotValidException.class })
+    @ExceptionHandler({ MethodArgumentNotValidException.class }) // TODO: in the future override all messages, then remove if block
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, WebRequest request) {
         String errorMessage = FIELD_VALIDATION_FAILURE_DEFAULT_MESSAGE;
         if (e.getFieldError() != null) {
-            errorMessage = e.getFieldError().getRejectedValue() + " - " + e.getFieldError().getDefaultMessage();
+            if (e.getFieldError().getRejectedValue() != null) {
+                errorMessage = e.getFieldError().getRejectedValue() + " - " + e.getFieldError().getDefaultMessage();
+            } else {
+                errorMessage = e.getFieldError().getField() + " - " + e.getFieldError().getDefaultMessage();
+            }
         }
         return new ResponseEntity<>(buildErrorMessageBody(errorMessage), HttpStatus.BAD_REQUEST);
     }

@@ -7,6 +7,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import pl.edu.pw.security.validation.Money;
 import pl.edu.pw.security.validation.ValidCurrency;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,6 +30,9 @@ public class CurrencyExchangeRequest {
     @DateTimeFormat
     private LocalDateTime exchangeTime;
 
-    @Money
+    @NotNull
+    @Digits(integer = 6, fraction = 2)
+    @DecimalMin(value = "0.0", inclusive = false)
+    @DecimalMax(value = "100000.0")
     private BigDecimal sold;
 }
