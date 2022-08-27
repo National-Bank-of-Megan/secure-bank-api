@@ -19,6 +19,7 @@ import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.security.filter.AuthorizationFilter;
 import pl.edu.pw.security.filter.MobileAuthenticationFilter;
 import pl.edu.pw.security.filter.WebAuthenticationFilter;
+
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
 
@@ -56,6 +57,7 @@ public class WebSecurityConfig {
                 .and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionAuthenticationFailureHandler(authenticationFailureHandler())
                 .and()
                 .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**", "/api/web/login/verify/**", "/api/web/token/refresh").permitAll()
                 .and()
@@ -102,5 +104,10 @@ public class WebSecurityConfig {
 
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public RestAuthenticationFailureHandler authenticationFailureHandler(){
+        return new RestAuthenticationFailureHandler();
     }
 }

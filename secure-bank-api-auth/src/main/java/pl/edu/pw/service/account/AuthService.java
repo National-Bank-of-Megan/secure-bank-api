@@ -11,7 +11,6 @@ public interface AuthService {
     SuccessfulRegistrationResponse registerAccount(AccountRegistration registerData, HttpServletRequest request);
 
     Account getAccount(String accountNumber);
-
     String getLoginCombination(String username);
 
     boolean verifyDevice(VerifyDeviceWithCodeRequest request, HttpServletRequest httpRequest);
