@@ -22,6 +22,7 @@ import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
 
+import javax.persistence.EntityManager;
 import java.util.Arrays;
 
 @Configuration
@@ -38,6 +39,7 @@ public class WebSecurityConfig {
     private DevicesServiceImpl devicesService;
     private JWTUtil jwtUtil;
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private EntityManager entityManager;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -79,7 +81,9 @@ public class WebSecurityConfig {
     }
 
     private WebAuthenticationFilter getAuthenticationFilter() throws Exception {
-        WebAuthenticationFilter webAuthenticationFilter = new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository, devicesService, jwtUtil);
+        WebAuthenticationFilter webAuthenticationFilter =
+                new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration),
+                        accountRepository, accountHashRepository, devicesService, jwtUtil, entityManager);
         webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
         webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
         webAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);
@@ -93,7 +97,7 @@ public class WebSecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type", "Accept", "Cache-Control"));
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type", "Accept", "Cache-Control", "Device-Fingerprint"));
 //        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-type"));
 
         source.registerCorsConfiguration("/**", configuration);

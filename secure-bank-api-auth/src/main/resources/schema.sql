@@ -12,7 +12,6 @@ CREATE TABLE account
 (
     client_id          VARCHAR(16) PRIMARY KEY,
     secret             VARCHAR(255),
-    should_be_verified BOOLEAN DEFAULT false,
     current_hash_id    INT UNIQUE,
     account_number     VARCHAR(255) NOT NULL UNIQUE,
     password           VARCHAR(255) NOT NULL
@@ -73,8 +72,12 @@ CREATE TABLE device
 (
     id        INT PRIMARY KEY AUTO_INCREMENT,
     client_id VARCHAR(16) NOT NULL,
+    fingerprint VARCHAR(255) NOT NULL,
     name      VARCHAR(200),
     ip        VARCHAR(50) NOT NULL,
+    registration_date DATETIME NOT NULL,
+    last_logged_in DATETIME,
+    is_verified BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 

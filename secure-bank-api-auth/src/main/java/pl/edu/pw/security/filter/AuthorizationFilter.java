@@ -34,7 +34,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     private final String jwtSecret;
     private static final Logger log = LoggerFactory.getLogger(AuthorizationFilter.class);
 
-    @Override // według moich obliczeń powinno działać, a kod jest bardziej clean
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
         if (!(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/web/login/verify"))) {
@@ -46,7 +46,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Map<String, String> error = getErrorMap(e);
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error_message", e.getMessage());
                     response.setStatus(FORBIDDEN.value());
                     response.setContentType(APPLICATION_JSON_VALUE);
                     new ObjectMapper().writeValue(response.getOutputStream(), error);
@@ -65,11 +66,5 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         Account account = accountRepository.findById(accountNumber).orElseThrow(() ->
                 new ResourceNotFoundException("Account with " + accountNumber + " account number was not found"));
         return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), null);
-    }
-
-    private Map<String, String> getErrorMap(Exception e) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error_message", e.getMessage());
-        return error;
     }
 }

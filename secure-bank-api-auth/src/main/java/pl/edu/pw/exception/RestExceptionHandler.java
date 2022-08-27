@@ -38,7 +38,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, WebRequest request) {
         String errorMessage = FIELD_VALIDATION_FAILURE_DEFAULT_MESSAGE;
         if (e.getFieldError() != null) {
-            errorMessage = e.getMessage();
+            errorMessage = e.getFieldError().getDefaultMessage();
         }
         return new ResponseEntity<>(buildErrorMessageBody(errorMessage), HttpStatus.BAD_REQUEST);
     }

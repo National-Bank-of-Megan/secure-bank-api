@@ -33,8 +33,6 @@ public class Account implements UserDetails {
     @Column
     private String secret;
 
-    @Column
-    private boolean shouldBeVerified = false;
 
     @Column
     @NotBlank

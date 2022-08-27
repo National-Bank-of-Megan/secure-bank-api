@@ -3,8 +3,6 @@ package pl.edu.pw.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +11,8 @@ import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.LoginCombinationDto;
 import pl.edu.pw.dto.SuccessfulRegistrationResponse;
-import pl.edu.pw.dto.VerifyCodeRequest;
+import pl.edu.pw.dto.VerifyDeviceWithCodeRequest;
+import pl.edu.pw.exception.ErrorMessageBody;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AuthService;
@@ -24,9 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,20 +43,9 @@ public class WebAuthController {
     @PostMapping(value = "/register", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessfulRegistrationResponse> register(@Valid @RequestBody AccountRegistration registration,
                                                                    HttpServletRequest request) {
-        registration.setLocalIp(getLocalIpAddress());
-        registration.setPublicIp(HttpRequestUtils.getClientIpAddressFromRequest(request));
-        SuccessfulRegistrationResponse registerResponseData = authService.registerAccount(registration);
+        registration.setIp(HttpRequestUtils.getClientIpAddressFromRequest(request));
+        SuccessfulRegistrationResponse registerResponseData = authService.registerAccount(registration, request);
         return ResponseEntity.created(URI.create("/register")).body(registerResponseData);
-    }
-
-    private String getLocalIpAddress() {
-        String localIp;
-        try {
-            localIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            localIp = "UNKNOWN";
-        }
-        return localIp;
     }
 
     @GetMapping("/login/combination")
@@ -69,8 +55,8 @@ public class WebAuthController {
     }
 
     @PostMapping("/login/verify")
-    public ResponseEntity<?> verifyCode(@Valid @RequestBody VerifyCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
-        if (authService.verify(request, httpRequest)) {
+    public ResponseEntity<?> verifyDevice(@Valid @RequestBody VerifyDeviceWithCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
+        if (authService.verifyDevice(request, httpRequest)) {
             Account account = accountRepository.findById(request.getClientId()).orElseThrow(() ->
                     new ResourceNotFoundException("Account with " + request.getClientId() + " client id was not found"));
             Map<String, String> bodyResponse = new HashMap<>();
@@ -81,7 +67,9 @@ public class WebAuthController {
             new ObjectMapper().writeValue(response.getOutputStream(), bodyResponse);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(
+                    ErrorMessageBody.builder().message("Invalid one time password").build(), HttpStatus.UNAUTHORIZED
+            );
         }
     }
 

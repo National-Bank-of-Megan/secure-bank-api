@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table
@@ -20,17 +21,32 @@ public class Device {
     private Long id;
 
     @Column
+    private String fingerprint;
+
+    @Column
     private String name;
 
     @Column
     private String ip;
 
+    @Column
+    private LocalDateTime registrationDate;
+
+    @Column
+    private LocalDateTime lastLoggedIn;
+
+    @Column
+    private boolean isVerified;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     private Account account;
 
-    public Device(String name, String ip) {
+    public Device(String fingerprint, String name, LocalDateTime registrationDate, String ip) {
+        this.fingerprint = fingerprint;
         this.name = name;
+        this.registrationDate = registrationDate;
         this.ip = ip;
+        this.isVerified = false;
     }
 }

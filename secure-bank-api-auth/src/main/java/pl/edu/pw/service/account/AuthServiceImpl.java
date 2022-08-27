@@ -11,14 +11,18 @@ import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.SuccessfulRegistrationResponse;
-import pl.edu.pw.dto.VerifyCodeRequest;
+import pl.edu.pw.dto.VerifyDeviceWithCodeRequest;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.repository.DeviceRepository;
+import pl.edu.pw.service.devices.DevicesService;
 import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.util.PasswordUtil;
+import pl.edu.pw.util.http.HttpRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,41 +35,37 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     private static final String NO_SUCH_ACCOUNT_MESSAGE = "No such account";
 
     private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
+    private final DevicesService devicesService;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
+    private final DeviceRepository deviceRepository;
 
     @Override
-    public SuccessfulRegistrationResponse registerAccount(AccountRegistration registerData) {
+    public SuccessfulRegistrationResponse registerAccount(AccountRegistration registerData, HttpServletRequest request) {
         if (accountRepository.findByAccountDetailsEmail(registerData.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("This email is already taken.");
+            throw new IllegalArgumentException("This email is already taken");
         }
+
+        String deviceName = HttpRequestUtils.getDeviceNameFromRequest(request, devicesService);
         String rawPassword = registerData.getPassword();
-        log.info("Getting raw password");
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
         List<Account> allAccounts = accountRepository.findAll();
-        log.info("getting existsing account numbers");
         Set<String> existingAccountsNumbers = allAccounts.stream().map(Account::getAccountNumber).collect(Collectors.toSet());
-        log.info("getting existsing client ids");
         Set<String> existingClientIds = allAccounts.stream().map(Account::getClientId).collect(Collectors.toSet());
-        log.info("mapping account pl.edu.pw.dto");
         Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
-        log.info("setting password hashes");
         PasswordUtil.addAccountHashes(accountToRegister, rawPassword, passwordEncoder);
-        log.info("adding subaccounts");
-        accountToRegister.addSubAccounts(Currency.values());
 
-        log.info("setting account details");
-        accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), null));
-        log.info("adding new device");
-        accountToRegister.addDevice(new Device("TODO", registerData.getPublicIp()));
-        log.info("generating otp secret");
+        accountToRegister.addSubAccounts(Currency.values());
+        accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), "666 666 666"));
+
+        accountToRegister.addDevice(new Device(registerData.getDeviceFingerprint(), deviceName, LocalDateTime.now(), registerData.getIp()));
+
         String secret = otpService.generateSecret();
-        log.info("setting otp secret");
         accountToRegister.setSecret(secret);
-        log.info("saving account");
+
         String generatedClientId = accountRepository.save(accountToRegister).getClientId();
-        log.info("getting url for qr code image");
+
         otpService.getUriForImage(secret);
         String qrImageUri = otpService.getUriForImage(secret);
         return new SuccessfulRegistrationResponse(generatedClientId, qrImageUri);
@@ -77,21 +77,33 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     }
 
     @Override
-    public boolean verify(VerifyCodeRequest verifyRequest, HttpServletRequest httpRequest) {
-//        todo check whether devices are the same (login and verification)
-        Account account = accountRepository.findById(verifyRequest.getClientId()).orElse(null);
-        if (account == null) return false;
-        else {
-            //      jak bd coś takiego spr. to można dawać komunikaty o podejrzanej aktywności
-            if (!account.isShouldBeVerified()) return false;
+    public boolean verifyDevice(VerifyDeviceWithCodeRequest verifyRequest, HttpServletRequest request) {
+        // TODO: consider demanding to send all of user device info which is required to generate fingerprint - this way we can generate fingerprint on our own in backend and check if it's the same as fingerprint sent by user
 
-            boolean isCodeValid = otpService.verifyCode(verifyRequest.getCode(), account.getSecret());
-            if (!isCodeValid) return false;
-
-            account.setShouldBeVerified(false);
-            accountRepository.save(account);
-            return true;
+        Account account = accountRepository.findById(verifyRequest.getClientId()).orElseThrow(
+                () -> new ResourceNotFoundException("Account with given clientId does not exist")
+        );
+        String requestPublicIp = HttpRequestUtils.getClientIpAddressFromRequest(request);
+        List<Device> accountDevices = account.getAccountDevices();
+        Device foundDevice = accountDevices.stream().filter(device -> device.getFingerprint()
+                .equals(verifyRequest.getDeviceFingerprint())).findFirst().orElse(null);
+        if (foundDevice == null) {
+            throw new ResourceNotFoundException("There is no such device attached to this account");
         }
+        if (foundDevice.isVerified()) {
+            throw new IllegalArgumentException("This device is already verified");
+        }
+//        if (!foundDevice.getIp().equals(requestPublicIp)) {     // overkill?
+//            throw new IllegalArgumentException("You cannot verify this device from different ip");
+//        }
+        boolean isCodeValid = otpService.verifyCode(verifyRequest.getCode(), account.getSecret());
+        if (isCodeValid) {
+            foundDevice.setVerified(true);
+            deviceRepository.save(foundDevice);
+        }
+        return isCodeValid;
+        //      jak bd coś takiego spr. to można dawać komunikaty o podejrzanej aktywności
+        //            if (!account.isShouldBeVerified()) return false;
     }
 
     public String getLoginCombination(String clientId) {
@@ -122,11 +134,9 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         }
     }
 
-    // TODO: do wywalenia?
     @Override
     public Account loadUserByUsername(String clientId) throws UsernameNotFoundException {
         return accountRepository.findById(clientId).
                 orElseThrow(() -> new UsernameNotFoundException(String.format("Account %s not found", clientId)));
     }
-
 }

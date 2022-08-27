@@ -30,7 +30,13 @@ public class AccountRegistration {
             "1 upper case letter, 1 lower case letter and 1 special character")
     private String password;
 
-    private String publicIp;
+//    @NotBlank(message = "Device name cannot be blank")
+//    @Size(min = 3, max = 200, message = "Device name must be from 3 to 200 characters long")
+//    private String deviceName;
 
-    private String localIp;
+    @NotBlank(message = "Device fingerprint cannot be blank")
+    @Size(min = 8, max = 255, message = "Device fingerprint must be from 8 to 255 characters long")
+    private String deviceFingerprint;
+
+    private String ip;
 }
