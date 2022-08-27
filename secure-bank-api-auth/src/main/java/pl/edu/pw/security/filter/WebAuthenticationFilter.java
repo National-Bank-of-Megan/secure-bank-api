@@ -61,8 +61,11 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
         log.info("WebAuthenticationFilter->\ttrying to authenticate...");
+        String deviceFingerprint = request.getHeader("Device-Fingerprint");
+        if (deviceFingerprint == null) {
+            throw new RuntimeException("Device-Fingerprint header is required to log in");
+        }
         String clientId, password;
         try {
             Map<String, String> requestMap = new ObjectMapper().readValue(request.getInputStream(), Map.class);
@@ -79,9 +82,6 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         log.info("WebAuthenticationFilter->\tsending JWT. Authentication successful");
         String deviceFingerprint = request.getHeader("Device-Fingerprint");
-        if (deviceFingerprint == null) {
-            throw new RuntimeException("Device-Fingerprint header is required to log in");
-        }
         String ipAddress = HttpRequestUtils.getClientIpAddressFromRequest(request);
         log.info("Machine trying to access api: " + ipAddress);
         String loggedClientId = ((Account)authResult.getPrincipal()).getClientId();

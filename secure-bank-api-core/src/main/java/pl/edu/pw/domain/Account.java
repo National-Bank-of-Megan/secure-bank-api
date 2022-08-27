@@ -43,9 +43,6 @@ public class Account implements UserDetails {
     private Date lockTime;
 
     @Column
-    private boolean shouldBeVerified = false;
-
-    @Column
     @NotBlank
     private String password;
 
