@@ -3,6 +3,9 @@ package pl.edu.pw.service.account;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +16,7 @@ import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.SuccessfulRegistrationResponse;
 import pl.edu.pw.dto.VerifyDeviceWithCodeRequest;
 import pl.edu.pw.exception.ResourceNotFoundException;
+import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.DeviceRepository;
 import pl.edu.pw.service.devices.DevicesService;
@@ -22,6 +26,7 @@ import pl.edu.pw.util.http.HttpRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +44,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
-    private final DeviceRepository deviceRepository;
+    private final AccountHashRepository accountHashRepository;
 
     @Override
     public SuccessfulRegistrationResponse registerAccount(AccountRegistration registerData, HttpServletRequest request) {
@@ -77,33 +82,19 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     }
 
     @Override
-    public boolean verifyDevice(VerifyDeviceWithCodeRequest verifyRequest, HttpServletRequest request) {
-        // TODO: consider demanding to send all of user device info which is required to generate fingerprint - this way we can generate fingerprint on our own in backend and check if it's the same as fingerprint sent by user
-
-        Account account = accountRepository.findById(verifyRequest.getClientId()).orElseThrow(
-                () -> new ResourceNotFoundException("Account with given clientId does not exist")
-        );
-        String requestPublicIp = HttpRequestUtils.getClientIpAddressFromRequest(request);
-        List<Device> accountDevices = account.getAccountDevices();
-        Device foundDevice = accountDevices.stream().filter(device -> device.getFingerprint()
-                .equals(verifyRequest.getDeviceFingerprint())).findFirst().orElse(null);
-        if (foundDevice == null) {
-            throw new ResourceNotFoundException("There is no such device attached to this account");
-        }
-        if (foundDevice.isVerified()) {
-            throw new IllegalArgumentException("This device is already verified");
-        }
-//        if (!foundDevice.getIp().equals(requestPublicIp)) {     // overkill?
-//            throw new IllegalArgumentException("You cannot verify this device from different ip");
-//        }
-        boolean isCodeValid = otpService.verifyCode(verifyRequest.getCode(), account.getSecret());
-        if (isCodeValid) {
-            foundDevice.setVerified(true);
-            deviceRepository.save(foundDevice);
-        }
-        return isCodeValid;
-        //      jak bd coś takiego spr. to można dawać komunikaty o podejrzanej aktywności
-        //            if (!account.isShouldBeVerified()) return false;
+    public void setOtherHashCombination(Account account, SecureRandom random) {
+        List<AccountHash> accountHashList = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
+        AccountHash currentAccountHash = account.getCurrentAuthenticationHash();
+        boolean otherAccountHash = false;
+        do {
+            int index = random.nextInt(0, accountHashList.size());
+            AccountHash accountHash = accountHashList.get(index);
+            if (!currentAccountHash.getId().equals(accountHash.getId())) {
+                otherAccountHash = true;
+                account.setCurrentAuthenticationHash(accountHash);
+                accountRepository.save(account);
+            }
+        } while (!otherAccountHash);
     }
 
     public String getLoginCombination(String clientId) {

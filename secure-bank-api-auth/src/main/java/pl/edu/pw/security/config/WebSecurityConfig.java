@@ -20,6 +20,7 @@ import pl.edu.pw.security.filter.AuthorizationFilter;
 import pl.edu.pw.security.filter.MobileAuthenticationFilter;
 import pl.edu.pw.security.filter.WebAuthenticationFilter;
 
+import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
 
@@ -38,6 +39,7 @@ public class WebSecurityConfig {
     private AccountRepository accountRepository;
     private AccountHashRepository accountHashRepository;
     private DevicesServiceImpl devicesService;
+    private AuthService authService;
     private JWTUtil jwtUtil;
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private EntityManager entityManager;
@@ -85,7 +87,7 @@ public class WebSecurityConfig {
     private WebAuthenticationFilter getAuthenticationFilter() throws Exception {
         WebAuthenticationFilter webAuthenticationFilter =
                 new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration),
-                        accountRepository, accountHashRepository, devicesService, jwtUtil, entityManager);
+                        accountRepository, devicesService, jwtUtil, entityManager, authService);
         webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
         webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
         webAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);

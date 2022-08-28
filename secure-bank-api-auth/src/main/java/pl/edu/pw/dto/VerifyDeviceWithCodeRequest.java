@@ -13,6 +13,9 @@ public class VerifyDeviceWithCodeRequest {
     @Size(max = 8, message = "Client id can be no longer than 8 characters")
     private String clientId;
 
+    @NotBlank(message = "Password cannot be blank")
+    private String password;
+
     @Pattern(regexp = "[\\d]{6}", message = "One time password must be 6 digits long")
     private String code;
 

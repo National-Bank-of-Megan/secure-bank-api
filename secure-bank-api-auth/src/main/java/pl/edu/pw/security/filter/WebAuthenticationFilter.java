@@ -15,8 +15,8 @@ import pl.edu.pw.domain.Device;
 import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.service.devices.DevicesService;
-import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
 import pl.edu.pw.util.http.HttpRequestUtils;
 
@@ -25,7 +25,6 @@ import javax.persistence.TypedQuery;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -40,20 +39,20 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private static final Logger log = LoggerFactory.getLogger(WebAuthenticationFilter.class);
     private final AuthenticationManager authenticationManager;
     private final AccountRepository accountRepository;
-    private final AccountHashRepository accountHashRepository;
     private final DevicesService devicesService;
     private final SecureRandom random;
     private final JWTUtil jwtUtil;
     private final EntityManager entityManager;
+    private final AuthService authService;
 
     public WebAuthenticationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository,
-                                   AccountHashRepository accountHashRepository, DevicesService devicesService,
-                                   JWTUtil jwtUtil, EntityManager entityManager) {
+                                   DevicesService devicesService, JWTUtil jwtUtil, EntityManager entityManager,
+                                   AuthService authService) {
 
         this.authenticationManager = authenticationManager;
         this.accountRepository = accountRepository;
-        this.accountHashRepository = accountHashRepository;
         this.devicesService = devicesService;
+        this.authService = authService;
         this.random = new SecureRandom();
         this.jwtUtil = jwtUtil;
         this.entityManager = entityManager;
@@ -88,31 +87,27 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         TypedQuery<Device> deviceQuery = entityManager.createQuery(
                 "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Device.class);
         List<Device> accountDevices = deviceQuery.setParameter("loggedClientId", loggedClientId).getResultList();
-//        TypedQuery<Account> accountQuery = entityManager.createQuery(
-//                "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Account.class);
 
-        Account account = accountRepository.findByAccountNumber(((Account)authResult.getPrincipal()).getAccountNumber()).orElseThrow(
-                () -> new RuntimeException("Something went wrong with fetching your account")
-        );
-        Device foundDevice = accountDevices.stream().filter(device -> device.getFingerprint().equals(deviceFingerprint))
-                .findFirst().orElse(null);
-
-        if (foundDevice == null) {
-            String deviceName = HttpRequestUtils.getDeviceNameFromRequest(request, devicesService);
-            Device loginAttemptDevice = new Device(deviceFingerprint, deviceName, LocalDateTime.now(), ipAddress);
-            devicesService.saveDevice(((Account)authResult.getPrincipal()).getClientId(), loginAttemptDevice);
-            response.setStatus(206);
-        } else if (!foundDevice.isVerified()) {
+        if (isUntrustedDevice(accountDevices, deviceFingerprint)) {
             response.setStatus(206);
         } else {
-            List<AccountHash> allByAccountAccountNumber = accountHashRepository.findAllByAccountAccountNumber(account.getAccountNumber());
-            setOtherHashCombination(account, allByAccountAccountNumber);
+            Account account = accountRepository.findByAccountNumber(((Account)authResult.getPrincipal()).getAccountNumber()).orElseThrow(
+                    () -> new RuntimeException("Something went wrong with fetching your account")
+            );
+            authService.setOtherHashCombination(account, random);
+            Device loggedDevice = accountDevices.stream().filter(device -> device.getFingerprint().equals(deviceFingerprint))
+                    .findFirst().get();
+            devicesService.updateDeviceLogInDate(loggedDevice);
             Map<String, String> tokens = new HashMap<>();
             tokens.put("access_token", jwtUtil.getToken(account, request, JsonWebTokenType.ACCESS));
             tokens.put("refresh_token", jwtUtil.getToken(account, request, JsonWebTokenType.REFRESH));
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), tokens);
         }
+    }
+
+    private boolean isUntrustedDevice(List<Device> accountDevices, String deviceFingerprint) {
+        return accountDevices.stream().noneMatch(device -> device.getFingerprint().equals(deviceFingerprint));
     }
 
     private void setOtherHashCombination(Account account, List<AccountHash> accountHashList) {

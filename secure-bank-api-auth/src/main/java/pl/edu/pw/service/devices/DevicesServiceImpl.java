@@ -14,10 +14,12 @@ import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.DeviceRepository;
+import pl.edu.pw.util.http.HttpRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -26,28 +28,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DevicesServiceImpl implements DevicesService {
     private static final Logger log = LoggerFactory.getLogger(DevicesServiceImpl.class);
-
     private final UserAgentParser userAgentParser;
-    private static final String[] IP_HEADERS = {
-            "X-Forwarded-For",
-            "Proxy-Client-IP",
-            "WL-Proxy-Client-IP",
-            "HTTP_X_FORWARDED_FOR",
-            "HTTP_X_FORWARDED",
-            "HTTP_X_CLUSTER_CLIENT_IP",
-            "HTTP_CLIENT_IP",
-            "HTTP_FORWARDED_FOR",
-            "HTTP_FORWARDED",
-            "HTTP_VIA",
-            "REMOTE_ADDR"
-    };
     private final DeviceRepository deviceRepository;
     private final AccountRepository accountRepository;
 
     @Override
     public boolean verifyDevice(HttpServletRequest request) {
         log.info("Veryfing device...");
-        String ip = getIpAddress(request);
+        String ip = HttpRequestUtils.getClientIpAddressFromRequest(request);
         Optional<Device> device = deviceRepository.findByIp(ip);
         return device.isPresent();
     }
@@ -73,15 +61,9 @@ public class DevicesServiceImpl implements DevicesService {
                + capabilities.getDeviceType() + " - " + capabilities.getPlatform() + " " + capabilities.getPlatformVersion();
     }
 
-    public String getIpAddress(HttpServletRequest request) {
-        for (String header : IP_HEADERS) {
-            String value = request.getHeader(header);
-            if (value == null || value.isEmpty()) {
-                continue;
-            }
-            String[] parts = value.split("\\s*,\\s*");
-            return parts[0];
-        }
-        return request.getRemoteAddr();
+    @Override
+    public void updateDeviceLogInDate(Device loggedDevice) { // TODO: update ip address on every login?
+        loggedDevice.setLastLoggedIn(LocalDateTime.now());
+        deviceRepository.save(loggedDevice);
     }
 }

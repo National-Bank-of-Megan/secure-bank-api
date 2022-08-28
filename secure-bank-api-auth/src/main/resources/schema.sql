@@ -80,7 +80,6 @@ CREATE TABLE device
     ip        VARCHAR(50) NOT NULL,
     registration_date DATETIME NOT NULL,
     last_logged_in DATETIME,
-    is_verified BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 

@@ -35,9 +35,6 @@ public class Device {
     @Column
     private LocalDateTime lastLoggedIn;
 
-    @Column
-    private boolean isVerified;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     private Account account;
@@ -47,6 +44,5 @@ public class Device {
         this.name = name;
         this.registrationDate = registrationDate;
         this.ip = ip;
-        this.isVerified = false;
     }
 }

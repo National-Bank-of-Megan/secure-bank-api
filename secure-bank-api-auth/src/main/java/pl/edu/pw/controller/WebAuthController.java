@@ -16,6 +16,7 @@ import pl.edu.pw.exception.ErrorMessageBody;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AuthService;
+import pl.edu.pw.service.account.VerificationService;
 import pl.edu.pw.util.JWTUtil;
 import pl.edu.pw.util.http.HttpRequestUtils;
 
@@ -37,6 +38,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class WebAuthController {
 
     private final AuthService authService;
+    private final VerificationService verificationService;
     private final AccountRepository accountRepository;
     private final JWTUtil jwtUtil;
 
@@ -56,7 +58,7 @@ public class WebAuthController {
 
     @PostMapping("/login/verify")
     public ResponseEntity<?> verifyDevice(@Valid @RequestBody VerifyDeviceWithCodeRequest request, HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
-        if (authService.verifyDevice(request, httpRequest)) {
+        if (verificationService.verifyDevice(request, httpRequest)) {
             Account account = accountRepository.findById(request.getClientId()).orElseThrow(() ->
                     new ResourceNotFoundException("Account with " + request.getClientId() + " client id was not found"));
             Map<String, String> bodyResponse = new HashMap<>();
