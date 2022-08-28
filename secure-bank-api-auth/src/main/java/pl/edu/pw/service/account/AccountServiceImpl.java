@@ -44,8 +44,6 @@ public class AccountServiceImpl implements AccountService {
     private final OtpService otpService;
     private final PasswordEncoder passwordEncoder;
 
-    @Value(("${auth.lockTime}"))
-    private long LOCK_TIME;
 
     @Override
     public void addCurrencyBalance(Account account, AddCurrencyBalance addCurrencyBalance) {

@@ -32,11 +32,8 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
     @Autowired
     private AccountService accountService;
 
-    @Value("${auth.maxFailureAttempts}")
-    private long MAX_LOGIN_ATTEMPTS;
-
-    @Value(("${auth.lockTime}"))
-    private long LOCK_TIME;
+    private long MAX_LOGIN_ATTEMPTS = 5;
+    private long LOCK_TIME = 86400000;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
