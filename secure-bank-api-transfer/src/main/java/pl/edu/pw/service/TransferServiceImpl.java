@@ -38,6 +38,7 @@ public class TransferServiceImpl implements TransferService {
     private final AccountRepository accountRepository;
     private final CurrencyExchangeRepository currencyExchangeRepository;
     private final TransfersSender transfersSender;
+    private final TransferNotificationService transferNotificationService;
 
     @Override
     public List<TransferDTO> getAll(String clientId) {
@@ -81,6 +82,8 @@ public class TransferServiceImpl implements TransferService {
         Transfer transferToSave = TransferMapper.map(transferCreate, senderAccount, receiverAccount);
         Transfer savedTransfer = transferRepository.save(transferToSave);
         transfersSender.sendPendingTransfer(savedTransfer.getId(), mapToPending(savedTransfer));
+//        notification
+        transferNotificationService.sendNotificationToClient(senderId,savedTransfer);
         return savedTransfer;
     }
 

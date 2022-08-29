@@ -59,7 +59,7 @@ public class WebSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .sessionAuthenticationFailureHandler(authenticationFailureHandler())
                 .and()
-                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**", "/api/web/login/verify/**", "/api/web/token/refresh").permitAll()
+                .authorizeRequests().antMatchers("/api/web/login/**", "/api/mobile/login/**", "/api/web/login/verify/**", "/api/web/token/refresh","/api/transfer/notification/**").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/api/web/register/**").permitAll()
                 .and()
