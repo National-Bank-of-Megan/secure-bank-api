@@ -6,6 +6,7 @@ import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrencyBalance;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.ChangePassword;
+import pl.edu.pw.dto.DeviceDTO;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 
 import java.util.List;

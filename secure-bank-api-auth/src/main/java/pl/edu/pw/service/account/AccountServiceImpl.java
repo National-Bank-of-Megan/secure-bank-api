@@ -11,12 +11,14 @@ import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrencyBalance;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.ChangePassword;
+import pl.edu.pw.dto.DeviceDTO;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.exception.InvalidCredentialsException;
 import pl.edu.pw.exception.InvalidCurrencyException;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.repository.DeviceRepository;
 import pl.edu.pw.repository.FavoriteReceiverRepository;
 import pl.edu.pw.repository.SubAccountRepository;
 import pl.edu.pw.service.otp.OtpService;
@@ -148,6 +150,7 @@ public class AccountServiceImpl implements AccountService {
         account.setPassword(newPasswordHashed);
         PasswordUtil.updateAccountHashes(account, changePassword.getNewPassword(), passwordEncoder);
     }
+
 
     public static class AccountMapper {
         public static FavoriteReceiverDTO map(FavoriteReceiver favoriteReceiver) {

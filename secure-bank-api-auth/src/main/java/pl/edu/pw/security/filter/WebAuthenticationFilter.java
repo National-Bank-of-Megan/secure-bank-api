@@ -109,18 +109,4 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private boolean isUntrustedDevice(List<Device> accountDevices, String deviceFingerprint) {
         return accountDevices.stream().noneMatch(device -> device.getFingerprint().equals(deviceFingerprint));
     }
-
-    private void setOtherHashCombination(Account account, List<AccountHash> accountHashList) {
-        AccountHash currentAccountHash = account.getCurrentAuthenticationHash();
-        boolean otherAccountHash = false;
-        do {
-            int index = random.nextInt(0, accountHashList.size());
-            AccountHash accountHash = accountHashList.get(index);
-            if (!currentAccountHash.getId().equals(accountHash.getId())) {
-                otherAccountHash = true;
-                account.setCurrentAuthenticationHash(accountHash);
-                accountRepository.save(account);
-            }
-        } while (!otherAccountHash);
-    }
 }

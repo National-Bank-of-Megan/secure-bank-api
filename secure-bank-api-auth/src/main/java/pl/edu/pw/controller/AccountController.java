@@ -3,6 +3,7 @@ package pl.edu.pw.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
@@ -11,9 +12,12 @@ import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrencyBalance;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.ChangePassword;
+import pl.edu.pw.dto.DeviceDTO;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.service.account.AccountService;
+import pl.edu.pw.service.devices.DevicesService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -23,10 +27,27 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+    private final DevicesService devicesService;
 
     @GetMapping("/profile")
     public ResponseEntity<AccountDTO> getAccountData(@AuthenticationPrincipal Account account) {
         return ResponseEntity.ok(accountService.getAccountData(account));
+    }
+
+    @GetMapping("/devices")
+    public ResponseEntity<List<DeviceDTO>> getAccountDevices(@AuthenticationPrincipal Account account, HttpServletRequest request) {
+        String deviceFingerprint = request.getHeader("Device-Fingerprint");
+        if (deviceFingerprint == null) {
+            throw new RuntimeException("Device-Fingerprint header is required to get trusted devices");
+        }
+        return ResponseEntity.ok(devicesService.getAccountVerifiedDevices(account.getClientId(), deviceFingerprint));
+    }
+
+    @PreAuthorize("@accountSecurity.isDeviceAttachedToAccount(#id, #account.getClientId())")
+    @DeleteMapping("/devices/{id}")
+    public ResponseEntity<Void> deleteDeviceFromTrustedDevices(@AuthenticationPrincipal Account account, @PathVariable Long id) {
+        devicesService.deleteDeviceFromTrustedDevices(id, account.getClientId());
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/currency")
