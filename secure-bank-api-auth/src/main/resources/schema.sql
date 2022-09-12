@@ -115,3 +115,10 @@ CREATE TABLE currency_exchange
 
 );
 
+# CREATE TABLE subscriptions
+# (
+#     client_id VARCHAR(16) UNIQUE,
+#     submitter VARCHAR(255) NOT NULL,
+#     PRIMARY KEY (client_id)
+# )
+

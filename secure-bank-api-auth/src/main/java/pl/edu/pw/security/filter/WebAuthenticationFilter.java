@@ -16,7 +16,6 @@ import pl.edu.pw.domain.JsonWebTokenType;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.devices.DevicesService;
-import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
 import pl.edu.pw.util.http.HttpRequestUtils;
 
@@ -25,7 +24,6 @@ import javax.persistence.TypedQuery;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -62,10 +60,10 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info("WebAuthenticationFilter->\ttrying to authenticate...");
-        String deviceFingerprint = request.getHeader("Device-Fingerprint");
-        if (deviceFingerprint == null) {
-            throw new RuntimeException("Device-Fingerprint header is required to log in");
-        }
+//        String deviceFingerprint = request.getHeader("Device-Fingerprint");
+//        if (deviceFingerprint == null) {
+//            throw new RuntimeException("Device-Fingerprint header is required to log in");
+//        }
         String clientId, password;
         try {
             Map<String, String> requestMap = new ObjectMapper().readValue(request.getInputStream(), Map.class);
@@ -84,23 +82,23 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String deviceFingerprint = request.getHeader("Device-Fingerprint");
         String ipAddress = HttpRequestUtils.getClientIpAddressFromRequest(request);
         log.info("Machine trying to access api: " + ipAddress);
-        String loggedClientId = ((Account)authResult.getPrincipal()).getClientId();
+        String loggedClientId = ((Account) authResult.getPrincipal()).getClientId();
         TypedQuery<Device> deviceQuery = entityManager.createQuery(
                 "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Device.class);
         List<Device> accountDevices = deviceQuery.setParameter("loggedClientId", loggedClientId).getResultList();
 //        TypedQuery<Account> accountQuery = entityManager.createQuery(
 //                "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Account.class);
 
-        Account account = accountRepository.findByAccountNumber(((Account)authResult.getPrincipal()).getAccountNumber()).orElseThrow(
+        Account account = accountRepository.findByAccountNumber(((Account) authResult.getPrincipal()).getAccountNumber()).orElseThrow(
                 () -> new RuntimeException("Something went wrong with fetching your account")
         );
         Device foundDevice = accountDevices.stream().filter(device -> device.getFingerprint().equals(deviceFingerprint))
                 .findFirst().orElse(null);
 
         if (foundDevice == null) {
-            String deviceName = HttpRequestUtils.getDeviceNameFromRequest(request, devicesService);
+            String deviceName = "kkkk";
             Device loginAttemptDevice = new Device(deviceFingerprint, deviceName, LocalDateTime.now(), ipAddress);
-            devicesService.saveDevice(((Account)authResult.getPrincipal()).getClientId(), loginAttemptDevice);
+            devicesService.saveDevice(((Account) authResult.getPrincipal()).getClientId(), loginAttemptDevice);
             response.setStatus(206);
         } else if (!foundDevice.isVerified()) {
             response.setStatus(206);

@@ -31,15 +31,22 @@ import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 
 @RequiredArgsConstructor
 public class AuthorizationFilter extends OncePerRequestFilter {
+    private static final Logger log = LoggerFactory.getLogger(AuthorizationFilter.class);
     private final AccountRepository accountRepository;
     private final String jwtSecret;
-    private static final Logger log = LoggerFactory.getLogger(AuthorizationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
         if (!(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/web/login/verify"))) {
-            String authorizationHeader = request.getHeader(AUTHORIZATION);
+            String authorizationHeader = null;
+//           potential security flaw
+            if (request.getServletPath().contains("/api/transfer/notification/subscribe")) {
+                authorizationHeader = "Bearer " + request.getParameter("jwt");
+                log.info("/api/transfer/notification/subscribe received JWT -> " + authorizationHeader);
+            } else
+                authorizationHeader = request.getHeader(AUTHORIZATION);
+
             if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 log.info("AuthorizationFilter->\tchecking jwt");
                 try {

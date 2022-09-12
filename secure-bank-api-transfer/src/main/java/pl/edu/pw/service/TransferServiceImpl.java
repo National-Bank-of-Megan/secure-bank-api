@@ -1,8 +1,11 @@
 package pl.edu.pw.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.edu.pw.controller.TransferNotificationController;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
 import pl.edu.pw.domain.CurrencyExchange;
@@ -39,6 +42,8 @@ public class TransferServiceImpl implements TransferService {
     private final CurrencyExchangeRepository currencyExchangeRepository;
     private final TransfersSender transfersSender;
     private final TransferNotificationService transferNotificationService;
+
+    private static final Logger log = LoggerFactory.getLogger(TransferServiceImpl.class);
 
     @Override
     public List<TransferDTO> getAll(String clientId) {
@@ -78,12 +83,14 @@ public class TransferServiceImpl implements TransferService {
             throw new IllegalArgumentException("Cannot make transfer to yourself");
         }
 
+
         senderAccount.chargeCurrencyBalance(Currency.valueOf(transferCreate.getCurrency()), transferCreate.getAmount());
         Transfer transferToSave = TransferMapper.map(transferCreate, senderAccount, receiverAccount);
         Transfer savedTransfer = transferRepository.save(transferToSave);
-        transfersSender.sendPendingTransfer(savedTransfer.getId(), mapToPending(savedTransfer));
-//        notification
-        transferNotificationService.sendNotificationToClient(senderId,savedTransfer);
+        //        notification
+        log.info("== SENDING NOTIFICATION ==");
+        transferNotificationService.sendNotificationToClient(receiverAccount.getClientId(), savedTransfer);
+//        transfersSender.sendPendingTransfer(savedTransfer.getId(), mapToPending(savedTransfer));
         return savedTransfer;
     }
 
