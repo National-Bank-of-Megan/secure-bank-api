@@ -52,7 +52,7 @@ public class TransfersScheduler {
         SimpleTriggerFactoryBean trigger = new SimpleTriggerFactoryBean();
         trigger.setJobDetail(job);
         int triggerIntervalMinutes = 5;
-        trigger.setRepeatInterval(triggerIntervalMinutes * 60 * 1000);
+        trigger.setRepeatInterval(60 * 1000);
         trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
         trigger.setName("Transfers_Trigger");
         return trigger;

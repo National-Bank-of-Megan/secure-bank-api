@@ -83,14 +83,10 @@ public class TransferServiceImpl implements TransferService {
             throw new IllegalArgumentException("Cannot make transfer to yourself");
         }
 
-
         senderAccount.chargeCurrencyBalance(Currency.valueOf(transferCreate.getCurrency()), transferCreate.getAmount());
         Transfer transferToSave = TransferMapper.map(transferCreate, senderAccount, receiverAccount);
         Transfer savedTransfer = transferRepository.save(transferToSave);
-        //        notification
-        log.info("== SENDING NOTIFICATION ==");
-        transferNotificationService.sendNotificationToClient(receiverAccount.getClientId(), savedTransfer);
-//        transfersSender.sendPendingTransfer(savedTransfer.getId(), mapToPending(savedTransfer));
+        transfersSender.sendPendingTransfer(savedTransfer.getId(), mapToPending(savedTransfer));
         return savedTransfer;
     }
 
@@ -106,12 +102,17 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public void finalizeTransfer(PendingTransfer pendingTransfer) {
+        log.info("========================");
         Transfer foundPendingTransfer = transferRepository.findById(pendingTransfer.getId()).orElseThrow(() ->
                 new ResourceNotFoundException("Transfer with " + pendingTransfer.getId() + " id was not found"));
         Account receiver = foundPendingTransfer.getReceiver();
         receiver.addCurrencyBalance(pendingTransfer.getCurrency(), pendingTransfer.getAmount());
         foundPendingTransfer.setDoneDate(LocalDateTime.now());
         foundPendingTransfer.setStatus(Status.DONE);
+        //        notification
+        log.info("== SENDING NOTIFICATION ==");
+        transferNotificationService.sendNotificationToClient(foundPendingTransfer.getReceiver().getClientId(), foundPendingTransfer);
+
     }
 
     @Override
