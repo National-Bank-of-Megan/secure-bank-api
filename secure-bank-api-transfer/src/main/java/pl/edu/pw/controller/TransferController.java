@@ -3,15 +3,19 @@ package pl.edu.pw.controller;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.HistoryTransferDTO;
 import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
 import pl.edu.pw.dto.TransferUpdate;
+import pl.edu.pw.service.TransferNotificationService;
 import pl.edu.pw.service.TransferService;
 
 import javax.validation.Valid;
@@ -23,6 +27,8 @@ import java.util.List;
 public class TransferController {
 
     private final TransferService transferService;
+    private final TransferNotificationService transferNotificationService;
+
 
     @GetMapping
     public ResponseEntity<List<TransferDTO>> getAll(@AuthenticationPrincipal Account account) {

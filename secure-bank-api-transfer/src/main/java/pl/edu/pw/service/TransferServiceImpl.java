@@ -1,8 +1,11 @@
 package pl.edu.pw.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.edu.pw.controller.TransferNotificationController;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
 import pl.edu.pw.domain.CurrencyExchange;
@@ -38,6 +41,9 @@ public class TransferServiceImpl implements TransferService {
     private final AccountRepository accountRepository;
     private final CurrencyExchangeRepository currencyExchangeRepository;
     private final TransfersSender transfersSender;
+    private final TransferNotificationService transferNotificationService;
+
+    private static final Logger log = LoggerFactory.getLogger(TransferServiceImpl.class);
 
     @Override
     public List<TransferDTO> getAll(String clientId) {
@@ -96,12 +102,17 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public void finalizeTransfer(PendingTransfer pendingTransfer) {
+        log.info("========================");
         Transfer foundPendingTransfer = transferRepository.findById(pendingTransfer.getId()).orElseThrow(() ->
                 new ResourceNotFoundException("Transfer with " + pendingTransfer.getId() + " id was not found"));
         Account receiver = foundPendingTransfer.getReceiver();
         receiver.addCurrencyBalance(pendingTransfer.getCurrency(), pendingTransfer.getAmount());
         foundPendingTransfer.setDoneDate(LocalDateTime.now());
         foundPendingTransfer.setStatus(Status.DONE);
+        //        notification
+        log.info("== SENDING NOTIFICATION ==");
+        transferNotificationService.sendNotificationToClient(foundPendingTransfer.getReceiver().getClientId(), foundPendingTransfer);
+
     }
 
     @Override

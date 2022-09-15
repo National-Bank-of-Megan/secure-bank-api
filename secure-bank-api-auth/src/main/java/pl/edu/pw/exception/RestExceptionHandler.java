@@ -4,12 +4,14 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 
 @ControllerAdvice
 @Log4j2
@@ -70,14 +72,20 @@ public class RestExceptionHandler {
 
     @ExceptionHandler({ RuntimeException.class })
     public ResponseEntity<Object> handleRuntimeExceptions(Exception e, WebRequest request) {
+        if(e instanceof AsyncRequestTimeoutException){
+            System.out.println("AsyncRequestTimeoutException");
+            return new ResponseEntity<>(e.getCause(), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.BAD_REQUEST);
     }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handle(Exception e) {
         if (e instanceof NullPointerException) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        e.getStackTrace();
         return new ResponseEntity<>(buildErrorMessageBody(INTERNAL_SERVER_ERROR_DEFAULT_MESSAGE), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
