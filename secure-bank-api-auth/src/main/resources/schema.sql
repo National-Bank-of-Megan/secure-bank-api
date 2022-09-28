@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS DEVICE;
 DROP TABLE IF EXISTS TRANSFER;
 DROP TABLE IF EXISTS favorite_receiver;
 DROP TABLE IF EXISTS ACCOUNT_DETAILS;
+DROP TABLE IF EXISTS klik;
 DROP TABLE IF EXISTS SUB_ACCOUNT;
 DROP TABLE IF EXISTS CURRENCY_EXCHANGE;
 DROP TABLE IF EXISTS ACCOUNT;
@@ -25,8 +26,16 @@ CREATE TABLE account_details
     client_id  VARCHAR(16) PRIMARY KEY,
     first_name VARCHAR(50),
     last_name  VARCHAR(70),
-    email      VARCHAR(255) NOT NULL unique,
+    email      VARCHAR(255) NOT NULL UNIQUE,
     phone      VARCHAR(25),
+    FOREIGN KEY (client_id) REFERENCES account (client_id)
+);
+
+CREATE TABLE klik
+(
+    client_id VARCHAR(16) PRIMARY KEY,
+    klik_code VARCHAR(6),
+    generate_date DATETIME,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 

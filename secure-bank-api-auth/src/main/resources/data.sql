@@ -19,6 +19,8 @@ values ('12345678', '$2a$12$T1jPgI8pJScKKNN6RXdH7uoKtVVU0T8gvjdwykFTrBwsmgiGx1fC
 INSERT INTO ACCOUNT_DETAILS(client_id, first_name, last_name, email, phone)
 VALUES ('12345678', 'Megan Thee', 'Stallion', 'quuen_megan@email.com', '911911911'),
        ('12345679', 'Doja', 'Cat', 'cow@email.com', '911911900');
+       
+INSERT INTO KLIK(client_id) VALUES('12345678'), ('12345679');
 
 INSERT INTO SUB_ACCOUNT (client_id, currency, balance)
 VALUES ('12345678', 'USD', 1025.25),

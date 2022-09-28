@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pl.edu.pw.auth.logic.CredentialGenerator;
+import pl.edu.pw.auth.logic.DataGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -45,6 +45,10 @@ public class Account implements UserDetails {
     @Column
     @NotBlank
     private String password;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @PrimaryKeyJoinColumn
+    private Klik klik;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL,
             fetch = FetchType.EAGER, optional = false)
@@ -112,6 +116,8 @@ public class Account implements UserDetails {
         this.clientId = generateClientId(existingClientIds);
         this.accountNumber = generateAccountNumber(existingAccountNumbers);
         this.password = encryptedPassword;
+        this.klik = new Klik(clientId);
+        this.klik.setAccount(this);
     }
 
     public void setAccountDetails(AccountDetails accountDetails) {
@@ -126,11 +132,11 @@ public class Account implements UserDetails {
     }
 
     private String generateClientId(Set<String> existingClientIds) {
-        return CredentialGenerator.generateUniqueCredentials(existingClientIds, CLIENT_ID_LENGTH);
+        return DataGenerator.generateUniqueNumber(existingClientIds, CLIENT_ID_LENGTH);
     }
 
     private String generateAccountNumber(Set<String> existingAccountNumbers) {
-        return CredentialGenerator.generateUniqueCredentials(existingAccountNumbers, ACCOUNT_NUMBER_LENGTH);
+        return DataGenerator.generateUniqueNumber(existingAccountNumbers, ACCOUNT_NUMBER_LENGTH);
     }
 
     public void addAllAccountHashes(Collection<AccountHash> accountHashes) {
