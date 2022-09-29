@@ -61,10 +61,10 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info("WebAuthenticationFilter->\ttrying to authenticate...");
-        String deviceFingerprint = request.getHeader("Device-Fingerprint");
-        if (deviceFingerprint == null) {
-            throw new RuntimeException("Device-Fingerprint header is required to log in");
-        }
+//        String deviceFingerprint = request.getHeader("Device-Fingerprint");
+//        if (deviceFingerprint == null) {
+//            throw new RuntimeException("Device-Fingerprint header is required to log in");
+//        }
         String clientId, password;
         try {
             Map<String, String> requestMap = new ObjectMapper().readValue(request.getInputStream(), Map.class);
@@ -80,30 +80,31 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         log.info("WebAuthenticationFilter->\tsending JWT. Authentication successful");
-        String deviceFingerprint = request.getHeader("Device-Fingerprint");
+//        String deviceFingerprint = request.getHeader("Device-Fingerprint");
+        String deviceFingerprint = "";
         String ipAddress = HttpRequestUtils.getClientIpAddressFromRequest(request);
         log.info("Machine trying to access api: " + ipAddress);
-        String loggedClientId = ((Account)authResult.getPrincipal()).getClientId();
-        TypedQuery<Device> deviceQuery = entityManager.createQuery(
-                "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Device.class);
-        List<Device> accountDevices = deviceQuery.setParameter("loggedClientId", loggedClientId).getResultList();
+//        String loggedClientId = ((Account)authResult.getPrincipal()).getClientId();
+//        TypedQuery<Device> deviceQuery = entityManager.createQuery(
+//                "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Device.class);
+//        List<Device> accountDevices = deviceQuery.setParameter("loggedClientId", loggedClientId).getResultList();
 
-        if (isUntrustedDevice(accountDevices, deviceFingerprint)) {
-            response.setStatus(206);
-        } else {
+//        if (isUntrustedDevice(accountDevices, deviceFingerprint)) {
+//            response.setStatus(206);
+//        } else {
             Account account = accountRepository.findByAccountNumber(((Account)authResult.getPrincipal()).getAccountNumber()).orElseThrow(
                     () -> new RuntimeException("Something went wrong with fetching your account")
             );
-            authService.setOtherHashCombination(account, random);
-            Device loggedDevice = accountDevices.stream().filter(device -> device.getFingerprint().equals(deviceFingerprint))
-                    .findFirst().get();
-            devicesService.updateDeviceLogInDate(loggedDevice);
+//            authService.setOtherHashCombination(account, random);
+//            Device loggedDevice = accountDevices.stream().filter(device -> device.getFingerprint().equals(deviceFingerprint))
+//                    .findFirst().get();
+//            devicesService.updateDeviceLogInDate(loggedDevice);
             Map<String, String> tokens = new HashMap<>();
             tokens.put("access_token", jwtUtil.getToken(account, request, JsonWebTokenType.ACCESS));
             tokens.put("refresh_token", jwtUtil.getToken(account, request, JsonWebTokenType.REFRESH));
             response.setContentType(APPLICATION_JSON_VALUE);
             new ObjectMapper().writeValue(response.getOutputStream(), tokens);
-        }
+//        }
     }
 
     private boolean isUntrustedDevice(List<Device> accountDevices, String deviceFingerprint) {

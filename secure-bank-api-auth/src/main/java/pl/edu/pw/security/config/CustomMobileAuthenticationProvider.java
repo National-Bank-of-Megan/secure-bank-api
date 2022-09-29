@@ -11,28 +11,26 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.domain.Account;
-import pl.edu.pw.security.filter.WebAuthenticationFilter;
 import pl.edu.pw.service.account.AuthService;
 
 import java.util.ArrayList;
 
 @Component
 @RequiredArgsConstructor
-public class CustomAuthenticationProvider implements AuthenticationProvider {
+public class CustomMobileAuthenticationProvider implements AuthenticationProvider {
 
     private final AuthService authService;
-    private final PasswordEncoder passwordEncoder;
-    private static final Logger log = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
+    private  final PasswordEncoder passwordEncoder;
+    private static final Logger log = LoggerFactory.getLogger(CustomMobileAuthenticationProvider.class);
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        log.info("Authentication for web app");
+        log.info("Authentication for mobile app");
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
         Account account = authService.getAccount(name);
         if (account != null) {
-            String hashedPasswordPart = account.getCurrentAuthenticationHash().getPasswordPart();
-            if (passwordEncoder.matches(password, hashedPasswordPart)) {
+            if (passwordEncoder.matches(password, account.getPassword())) {
                 return new UsernamePasswordAuthenticationToken(account, new ArrayList<>());
             }
         }

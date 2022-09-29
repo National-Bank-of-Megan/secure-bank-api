@@ -58,7 +58,8 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         List<Account> allAccounts = accountRepository.findAll();
         Set<String> existingAccountsNumbers = allAccounts.stream().map(Account::getAccountNumber).collect(Collectors.toSet());
         Set<String> existingClientIds = allAccounts.stream().map(Account::getClientId).collect(Collectors.toSet());
-        Account accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
+        Account
+                accountToRegister = AccountMapper.map(registerData, existingAccountsNumbers, existingClientIds);
         PasswordUtil.addAccountHashes(accountToRegister, rawPassword, passwordEncoder);
 
         accountToRegister.addSubAccounts(Currency.values());

@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -17,6 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.security.filter.AuthorizationFilter;
+//import pl.edu.pw.security.filter.MobileAuthenticationFilter;
 import pl.edu.pw.security.filter.MobileAuthenticationFilter;
 import pl.edu.pw.security.filter.WebAuthenticationFilter;
 
@@ -43,16 +46,16 @@ public class WebSecurityConfig {
     private JWTUtil jwtUtil;
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private EntityManager entityManager;
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        desktop app processing
-        WebAuthenticationFilter webAuthenticationFilter = getAuthenticationFilter();
+        WebAuthenticationFilter webAuthenticationFilter = getAuthenticationFilter("/api/web/login");
         AuthorizationFilter authorizationFilter = new AuthorizationFilter(accountRepository, jwtUtil.getJwtSecret());
 
 //        mobile app processing
-        MobileAuthenticationFilter mobileAuthenticationFilter = new MobileAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository);
-        mobileAuthenticationFilter.setFilterProcessesUrl("/api/mobile/login");
+        WebAuthenticationFilter mobileAuthenticationFilter = getAuthenticationFilter("/api/mobile/login");
 
         http
                 .cors()
@@ -80,15 +83,15 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(Arrays.asList(new CustomMobileAuthenticationProvider(authService, this.passwordEncoder), new CustomAuthenticationProvider(authService, this.passwordEncoder)));
     }
 
-    private WebAuthenticationFilter getAuthenticationFilter() throws Exception {
+    private WebAuthenticationFilter getAuthenticationFilter(String url) throws Exception {
         WebAuthenticationFilter webAuthenticationFilter =
-                new WebAuthenticationFilter(authenticationManagerBean(authenticationConfiguration),
+                new WebAuthenticationFilter(authenticationManager(),
                         accountRepository, devicesService, jwtUtil, entityManager, authService);
-        webAuthenticationFilter.setFilterProcessesUrl("/api/web/login");
+        webAuthenticationFilter.setFilterProcessesUrl(url);
         webAuthenticationFilter.setAuthenticationSuccessHandler(successHandler);
         webAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);
         return webAuthenticationFilter;

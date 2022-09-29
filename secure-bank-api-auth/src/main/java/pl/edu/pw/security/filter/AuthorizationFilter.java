@@ -38,7 +38,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
-        if (!(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/web/login/verify"))) {
+        if (!(request.getServletPath().equals("/api/web/login") || !(request.getServletPath().equals("/api/mobile/login")) || request.getServletPath().equals("/api/web/login/verify"))) {
             String authorizationHeader = null;
 //           potential security flaw
             if (request.getServletPath().contains("/api/transfer/notification/subscribe")) {
