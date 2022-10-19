@@ -6,5 +6,6 @@ import pl.edu.pw.domain.Transfer;
 public interface TransferNotificationService {
 
     SseEmitter subscribe(String clientId);
+
     void sendNotificationToClient(String receiverClientId, Transfer transfer);
 }

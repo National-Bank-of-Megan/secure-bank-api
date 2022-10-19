@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
@@ -54,7 +53,7 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
                 log.info("account is  locked");
 
                 if (!isAccountStillLocked(a)) {
-                  accountService.unlockAccount(a);
+                    accountService.unlockAccount(a);
                 } else
                     exception = new LockedException("You failed to login more than " + MAX_LOGIN_ATTEMPTS + " times." +
                             " Your account has been locked for 24h for safety reasons");
@@ -63,7 +62,7 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
 
             if (a.isAccountNonLocked()) {
                 log.info("updating login attempts");
-                accountService.updateLoginAttempts(a,a.getLoginAttempts()+1);
+                accountService.updateLoginAttempts(a, a.getLoginAttempts() + 1);
 
                 if (a.getLoginAttempts() == MAX_LOGIN_ATTEMPTS) {
                     accountService.lockAccount(a);

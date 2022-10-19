@@ -1,6 +1,5 @@
 package pl.edu.pw.security.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.AuthenticationException;
@@ -16,7 +15,8 @@ import java.io.IOException;
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    @Autowired @Qualifier("handlerExceptionResolver")
+    @Autowired
+    @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver resolver;
 
     @Override

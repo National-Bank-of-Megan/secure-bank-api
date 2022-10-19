@@ -1,24 +1,25 @@
 package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.domain.*;
+import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.Currency;
+import pl.edu.pw.domain.FavoriteReceiver;
+import pl.edu.pw.domain.SubAccount;
+import pl.edu.pw.domain.SubAccountId;
 import pl.edu.pw.dto.AccountCurrencyBalance;
 import pl.edu.pw.dto.AccountDTO;
 import pl.edu.pw.dto.AddCurrencyBalance;
 import pl.edu.pw.dto.AddFavoriteReceiver;
 import pl.edu.pw.dto.ChangePassword;
-import pl.edu.pw.dto.DeviceDTO;
 import pl.edu.pw.dto.FavoriteReceiverDTO;
 import pl.edu.pw.exception.InvalidCredentialsException;
 import pl.edu.pw.exception.InvalidCurrencyException;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.repository.DeviceRepository;
 import pl.edu.pw.repository.FavoriteReceiverRepository;
 import pl.edu.pw.repository.SubAccountRepository;
 import pl.edu.pw.service.otp.OtpService;
@@ -60,8 +61,8 @@ public class AccountServiceImpl implements AccountService {
         }
 //        account.addCurrencyBalance(currency, addCurrency.getAmount());
 //        todo catch exception when subaccount not found
-        SubAccount subAccount = subAccountRepository.findById(new SubAccountId(CurrentUserUtil.getCurrentUser(),currency)).orElseThrow(
-                ()-> new SubAccountNotFoundException("Subaccount not found. Something wrong with database")
+        SubAccount subAccount = subAccountRepository.findById(new SubAccountId(CurrentUserUtil.getCurrentUser(), currency)).orElseThrow(
+                () -> new SubAccountNotFoundException("Subaccount not found. Something wrong with database")
         );
         subAccount.addToBalance(addCurrencyBalance.getAmount());
     }
@@ -101,14 +102,14 @@ public class AccountServiceImpl implements AccountService {
         return map(account);
     }
 
-    public void resetLoginAttempts(Account account){
+    public void resetLoginAttempts(Account account) {
         account.setLoginAttempts(0l);
         accountRepository.save(account);
     }
 
     @Override
     public void updateLoginAttempts(Account account, long attempts) {
-        if(attempts <0) throw new IllegalArgumentException("Number of login attempts should be positive");
+        if (attempts < 0) throw new IllegalArgumentException("Number of login attempts should be positive");
         account.setLoginAttempts(attempts);
         accountRepository.save(account);
     }
@@ -169,13 +170,13 @@ public class AccountServiceImpl implements AccountService {
         }
 
         public static AccountDTO map(Account account) {
-            return new AccountDTO (
-                account.getClientId(),
-                account.getAccountNumber(),
-                account.getAccountDetails().getFirstName(),
-                account.getAccountDetails().getLastName(),
-                account.getAccountDetails().getEmail(),
-                account.getAccountDetails().getPhone()
+            return new AccountDTO(
+                    account.getClientId(),
+                    account.getAccountNumber(),
+                    account.getAccountDetails().getFirstName(),
+                    account.getAccountDetails().getLastName(),
+                    account.getAccountDetails().getEmail(),
+                    account.getAccountDetails().getPhone()
             );
         }
     }

@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface DeviceRepository extends JpaRepository<Device, Long> {
     Optional<Device> findByIp(String ip);
+
     List<Device> findAllByAccountClientId(String clientId);
+
     Optional<Device> findByFingerprintAndAccountClientId(String fingerprint, String clientId);
 }

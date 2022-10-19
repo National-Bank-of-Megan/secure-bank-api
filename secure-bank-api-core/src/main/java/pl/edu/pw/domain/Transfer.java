@@ -3,13 +3,20 @@ package pl.edu.pw.domain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table
@@ -39,7 +46,7 @@ public class Transfer implements Comparable<Transfer> {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @Column(name="type")
+    @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private TransferType transferType;
 

@@ -16,9 +16,9 @@ CREATE TABLE account
     current_hash_id    INT UNIQUE,
     account_number     VARCHAR(255) NOT NULL UNIQUE,
     password           VARCHAR(255) NOT NULL,
-    login_attempts INT DEFAULT 0,
+    login_attempts     INT     DEFAULT 0,
     account_non_locked BOOLEAN DEFAULT true,
-    lock_time DATETIME
+    lock_time          DATETIME
 );
 
 CREATE TABLE account_details
@@ -33,15 +33,15 @@ CREATE TABLE account_details
 
 CREATE TABLE klik
 (
-    client_id VARCHAR(16) PRIMARY KEY,
-    klik_code VARCHAR(6),
+    client_id     VARCHAR(16) PRIMARY KEY,
+    klik_code     VARCHAR(6),
     generate_date DATETIME,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 
 CREATE TABLE sub_account
 (
-    client_id VARCHAR(16)                              NOT NULL,
+    client_id VARCHAR(16) NOT NULL,
     currency  ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
     balance   DECIMAL(15, 2) DEFAULT 0.00,
     FOREIGN KEY (client_id) REFERENCES account (client_id),
@@ -82,13 +82,13 @@ CREATE TABLE favorite_receiver
 
 CREATE TABLE device
 (
-    id        INT PRIMARY KEY AUTO_INCREMENT,
-    client_id VARCHAR(16) NOT NULL,
-    fingerprint VARCHAR(255) NOT NULL,
-    name      VARCHAR(200),
-    ip        VARCHAR(50) NOT NULL,
-    registration_date DATETIME NOT NULL,
-    last_logged_in DATETIME,
+    id                INT PRIMARY KEY AUTO_INCREMENT,
+    client_id         VARCHAR(16)  NOT NULL,
+    fingerprint       VARCHAR(255) NOT NULL,
+    name              VARCHAR(200),
+    ip                VARCHAR(50)  NOT NULL,
+    registration_date DATETIME     NOT NULL,
+    last_logged_in    DATETIME,
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 );
 
@@ -96,9 +96,9 @@ CREATE TABLE transfer
 (
     id           INT PRIMARY KEY AUTO_INCREMENT,
     title        NVARCHAR(60) NOT NULL,
-    sender_id    VARCHAR(16) NOT NULL,
-    receiver_id  VARCHAR(16) NOT NULL,
-    request_date DATETIME    NOT NULL,
+    sender_id    VARCHAR(16)    NOT NULL,
+    receiver_id  VARCHAR(16)    NOT NULL,
+    request_date DATETIME       NOT NULL,
     done_date    DATETIME,
     amount       DECIMAL(15, 2) NOT NULL,
     currency     ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
@@ -123,10 +123,21 @@ CREATE TABLE currency_exchange
 
 );
 
-# CREATE TABLE subscriptions
-# (
-#     client_id VARCHAR(16) UNIQUE,
-#     submitter VARCHAR(255) NOT NULL,
-#     PRIMARY KEY (client_id)
-# )
+#
+CREATE TABLE subscriptions
+    #
+(
+    # client_id VARCHAR
+(
+    16
+) UNIQUE,
+    # submitter VARCHAR
+(
+    255
+) NOT NULL,
+    # PRIMARY KEY
+(
+    client_id
+)
+    # )
 

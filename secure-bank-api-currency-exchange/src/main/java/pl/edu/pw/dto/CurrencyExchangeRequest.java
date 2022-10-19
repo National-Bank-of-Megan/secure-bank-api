@@ -3,7 +3,6 @@ package pl.edu.pw.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import pl.edu.pw.security.validation.Money;
 import pl.edu.pw.security.validation.ValidCurrency;
 
 import javax.validation.constraints.DecimalMax;

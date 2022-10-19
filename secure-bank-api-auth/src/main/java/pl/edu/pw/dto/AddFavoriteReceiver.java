@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -17,6 +16,6 @@ public class AddFavoriteReceiver {
     private String name;
 
     @NotBlank(message = "Account number cannot be blank")
-    @Pattern(regexp="[\\d]{26}", message = "Account number must be 26 digits long")
+    @Pattern(regexp = "[\\d]{26}", message = "Account number must be 26 digits long")
     private String accountNumber;
 }

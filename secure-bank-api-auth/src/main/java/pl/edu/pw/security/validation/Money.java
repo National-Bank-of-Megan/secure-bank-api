@@ -17,8 +17,9 @@ import java.lang.annotation.Target;
 @DecimalMax(value = "100000.0")
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = { })
+@Constraint(validatedBy = {})
 public @interface Money {
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

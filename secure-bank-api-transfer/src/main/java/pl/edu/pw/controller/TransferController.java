@@ -1,21 +1,18 @@
 package pl.edu.pw.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.edu.pw.domain.Account;
-import pl.edu.pw.dto.HistoryTransferDTO;
-import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
-import pl.edu.pw.dto.TransferUpdate;
-import pl.edu.pw.service.TransferNotificationService;
+import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.service.TransferService;
 
 import javax.validation.Valid;
@@ -27,8 +24,6 @@ import java.util.List;
 public class TransferController {
 
     private final TransferService transferService;
-    private final TransferNotificationService transferNotificationService;
-
 
     @GetMapping
     public ResponseEntity<List<TransferDTO>> getAll(@AuthenticationPrincipal Account account) {
@@ -46,21 +41,4 @@ public class TransferController {
         transferService.create(transferCreate, account.getClientId());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-
-//    @GetMapping("/{transferId}")
-//    public ResponseEntity<TransferDTO> getTransfer(@AuthenticationPrincipal Account account, @PathVariable Long transferId) {
-//        return ResponseEntity.ok(transferService.getTransfer(transferId, account.getClientId()));
-//    }
-
-//    @PutMapping
-//    public ResponseEntity<Void> updateTransfer(@RequestBody TransferUpdate transferUpdate) {
-//        transferService.update(transferUpdate);
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//    @DeleteMapping("/{transferId}")
-//    public ResponseEntity<Void> deleteTransfer(@PathVariable Long transferId) {
-//        transferService.delete(transferId);
-//        return ResponseEntity.accepted().build();
-//    }
 }

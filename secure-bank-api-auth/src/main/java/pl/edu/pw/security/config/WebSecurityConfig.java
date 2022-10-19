@@ -19,7 +19,6 @@ import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.security.filter.AuthorizationFilter;
 import pl.edu.pw.security.filter.MobileAuthenticationFilter;
 import pl.edu.pw.security.filter.WebAuthenticationFilter;
-
 import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
@@ -109,7 +108,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public RestAuthenticationFailureHandler authenticationFailureHandler(){
+    public RestAuthenticationFailureHandler authenticationFailureHandler() {
         return new RestAuthenticationFailureHandler();
     }
 }

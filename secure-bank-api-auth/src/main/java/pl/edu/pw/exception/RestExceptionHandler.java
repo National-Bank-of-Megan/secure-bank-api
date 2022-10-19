@@ -4,7 +4,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,14 +28,16 @@ public class RestExceptionHandler {
         return ErrorMessageBody.builder().message(message).build();
     }
 
-    @ExceptionHandler({ AuthenticationException.class })
+    @ExceptionHandler({AuthenticationException.class})
     public ResponseEntity<Object> handleAuthenticationException(Exception e, WebRequest request) {
         if (e instanceof InsufficientAuthenticationException) {
             return new ResponseEntity<>(buildErrorMessageBody(AUTHENTICATION_FAILED_MESSAGE), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.UNAUTHORIZED);
     }
-    @ExceptionHandler({ MethodArgumentNotValidException.class }) // TODO: in the future override all messages, then remove if block
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    // TODO: in the future override all messages, then remove if block
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, WebRequest request) {
         String errorMessage = FIELD_VALIDATION_FAILURE_DEFAULT_MESSAGE;
         if (e.getFieldError() != null) {
@@ -45,34 +46,34 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(buildErrorMessageBody(errorMessage), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({ ResourceNotFoundException.class })
+    @ExceptionHandler({ResourceNotFoundException.class})
     public ResponseEntity<Object> handleResourceNotFoundException(Exception e, WebRequest request) {
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({ IllegalArgumentException.class })
+    @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<Object> handleIllegalArgumentException(Exception e, WebRequest request) {
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({ InvalidCurrencyException.class })
+    @ExceptionHandler({InvalidCurrencyException.class})
     public ResponseEntity<Object> handleInvalidCurrencyException(Exception e, WebRequest request) {
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({ ExternalApiException.class })
+    @ExceptionHandler({ExternalApiException.class})
     public ResponseEntity<Object> handleExternalApiException(Exception e, WebRequest request) {
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.SERVICE_UNAVAILABLE);
     }
 
-    @ExceptionHandler({ InvalidCredentialsException.class, JWTVerificationException.class })
+    @ExceptionHandler({InvalidCredentialsException.class, JWTVerificationException.class})
     public ResponseEntity<Object> handleInvalidCredentialsException(Exception e, WebRequest request) {
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({ RuntimeException.class })
+    @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Object> handleRuntimeExceptions(Exception e, WebRequest request) {
-        if(e instanceof AsyncRequestTimeoutException){
+        if (e instanceof AsyncRequestTimeoutException) {
             System.out.println("AsyncRequestTimeoutException");
             return new ResponseEntity<>(e.getCause(), HttpStatus.BAD_REQUEST);
         }

@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.edu.pw.controller.TransferNotificationController;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
 import pl.edu.pw.domain.CurrencyExchange;
@@ -13,14 +12,14 @@ import pl.edu.pw.domain.Status;
 import pl.edu.pw.domain.Transfer;
 import pl.edu.pw.dto.CurrencyExchangeDto;
 import pl.edu.pw.dto.HistoryTransferDTO;
-import pl.edu.pw.dto.TransferType;
-import pl.edu.pw.exception.ResourceNotFoundException;
-import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.dto.TransferCreate;
 import pl.edu.pw.dto.TransferDTO;
+import pl.edu.pw.dto.TransferType;
 import pl.edu.pw.dto.TransferUpdate;
+import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.logic.model.PendingTransfer;
 import pl.edu.pw.logic.producer.TransfersSender;
+import pl.edu.pw.model.MoneyBalanceOperation;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.CurrencyExchangeRepository;
 import pl.edu.pw.repository.TransferRepository;
@@ -48,7 +47,7 @@ public class TransferServiceImpl implements TransferService {
     @Override
     public List<TransferDTO> getAll(String clientId) {
         return transferRepository.findAllByReceiverClientIdOrSenderClientId(clientId, clientId).stream()
-                                 .map(transfer -> TransferMapper.map(transfer, clientId)).toList();
+                .map(transfer -> TransferMapper.map(transfer, clientId)).toList();
     }
 
     @Override
@@ -156,7 +155,7 @@ public class TransferServiceImpl implements TransferService {
                     .sender(transfer.getSender().getAccountDetails().getFirstName()
                             + " " + transfer.getSender().getAccountDetails().getLastName())
                     .receiver(transfer.getReceiver().getAccountDetails().getFirstName()
-                              + " " + transfer.getReceiver().getAccountDetails().getLastName())
+                            + " " + transfer.getReceiver().getAccountDetails().getLastName())
                     .title(transfer.getTitle())
                     .amount(transfer.getAmount())
                     .currency(transfer.getCurrency().name())

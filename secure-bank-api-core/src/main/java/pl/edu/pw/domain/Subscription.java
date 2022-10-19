@@ -1,7 +1,6 @@
 package pl.edu.pw.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="subscriptions")
+@Table(name = "subscriptions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

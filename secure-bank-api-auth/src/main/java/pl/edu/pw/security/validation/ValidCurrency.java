@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidCurrency {
     String message() default "Invalid currency";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

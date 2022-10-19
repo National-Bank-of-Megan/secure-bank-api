@@ -10,10 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.edu.pw.domain.Account;
-import pl.edu.pw.domain.AccountHash;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.domain.JsonWebTokenType;
-import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.service.devices.DevicesService;
@@ -27,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +80,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String deviceFingerprint = request.getHeader("Device-Fingerprint");
         String ipAddress = HttpRequestUtils.getClientIpAddressFromRequest(request);
         log.info("Machine trying to access api: " + ipAddress);
-        String loggedClientId = ((Account)authResult.getPrincipal()).getClientId();
+        String loggedClientId = ((Account) authResult.getPrincipal()).getClientId();
         TypedQuery<Device> deviceQuery = entityManager.createQuery(
                 "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Device.class);
         List<Device> accountDevices = deviceQuery.setParameter("loggedClientId", loggedClientId).getResultList();
@@ -91,7 +88,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         if (isUntrustedDevice(accountDevices, deviceFingerprint)) {
             response.setStatus(206);
         } else {
-            Account account = accountRepository.findByAccountNumber(((Account)authResult.getPrincipal()).getAccountNumber()).orElseThrow(
+            Account account = accountRepository.findByAccountNumber(((Account) authResult.getPrincipal()).getAccountNumber()).orElseThrow(
                     () -> new RuntimeException("Something went wrong with fetching your account")
             );
             authService.setOtherHashCombination(account, random);
