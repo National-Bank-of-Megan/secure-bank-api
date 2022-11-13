@@ -16,6 +16,6 @@ public class AddFavoriteReceiver {
     private String name;
 
     @NotBlank(message = "Account number cannot be blank")
-    @Pattern(regexp = "[\\d]{26}", message = "Account number must be 26 digits long")
+    @Pattern(regexp = "[\\d]{26}", message = "Account number must contain digits only and be 26 digits long")
     private String accountNumber;
 }

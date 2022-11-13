@@ -19,7 +19,7 @@ public class TransferCreate {
     @Size(min = 3, max = 60, message = "Transfer title must be from 3 to 60 characters long")
     private String title;
 
-    @Pattern(regexp = "[\\d]{26}", message = "Account number must be 26 digits long")
+    @Pattern(regexp = "[\\d]{26}", message = "Account number must contain digits only and be 26 digits long")
     private String receiverAccountNumber;
 
     @NotNull(message = "Amount to transfer is not specified")

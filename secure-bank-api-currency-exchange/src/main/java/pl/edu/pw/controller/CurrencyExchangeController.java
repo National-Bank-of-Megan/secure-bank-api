@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping(path = "/api/exchange")
 @AllArgsConstructor
 public class CurrencyExchangeController {
-    //    @RequestBody CurrencyExchangeRequest request
+
     private CurrencyExchangeService currencyExchangeService;
 
     @PostMapping("/")

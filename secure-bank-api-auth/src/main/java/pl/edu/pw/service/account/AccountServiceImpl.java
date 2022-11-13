@@ -141,22 +141,23 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void changePassword(Account loggedAccount, ChangePassword changePassword) {
+
         Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow(() ->
                 new ResourceNotFoundException("Account with " + loggedAccount.getClientId() + " client id was not found"));
         String accountSecret = account.getSecret();
-        if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret)) {
-            log.error("Invalid one time password");
-            throw new InvalidCredentialsException("Invalid one time password");
-        }
         String currentHashedPassword = account.getPassword();
-        if (!passwordEncoder.matches(changePassword.getOldPassword(), currentHashedPassword)) {
-            log.error("Incorrect old password");
-            throw new InvalidCredentialsException("Incorrect old password");
+
+        if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret) ||
+                !passwordEncoder.matches(changePassword.getOldPassword(), currentHashedPassword)) {
+            log.error("Incorrect old password or one time password");
+            throw new InvalidCredentialsException("Incorrect old password or one time password");
         }
+
         if (changePassword.getOldPassword().equals(changePassword.getNewPassword())) {
             log.error("New password cannot be the same as old password");
             throw new IllegalArgumentException("New password cannot be the same as old password");
         }
+
         String newPasswordHashed = passwordEncoder.encode(changePassword.getNewPassword());
         account.setPassword(newPasswordHashed);
         PasswordUtil.updateAccountHashes(account, changePassword.getNewPassword(), passwordEncoder);
