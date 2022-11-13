@@ -16,7 +16,7 @@ public class VerifyDeviceWithCodeRequest {
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
-    @Pattern(regexp = "[\\d]{6}", message = "One time password must be 6 digits long")
+    @Pattern(regexp = "[\\d]{6}", message = "One time password must contain digits only and be 6 digits long")
     private String code;
 
     @NotBlank(message = "Device fingerprint cannot be blank")

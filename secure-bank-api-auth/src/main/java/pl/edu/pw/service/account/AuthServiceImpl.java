@@ -1,6 +1,7 @@
 package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -31,10 +32,9 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Log4j2
 public class AuthServiceImpl implements AuthService, UserDetailsService {
-    private static final String NO_SUCH_ACCOUNT_MESSAGE = "No such account";
 
-    private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final DevicesService devicesService;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
@@ -94,7 +94,7 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
     public String getLoginCombination(String clientId) {
         Account account = accountRepository.findById(clientId).
-                orElseThrow(() -> new ResourceNotFoundException(NO_SUCH_ACCOUNT_MESSAGE + " with client id " + clientId));
+                orElseThrow(() -> new ResourceNotFoundException("No such account with client id " + clientId));
 
         return account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition();
     }

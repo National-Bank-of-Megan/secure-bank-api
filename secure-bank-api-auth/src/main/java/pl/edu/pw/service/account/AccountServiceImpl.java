@@ -4,12 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.domain.*;
-import pl.edu.pw.dto.*;
-import pl.edu.pw.exception.InvalidCredentialsException;
-import pl.edu.pw.exception.InvalidCurrencyException;
-import pl.edu.pw.exception.ResourceNotFoundException;
-import pl.edu.pw.exception.SubAccountNotFoundException;
+import pl.edu.pw.domain.Account;
+import pl.edu.pw.domain.Currency;
+import pl.edu.pw.domain.FavoriteReceiver;
+import pl.edu.pw.domain.SubAccount;
+import pl.edu.pw.domain.SubAccountId;
+import pl.edu.pw.dto.AccountCurrencyBalance;
+import pl.edu.pw.dto.AccountDTO;
+import pl.edu.pw.dto.AddCurrencyBalance;
+import pl.edu.pw.dto.AddFavoriteReceiver;
+import pl.edu.pw.dto.ChangePassword;
+import pl.edu.pw.dto.FavoriteReceiverDTO;
+import pl.edu.pw.exception.*;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.FavoriteReceiverRepository;
 import pl.edu.pw.repository.SubAccountRepository;
@@ -81,9 +87,22 @@ public class AccountServiceImpl implements AccountService {
     public FavoriteReceiverDTO addFavoriteReceiver(Account loggedAccount, AddFavoriteReceiver addFavoriteReceiver) {
         Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow(() ->
                 new ResourceNotFoundException("Account with " + loggedAccount.getClientId() + " client id was not found"));
+
+        if (favoriteReceiverAlreadyAdded(account, addFavoriteReceiver)) {
+            throw new DuplicateResourceException("Account number '"
+                    + addFavoriteReceiver.getAccountNumber() + "' has already been added to favorite receivers");
+        }
+
         FavoriteReceiver favoriteReceiver = map(addFavoriteReceiver);
+
         account.addFavoriteReceiver(favoriteReceiver);
         return map(favoriteReceiverRepository.save(favoriteReceiver));
+    }
+
+    private boolean favoriteReceiverAlreadyAdded(Account account, AddFavoriteReceiver favoriteReceiverToAdd) {
+        return account.getFavoriteReceivers().stream()
+                .map(FavoriteReceiver::getAccountNumber)
+                .anyMatch(favoriteReceiverAccountNumber -> favoriteReceiverAccountNumber.equals(favoriteReceiverToAdd.getAccountNumber()));
     }
 
     @Override
@@ -122,22 +141,23 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void changePassword(Account loggedAccount, ChangePassword changePassword) {
+
         Account account = accountRepository.findById(loggedAccount.getClientId()).orElseThrow(() ->
                 new ResourceNotFoundException("Account with " + loggedAccount.getClientId() + " client id was not found"));
         String accountSecret = account.getSecret();
-        if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret)) {
-            log.error("Invalid one time password");
-            throw new InvalidCredentialsException("Invalid one time password");
-        }
         String currentHashedPassword = account.getPassword();
-        if (!passwordEncoder.matches(changePassword.getOldPassword(), currentHashedPassword)) {
-            log.error("Incorrect old password");
-            throw new InvalidCredentialsException("Incorrect old password");
+
+        if (!otpService.verifyCode(changePassword.getOtpCode(), accountSecret) ||
+                !passwordEncoder.matches(changePassword.getOldPassword(), currentHashedPassword)) {
+            log.error("Incorrect old password or one time password");
+            throw new InvalidCredentialsException("Incorrect old password or one time password");
         }
+
         if (changePassword.getOldPassword().equals(changePassword.getNewPassword())) {
             log.error("New password cannot be the same as old password");
             throw new IllegalArgumentException("New password cannot be the same as old password");
         }
+
         String newPasswordHashed = passwordEncoder.encode(changePassword.getNewPassword());
         account.setPassword(newPasswordHashed);
         PasswordUtil.updateAccountHashes(account, changePassword.getNewPassword(), passwordEncoder);

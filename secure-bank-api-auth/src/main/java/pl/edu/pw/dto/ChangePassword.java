@@ -20,6 +20,6 @@ public class ChangePassword {
     private String newPassword;
 
     @NotBlank(message = "One time password cannot be blank")
-    @Pattern(regexp = "[\\d]{6}", message = "One time password must be 6 digits long")
+    @Pattern(regexp = "[\\d]{6}", message = "One time password must contain digits only and be 6 digits long")
     private String otpCode;
 }

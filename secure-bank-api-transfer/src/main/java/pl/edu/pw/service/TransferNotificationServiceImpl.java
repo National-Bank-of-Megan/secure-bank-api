@@ -69,7 +69,7 @@ public class TransferNotificationServiceImpl implements TransferNotificationServ
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
-                        .reconnectTime(30_000)
+                        .reconnectTime(5_000)
                         .name(NOTIFICATION_EVENT_NAME)
                         .id(receiverClientId)
                         .data(transferNotificationDto)

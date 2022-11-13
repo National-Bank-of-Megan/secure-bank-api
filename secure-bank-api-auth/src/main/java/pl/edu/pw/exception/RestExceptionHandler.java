@@ -2,9 +2,12 @@ package pl.edu.pw.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +22,9 @@ public class RestExceptionHandler {
             "Please report this issue to administrators of the system";
     private static final String AUTHENTICATION_FAILED_MESSAGE = "Invalid client id or password";
     private static final String FIELD_VALIDATION_FAILURE_DEFAULT_MESSAGE = "One of the provided fields is invalid";
+
+    private static final String SQL_ERROR_DEFAULT_MESSAGE = "Some error happened, try again later";
+
 
     private ErrorMessageBody buildErrorMessageBody(Exception e) {
         return ErrorMessageBody.builder().message(e.getMessage()).build();
@@ -66,15 +72,19 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.SERVICE_UNAVAILABLE);
     }
 
-    @ExceptionHandler({InvalidCredentialsException.class, JWTVerificationException.class})
+    @ExceptionHandler({InvalidCredentialsException.class, JWTVerificationException.class, BadCredentialsException.class, LockedException.class})
     public ResponseEntity<Object> handleInvalidCredentialsException(Exception e, WebRequest request) {
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({DataAccessException.class})
+    public ResponseEntity<Object> handleDataAccessException(Exception e, WebRequest request) {
+        return new ResponseEntity<>(SQL_ERROR_DEFAULT_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Object> handleRuntimeExceptions(Exception e, WebRequest request) {
         if (e instanceof AsyncRequestTimeoutException) {
-            System.out.println("AsyncRequestTimeoutException");
             return new ResponseEntity<>(e.getCause(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.BAD_REQUEST);
@@ -86,7 +96,6 @@ public class RestExceptionHandler {
         if (e instanceof NullPointerException) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        e.getStackTrace();
         return new ResponseEntity<>(buildErrorMessageBody(INTERNAL_SERVER_ERROR_DEFAULT_MESSAGE), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
