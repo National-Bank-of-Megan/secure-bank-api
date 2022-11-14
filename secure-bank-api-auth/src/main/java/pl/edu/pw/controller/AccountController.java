@@ -23,6 +23,12 @@ public class AccountController {
     private final AccountService accountService;
     private final DevicesService devicesService;
 
+    @PostMapping("/device/register")
+    public ResponseEntity<Void> registerMobileDevice(){
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
     @GetMapping("/profile")
     public ResponseEntity<AccountDTO> getAccountData(@AuthenticationPrincipal Account account) {
         return ResponseEntity.ok(accountService.getAccountData(account));

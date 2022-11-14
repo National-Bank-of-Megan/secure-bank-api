@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.exception.ResourceNotFoundException;
@@ -19,6 +20,7 @@ import java.util.Base64;
 
 import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 
+@Order(3)
 public class MobileAuthorizationFilter extends AuthorizationFilterAbstract {
 
     private static final Logger log = LoggerFactory.getLogger(MobileAuthorizationFilter.class);
@@ -36,6 +38,7 @@ public class MobileAuthorizationFilter extends AuthorizationFilterAbstract {
             JWTVerifier mobileVerifier = JWT.require(algorithmMobile).build();
             DecodedJWT decodedJWT = mobileVerifier.verify(token);
             String accountNumber = decodedJWT.getSubject().substring("auth0|".length());
+            ClientIdContainer.clientId = accountNumber;
             Account account = accountRepository.findById(accountNumber).orElseThrow(() ->
                     new ResourceNotFoundException("Account with " + accountNumber + " account number was not found"));
             return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), null);

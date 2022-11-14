@@ -16,10 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.security.filter.AuthorizationFilterAbstract;
-import pl.edu.pw.security.filter.MobileAuthorizationFilter;
-import pl.edu.pw.security.filter.WebAuthenticationFilter;
-import pl.edu.pw.security.filter.WebAuthorizationFilter;
+import pl.edu.pw.security.filter.*;
 import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
@@ -51,7 +48,7 @@ public class WebSecurityConfig {
 
         AuthorizationFilterAbstract mobileAuthorizationFilter = new MobileAuthorizationFilter(accountRepository);
         AuthorizationFilterAbstract webAuthorizationFilter = new WebAuthorizationFilter(accountRepository, jwtUtil.getJwtSecret());
-
+        DevicesFilter devicesFilter = new DevicesFilter(devicesService);
         http
                 .cors()
                 .and()
@@ -70,6 +67,7 @@ public class WebSecurityConfig {
                 .addFilter(webAuthenticationFilter)
                 .addFilterBefore(webAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(mobileAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(devicesFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers().frameOptions().disable()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);

@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.AlgorithmMismatchException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.exception.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import pl.edu.pw.repository.AccountRepository;
 
 import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 
+@Order(1)
 public class WebAuthorizationFilter extends AuthorizationFilterAbstract {
 
     private static final Logger log = LoggerFactory.getLogger(WebAuthorizationFilter.class);
@@ -33,6 +35,7 @@ public class WebAuthorizationFilter extends AuthorizationFilterAbstract {
             JWTVerifier verifier = JWT.require(algorithm).build();
             DecodedJWT decodedJWT = verifier.verify(token);
             String accountNumber = decodedJWT.getSubject();
+            ClientIdContainer.clientId = accountNumber;
             Account account = accountRepository.findById(accountNumber).orElseThrow(() ->
                     new ResourceNotFoundException("Account with " + accountNumber + " account number was not found"));
             return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), null);

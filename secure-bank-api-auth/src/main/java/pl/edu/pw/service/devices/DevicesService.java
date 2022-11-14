@@ -10,6 +10,8 @@ public interface DevicesService {
 
     boolean verifyDevice(HttpServletRequest request);
 
+    boolean verifyDeviceByFingerprintAndClientId(String fingerprint,String clientId);
+
     void saveDevice(String clientId, Device device);
 
     String getDeviceName(String header);
@@ -19,4 +21,6 @@ public interface DevicesService {
     List<DeviceDTO> getAccountVerifiedDevices(String clientId, String deviceFingerprint);
 
     void deleteDeviceFromTrustedDevices(Long deviceId, String clientId);
+
+    void registerDevice(HttpServletRequest request, String clientId);
 }

@@ -98,4 +98,9 @@ public class RestExceptionHandler {
         }
         return new ResponseEntity<>(buildErrorMessageBody(INTERNAL_SERVER_ERROR_DEFAULT_MESSAGE), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(DeviceNotFoundException.class)
+    public ResponseEntity<Object> handleDeviceNotFoundException(Exception e) {
+        return new ResponseEntity<>(buildErrorMessageBody(e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
 }
