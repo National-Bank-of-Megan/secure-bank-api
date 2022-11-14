@@ -101,7 +101,6 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type", "Accept", "Cache-Control", "Device-Fingerprint"));
-//        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-type"));
 
         source.registerCorsConfiguration("/**", configuration);
         return source;

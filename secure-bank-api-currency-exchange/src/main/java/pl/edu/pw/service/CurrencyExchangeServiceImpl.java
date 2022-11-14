@@ -103,6 +103,7 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
     private static CurrencyExchangeDto map(CurrencyExchange currencyExchange) {
         return new CurrencyExchangeDto(
+                currencyExchange.getId(),
                 currencyExchange.getOrderedOn(),
                 currencyExchange.getCurrencyBought().toString(),
                 currencyExchange.getAmountBought(),

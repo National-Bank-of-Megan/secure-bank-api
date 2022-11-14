@@ -49,18 +49,22 @@ public class AccountServiceImpl implements AccountService {
     public void addCurrencyBalance(Account account, AddCurrencyBalance addCurrencyBalance) {
         Currency currency;
         if (addCurrencyBalance.getAmount().doubleValue() <= 0.0) {
-            throw new IllegalArgumentException("Amount to add cannot be lower or equal to 0.");
+            throw new IllegalArgumentException("Amount to add cannot be lower or equal to 0");
         }
         try {
             currency = Currency.valueOf(addCurrencyBalance.getCurrency());
         } catch (NullPointerException e) {
-            throw new InvalidCurrencyException("Currency " + addCurrencyBalance.getCurrency() + " not found.");
+            throw new InvalidCurrencyException("Currency " + addCurrencyBalance.getCurrency() + " not found");
         }
-//        account.addCurrencyBalance(currency, addCurrency.getAmount());
-//        todo catch exception when subaccount not found
+
         SubAccount subAccount = subAccountRepository.findById(new SubAccountId(CurrentUserUtil.getCurrentUser(), currency)).orElseThrow(
-                () -> new SubAccountNotFoundException("Subaccount not found. Something wrong with database")
+                () -> new SubAccountNotFoundException("Subaccount was not found")
         );
+
+//        if (subAccount.getBalance().add(addCurrencyBalance.getAmount()).compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0) {
+//            throw new IllegalArgumentException("Cannot add more money to this subaccount");
+//        }
+
         subAccount.addToBalance(addCurrencyBalance.getAmount());
     }
 
@@ -113,7 +117,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     public void resetLoginAttempts(Account account) {
-        account.setLoginAttempts(0l);
+        account.setLoginAttempts(0L);
         accountRepository.save(account);
     }
 
@@ -135,7 +139,7 @@ public class AccountServiceImpl implements AccountService {
     public void unlockAccount(Account account) {
         account.setAccountNonLocked(true);
         account.setLockTime(null);
-        account.setLoginAttempts(0l);
+        account.setLoginAttempts(0L);
         accountRepository.save(account);
     }
 

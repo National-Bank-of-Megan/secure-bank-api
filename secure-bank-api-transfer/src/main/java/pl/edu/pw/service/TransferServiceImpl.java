@@ -133,6 +133,7 @@ public class TransferServiceImpl implements TransferService {
 
     private CurrencyExchangeDto map(CurrencyExchange currencyExchange) {
         return new CurrencyExchangeDto(
+                currencyExchange.getId(),
                 currencyExchange.getOrderedOn(),
                 currencyExchange.getCurrencyBought().toString(),
                 currencyExchange.getAmountBought(),
@@ -151,6 +152,7 @@ public class TransferServiceImpl implements TransferService {
             }
 
             return TransferDTO.builder()
+                    .id(transfer.getId())
                     .transferType(transferType)
                     .sender(transfer.getSender().getAccountDetails().getFirstName()
                             + " " + transfer.getSender().getAccountDetails().getLastName())
@@ -187,6 +189,7 @@ public class TransferServiceImpl implements TransferService {
                 transferType = TransferType.SENT;
             }
             return HistoryTransferDTO.builder()
+                    .id(transfer.getId())
                     .transferType(transferType)
                     .sender(transfer.getSender().getAccountDetails().getFirstName()
                             + " " + transfer.getSender().getAccountDetails().getLastName())

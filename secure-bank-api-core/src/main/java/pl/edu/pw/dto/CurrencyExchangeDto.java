@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 public class CurrencyExchangeDto extends MoneyBalanceOperation {
 
-    public CurrencyExchangeDto(LocalDateTime requestDate, String currencyBought, BigDecimal amountBought, String currencySold, BigDecimal amountSold) {
-        super(requestDate);
+    public CurrencyExchangeDto(Long id, LocalDateTime requestDate, String currencyBought, BigDecimal amountBought, String currencySold, BigDecimal amountSold) {
+        super(id, requestDate);
         this.currencyBought = currencyBought;
         this.amountBought = amountBought;
         this.currencySold = currencySold;
