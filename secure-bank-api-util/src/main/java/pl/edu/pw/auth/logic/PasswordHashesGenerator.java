@@ -1,5 +1,6 @@
 package pl.edu.pw.auth.logic;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.edu.pw.dto.PartPasswordHash;
 
@@ -7,11 +8,12 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
+@UtilityClass
 public class PasswordHashesGenerator {
     private static final int PASSWORD_HASHES_AMOUNT = 5;
     private static final int PASSWORD_HASH_LENGTH = 6;
 
-    public static List<PartPasswordHash> generatePasswordHashes(String password, PasswordEncoder passwordEncoder) {
+    public List<PartPasswordHash> generatePasswordHashes(String password, PasswordEncoder passwordEncoder) {
         List<PartPasswordHash> passwordHashes = new ArrayList<>();
         SecureRandom random = new SecureRandom();
         int passwordLength = password.length();

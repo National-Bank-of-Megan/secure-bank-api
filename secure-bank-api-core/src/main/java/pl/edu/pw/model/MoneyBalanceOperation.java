@@ -1,6 +1,5 @@
 package pl.edu.pw.model;
 
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,8 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @Getter
 public abstract class MoneyBalanceOperation implements Comparable<MoneyBalanceOperation> {
-    @NotNull
+
+    private Long id;
     private LocalDateTime requestDate;
 
     @Override

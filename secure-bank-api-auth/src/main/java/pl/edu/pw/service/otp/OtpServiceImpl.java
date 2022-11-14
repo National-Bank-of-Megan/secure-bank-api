@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
-//todo convert ot record
 @RequiredArgsConstructor
 @Service
 public class OtpServiceImpl implements OtpService {
