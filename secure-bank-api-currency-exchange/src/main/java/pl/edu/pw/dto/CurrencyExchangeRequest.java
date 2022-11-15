@@ -25,10 +25,6 @@ public class CurrencyExchangeRequest {
     @ValidCurrency(message = "Unknown sold currency provided")
     private String currencySold;
 
-    @NotNull(message = "Exchange time field is required") // TODO: can be easily forged
-    @DateTimeFormat
-    private LocalDateTime exchangeTime;
-
     @NotNull(message = "Currency sold amount is not specified")
     @Digits(integer = 6, fraction = 2, message = "Invalid money amount format")
     @DecimalMin(value = "0.0", inclusive = false, message = "Money amount cannot be negative")

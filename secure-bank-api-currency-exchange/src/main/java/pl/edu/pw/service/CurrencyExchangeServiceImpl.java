@@ -21,6 +21,7 @@ import pl.edu.pw.util.CurrentUserUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,14 +35,14 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     private final CurrencyExchangeRepository currencyExchangeRepository;
 
     @Override
-    public void exchangeCurrency(CurrencyExchangeRequest request) {
+    public void exchangeCurrency(CurrencyExchangeRequest currencyExchangeRequest) {
         Account user = CurrentUserUtil.getCurrentUser();
         Map<Currency, SubAccount> subAccounts = user.getSubAccounts();
         Currency currencySold;
         Currency currencyBought;
         try {
-            currencyBought = Currency.valueOf(request.getCurrencyBought());
-            currencySold = Currency.valueOf(request.getCurrencySold());
+            currencyBought = Currency.valueOf(currencyExchangeRequest.getCurrencyBought());
+            currencySold = Currency.valueOf(currencyExchangeRequest.getCurrencySold());
         } catch (Exception e) {
             throw new InvalidCurrencyException("Invalid currency provided");
         }
@@ -53,19 +54,19 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
                 );
 
         SubAccount boughtSubAccount = subAccountRepository.findById(new SubAccountId(user, currencyBought)).orElseGet(
-                () -> createNewSubAccount(user, Currency.valueOf(request.getCurrencyBought()))
+                () -> createNewSubAccount(user, Currency.valueOf(currencyExchangeRequest.getCurrencyBought()))
         );
 
         //        check if there is enough money to be sold and delete from balance
         SubAccount sellingSubAccount = subAccounts.get(currencySold);
         BigDecimal balance = sellingSubAccount.getBalance();
-        if (balance.compareTo(request.getSold()) < 0)
-            throw new SubAccountBalanceException("Not enough money on the " + request.getCurrencySold() + " sub account");
-        sellingSubAccount.setBalance(balance.subtract(request.getSold()));
+        if (balance.compareTo(currencyExchangeRequest.getSold()) < 0)
+            throw new SubAccountBalanceException("Not enough money on the " + currencyExchangeRequest.getCurrencySold() + " sub account");
+        sellingSubAccount.setBalance(balance.subtract(currencyExchangeRequest.getSold()));
 
         BigDecimal bought;
         try {
-            bought = ExternalCurrencyApiUtil.exchangeCurrency(currencySold, request.getSold(), request.getExchangeTime(), currencyBought);
+            bought = ExternalCurrencyApiUtil.exchangeCurrency(currencySold, currencyExchangeRequest.getSold(), LocalDateTime.now(), currencyBought);
         } catch (IOException e) {
             throw new ExternalApiException();
         }
@@ -78,11 +79,11 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
 //        add to exchange to history
         CurrencyExchange exchange = new CurrencyExchange(
-                request.getExchangeTime(),
+                LocalDateTime.now(),
                 currencyBought,
                 bought,
                 currencySold,
-                request.getSold(),
+                currencyExchangeRequest.getSold(),
                 user
         );
 
