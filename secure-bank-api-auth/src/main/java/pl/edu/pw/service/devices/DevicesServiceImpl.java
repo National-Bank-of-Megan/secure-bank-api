@@ -10,6 +10,7 @@ import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.dto.DeviceDTO;
 import pl.edu.pw.exception.ResourceNotFoundException;
+import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.DeviceRepository;
 import pl.edu.pw.util.http.HttpRequestUtils;
@@ -41,10 +42,8 @@ public class DevicesServiceImpl implements DevicesService {
     }
 
     @Override
-    public boolean verifyDeviceByFingerprintAndClientId(String fingerprint,String clientId) {
-        log.info("Verifying device by fingerprint");
-        Optional<Device> device = deviceRepository.findByFingerprintAndAccountClientId(fingerprint,clientId);
-        return device.isPresent();
+    public boolean verifyDeviceByFingerprintAndClientId(String fingerprint, String clientId) {
+        return deviceRepository.findByFingerprintAndAccountClientId(fingerprint, clientId).isPresent();
     }
 
     @Override
