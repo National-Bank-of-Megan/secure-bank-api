@@ -34,7 +34,7 @@ public class DevicesFilter extends ClientIdContainer {
         String clientId = ClientIdContainer.clientId;
 //        TODO create enum containing paths
         if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login")||request.getServletPath().equals("/api/web/register")) {
-            if (request.getServletPath().equals("/api/account/bo device/register"))
+            if (request.getServletPath().equals("/api/account/device/register"))
                 devicesService.registerDevice(request, clientId);
             filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);
         } else {

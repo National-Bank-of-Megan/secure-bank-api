@@ -43,7 +43,9 @@ public class DevicesServiceImpl implements DevicesService {
 
     @Override
     public boolean verifyDeviceByFingerprintAndClientId(String fingerprint, String clientId) {
-        return deviceRepository.findByFingerprintAndAccountClientId(fingerprint, clientId).isPresent();
+        Device device = deviceRepository.findAllByAccountClientId(clientId).stream().filter(d->d.getFingerprint().equals(fingerprint))
+                .findFirst().orElse(null);
+        return device != null;
     }
 
     @Override
@@ -78,6 +80,7 @@ public class DevicesServiceImpl implements DevicesService {
         List<DeviceDTO> deviceDTOList = deviceRepository.findAllByAccountClientId(clientId).stream().map(DeviceMapper::map).toList();
         Device currentDevice = deviceRepository.findByFingerprintAndAccountClientId(deviceFingerprint, clientId).orElse(null);
         if (currentDevice != null) {
+            log.error("current device not empty");
             DeviceDTO currentDeviceDTO = deviceDTOList.stream().filter(
                     deviceDTO -> deviceDTO.getId().equals(currentDevice.getId())).findFirst().get();
             currentDeviceDTO.setCurrentDevice(true);
