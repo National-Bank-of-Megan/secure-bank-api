@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.edu.pw.exception.DeviceNotFoundException;
@@ -32,8 +33,7 @@ public class DevicesFilter extends ClientIdContainer {
 
         String clientId = ClientIdContainer.clientId;
 //        TODO create enum containing paths
-        if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login")) {
-            log.info("Trying to register mobile device");
+        if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login")||request.getServletPath().equals("/api/web/register")) {
             if (request.getServletPath().equals("/api/account/bo device/register"))
                 devicesService.registerDevice(request, clientId);
             filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);
@@ -43,7 +43,7 @@ public class DevicesFilter extends ClientIdContainer {
             else {
                 Map<String, String> error = new HashMap<>();
                 error.put("error_message", "This device is not authorized to access this resource");
-                response.setStatus(FORBIDDEN.value());
+                response.setStatus(HttpStatus.NETWORK_AUTHENTICATION_REQUIRED.value());
                 response.setContentType(APPLICATION_JSON_VALUE);
                 new ObjectMapper().writeValue(response.getOutputStream(), error);
             }
