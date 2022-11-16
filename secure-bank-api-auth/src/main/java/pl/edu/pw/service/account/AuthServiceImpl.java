@@ -59,7 +59,8 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         accountToRegister.addSubAccounts(Currency.values());
         accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), "666 666 666"));
 
-        accountToRegister.addDevice(new Device(registerData.getDeviceFingerprint(), deviceName, LocalDateTime.now(), registerData.getIp()));
+//        dodanie urządzenia powoduje ze nie bd triggerowanego 2FA jeśli bezpośrednio po rejestracji uzytkownik postanowi sie zalogowac
+//        accountToRegister.addDevice(new Device(registerData.getDeviceFingerprint(), deviceName, LocalDateTime.now(), registerData.getIp()));
 
         String secret = otpService.generateSecret();
         accountToRegister.setSecret(secret);

@@ -85,7 +85,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Device.class);
         List<Device> accountDevices = deviceQuery.setParameter("loggedClientId", loggedClientId).getResultList();
 
-        if (isUntrustedDevice(accountDevices, deviceFingerprint)) {
+        if (isUntrustedDevice(loggedClientId, deviceFingerprint)) {
             response.setStatus(206);
         } else {
             Account account = accountRepository.findByAccountNumber(((Account) authResult.getPrincipal()).getAccountNumber()).orElseThrow(
@@ -103,7 +103,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
     }
 
-    private boolean isUntrustedDevice(List<Device> accountDevices, String deviceFingerprint) {
-        return accountDevices.stream().noneMatch(device -> device.getFingerprint().equals(deviceFingerprint));
+    private boolean isUntrustedDevice(String clientId, String deviceFingerprint) {
+        return !devicesService.verifyDeviceByFingerprintAndClientId(deviceFingerprint, clientId);
     }
 }
