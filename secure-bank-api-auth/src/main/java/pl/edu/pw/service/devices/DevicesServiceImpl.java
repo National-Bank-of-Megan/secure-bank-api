@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.dto.DeviceDTO;
+import pl.edu.pw.exception.ResourceNotFoundException;
+import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.DeviceRepository;
 import pl.edu.pw.util.http.HttpRequestUtils;
@@ -28,12 +30,22 @@ public class DevicesServiceImpl implements DevicesService {
     private final DeviceRepository deviceRepository;
     private final AccountRepository accountRepository;
 
+    private final String DEVICE_FINGERPRINT_HEADER = "Device-Fingerprint";
+
     @Override
     public boolean verifyDevice(HttpServletRequest request) {
-        log.info("Veryfing device...");
+        log.info("Verifying device...");
         String ip = HttpRequestUtils.getClientIpAddressFromRequest(request);
+//        TODO multiple devices can share the same ip address, make list
         Optional<Device> device = deviceRepository.findByIp(ip);
         return device.isPresent();
+    }
+
+    @Override
+    public boolean verifyDeviceByFingerprintAndClientId(String fingerprint, String clientId) {
+        Device device = deviceRepository.findAllByAccountClientId(clientId).stream().filter(d->d.getFingerprint().equals(fingerprint))
+                .findFirst().orElse(null);
+        return device != null;
     }
 
     @Override
@@ -68,6 +80,7 @@ public class DevicesServiceImpl implements DevicesService {
         List<DeviceDTO> deviceDTOList = deviceRepository.findAllByAccountClientId(clientId).stream().map(DeviceMapper::map).toList();
         Device currentDevice = deviceRepository.findByFingerprintAndAccountClientId(deviceFingerprint, clientId).orElse(null);
         if (currentDevice != null) {
+            log.error("current device not empty");
             DeviceDTO currentDeviceDTO = deviceDTOList.stream().filter(
                     deviceDTO -> deviceDTO.getId().equals(currentDevice.getId())).findFirst().get();
             currentDeviceDTO.setCurrentDevice(true);
@@ -91,5 +104,20 @@ public class DevicesServiceImpl implements DevicesService {
                     false
             );
         }
+    }
+
+    @Override
+    public void registerDevice(HttpServletRequest request, String clientId) {
+        String fingerprint = request.getHeader(DEVICE_FINGERPRINT_HEADER);
+//        czy to sie zapetli?
+        String deviceName = HttpRequestUtils.getDeviceNameFromRequest(request, this);
+        String requestPublicIp = HttpRequestUtils.getClientIpAddressFromRequest(request);
+        Account account = accountRepository.findById(clientId).orElseThrow(
+                () -> new ResourceNotFoundException("Account with given clientId does not exist")
+        );
+        log.info("Device fingerprint: " + fingerprint);
+        Device trustedDevice = new Device(request.getHeader("Device-Fingerprint"), deviceName, LocalDateTime.now(), requestPublicIp);
+        trustedDevice.setLastLoggedIn(LocalDateTime.now());
+        this.saveDevice(clientId, trustedDevice);
     }
 }

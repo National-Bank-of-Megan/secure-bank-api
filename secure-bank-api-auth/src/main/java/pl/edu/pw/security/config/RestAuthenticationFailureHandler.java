@@ -1,6 +1,7 @@
 package pl.edu.pw.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.streams.state.internals.LeftOrRightValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
     private AccountService accountService;
 
     private long MAX_LOGIN_ATTEMPTS = 5;
-    private long LOCK_TIME = 86400000;
+    private static long LOCK_TIME = 86400000;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
@@ -51,7 +52,7 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
 
             if (!a.isAccountNonLocked()) {
                 log.info("account is  locked");
-
+                System.out.println(!isAccountStillLocked(a));
                 if (!isAccountStillLocked(a)) {
                     accountService.unlockAccount(a);
                 } else
@@ -75,9 +76,18 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
 
     }
 
-    private boolean isAccountStillLocked(Account account) {
+    public static  boolean isAccountStillLocked(Account account) {
         long current = System.currentTimeMillis();
+        if (account.getLockTime() == null) return false;
         long time = account.getLockTime().getTime();
+        log.info("time "+time);
+        log.info("current "+current);
+        log.info("lock time "+ LOCK_TIME);
+        System.out.println(time + LOCK_TIME > current);
         return time + LOCK_TIME > current;
+    }
+
+    public static boolean isAccountLocked(Account account){
+        return !account.isAccountNonLocked() || isAccountStillLocked(account);
     }
 }

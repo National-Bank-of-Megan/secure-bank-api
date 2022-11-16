@@ -1,12 +1,7 @@
 package pl.edu.pw.service.account;
 
 import pl.edu.pw.domain.Account;
-import pl.edu.pw.dto.AccountCurrencyBalance;
-import pl.edu.pw.dto.AccountDTO;
-import pl.edu.pw.dto.AddCurrencyBalance;
-import pl.edu.pw.dto.AddFavoriteReceiver;
-import pl.edu.pw.dto.ChangePassword;
-import pl.edu.pw.dto.FavoriteReceiverDTO;
+import pl.edu.pw.dto.*;
 
 import java.util.List;
 

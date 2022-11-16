@@ -84,14 +84,15 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         TypedQuery<Device> deviceQuery = entityManager.createQuery(
                 "SELECT d FROM Device d JOIN FETCH d.account WHERE d.account.clientId = :loggedClientId", Device.class);
         List<Device> accountDevices = deviceQuery.setParameter("loggedClientId", loggedClientId).getResultList();
-
-        if (isUntrustedDevice(accountDevices, deviceFingerprint)) {
+        Account account = accountRepository.findByAccountNumber(((Account) authResult.getPrincipal()).getAccountNumber()).orElseThrow(
+                () -> new RuntimeException("Something went wrong with fetching your account")
+        );
+        account.setLoginAttempts(0L);
+        if (isUntrustedDevice(loggedClientId, deviceFingerprint)) {
             response.setStatus(206);
         } else {
-            Account account = accountRepository.findByAccountNumber(((Account) authResult.getPrincipal()).getAccountNumber()).orElseThrow(
-                    () -> new RuntimeException("Something went wrong with fetching your account")
-            );
             authService.setOtherHashCombination(account, random);
+
             Device loggedDevice = accountDevices.stream().filter(device -> device.getFingerprint().equals(deviceFingerprint))
                     .findFirst().get();
             devicesService.updateDeviceLogInDate(loggedDevice);
@@ -103,7 +104,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
     }
 
-    private boolean isUntrustedDevice(List<Device> accountDevices, String deviceFingerprint) {
-        return accountDevices.stream().noneMatch(device -> device.getFingerprint().equals(deviceFingerprint));
+    private boolean isUntrustedDevice(String clientId, String deviceFingerprint) {
+        return !devicesService.verifyDeviceByFingerprintAndClientId(deviceFingerprint, clientId);
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -88,6 +87,8 @@ public class RestExceptionHandler {
         if (e instanceof AsyncRequestTimeoutException) {
             return new ResponseEntity<>(e.getCause(), HttpStatus.BAD_REQUEST);
         }
+        if(e instanceof DeviceNotFoundException)
+            return new ResponseEntity<>(e.getCause(),HttpStatus.NETWORK_AUTHENTICATION_REQUIRED);
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.BAD_REQUEST);
     }
 
@@ -98,5 +99,10 @@ public class RestExceptionHandler {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(buildErrorMessageBody(INTERNAL_SERVER_ERROR_DEFAULT_MESSAGE), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(DeviceNotFoundException.class)
+    public ResponseEntity<Object> handleDeviceNotFoundException(Exception e) {
+        return new ResponseEntity<>(buildErrorMessageBody(e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 }

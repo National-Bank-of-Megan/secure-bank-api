@@ -8,11 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.domain.Account;
-import pl.edu.pw.domain.AccountDetails;
-import pl.edu.pw.domain.AccountHash;
-import pl.edu.pw.domain.Currency;
-import pl.edu.pw.domain.Device;
+import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.AccountRegistration;
 import pl.edu.pw.dto.PartPasswordHash;
 import pl.edu.pw.dto.SuccessfulRegistrationResponse;
@@ -51,7 +47,6 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
             throw new IllegalArgumentException("This email is already taken");
         }
 
-        String deviceName = HttpRequestUtils.getDeviceNameFromRequest(request, devicesService);
         String rawPassword = registerData.getPassword();
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
         List<Account> allAccounts = accountRepository.findAll();
@@ -62,8 +57,6 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
         accountToRegister.addSubAccounts(Currency.values());
         accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), "666 666 666"));
-
-        accountToRegister.addDevice(new Device(registerData.getDeviceFingerprint(), deviceName, LocalDateTime.now(), registerData.getIp()));
 
         String secret = otpService.generateSecret();
         accountToRegister.setSecret(secret);
@@ -103,6 +96,12 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
         return account.getCurrentAuthenticationHash().getPasswordPartCharactersPosition();
     }
 
+    @Override
+    public Account loadUserByUsername(String clientId) throws UsernameNotFoundException {
+        return accountRepository.findById(clientId).
+                orElseThrow(() -> new UsernameNotFoundException(String.format("Account %s not found", clientId)));
+    }
+
     public static class AccountMapper {
         public static Account map(AccountRegistration registerData, Set<String> existingAccountsNumbers, Set<String> existingClientIds) {
             return new Account(
@@ -122,11 +121,5 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
                     passwordPartCharactersPosition
             );
         }
-    }
-
-    @Override
-    public Account loadUserByUsername(String clientId) throws UsernameNotFoundException {
-        return accountRepository.findById(clientId).
-                orElseThrow(() -> new UsernameNotFoundException(String.format("Account %s not found", clientId)));
     }
 }

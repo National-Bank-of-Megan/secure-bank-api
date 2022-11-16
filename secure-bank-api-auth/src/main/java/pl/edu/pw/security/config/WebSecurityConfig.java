@@ -16,9 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.edu.pw.repository.AccountHashRepository;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.security.filter.AuthorizationFilter;
-import pl.edu.pw.security.filter.MobileAuthenticationFilter;
-import pl.edu.pw.security.filter.WebAuthenticationFilter;
+import pl.edu.pw.security.filter.*;
 import pl.edu.pw.service.account.AuthService;
 import pl.edu.pw.service.devices.DevicesServiceImpl;
 import pl.edu.pw.util.JWTUtil;
@@ -47,12 +45,10 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        desktop app processing
         WebAuthenticationFilter webAuthenticationFilter = getAuthenticationFilter();
-        AuthorizationFilter authorizationFilter = new AuthorizationFilter(accountRepository, jwtUtil.getJwtSecret());
 
-//        mobile app processing
-        MobileAuthenticationFilter mobileAuthenticationFilter = new MobileAuthenticationFilter(authenticationManagerBean(authenticationConfiguration), accountRepository, accountHashRepository);
-        mobileAuthenticationFilter.setFilterProcessesUrl("/api/mobile/login");
-
+        AuthorizationFilterAbstract mobileAuthorizationFilter = new MobileAuthorizationFilter(accountRepository);
+        AuthorizationFilterAbstract webAuthorizationFilter = new WebAuthorizationFilter(accountRepository, jwtUtil.getJwtSecret());
+        DevicesFilter devicesFilter = new DevicesFilter(devicesService);
         http
                 .cors()
                 .and()
@@ -69,8 +65,9 @@ public class WebSecurityConfig {
                 .authorizeRequests().anyRequest().authenticated()
                 .and()
                 .addFilter(webAuthenticationFilter)
-                .addFilter(mobileAuthenticationFilter)
-                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(webAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(mobileAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(devicesFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers().frameOptions().disable()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);

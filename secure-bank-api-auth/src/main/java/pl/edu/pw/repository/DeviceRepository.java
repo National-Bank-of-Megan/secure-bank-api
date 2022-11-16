@@ -12,4 +12,5 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     List<Device> findAllByAccountClientId(String clientId);
 
     Optional<Device> findByFingerprintAndAccountClientId(String fingerprint, String clientId);
+    Optional<Device> findByFingerprint(String fingerprint);
 }

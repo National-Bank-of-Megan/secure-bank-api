@@ -1,6 +1,8 @@
 package pl.edu.pw.service.account;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +12,7 @@ import pl.edu.pw.domain.Device;
 import pl.edu.pw.dto.VerifyDeviceWithCodeRequest;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.security.filter.DevicesFilter;
 import pl.edu.pw.service.devices.DevicesService;
 import pl.edu.pw.service.otp.OtpService;
 import pl.edu.pw.util.http.HttpRequestUtils;
@@ -29,6 +32,8 @@ public class VerificationServiceImpl implements VerificationService {
     private final OtpService otpService;
     private final DevicesService devicesService;
     private final AuthService authService;
+
+    private static final Logger log = LoggerFactory.getLogger(VerificationServiceImpl.class);
 
     @Override
     public boolean verifyDevice(VerifyDeviceWithCodeRequest verifyRequest, HttpServletRequest request) {
