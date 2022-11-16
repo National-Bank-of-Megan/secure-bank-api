@@ -24,6 +24,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
         Account account = authService.getAccount(name);
+        if(RestAuthenticationFailureHandler.isAccountLocked(account)) return null;
         if (account != null) {
             String hashedPasswordPart = account.getCurrentAuthenticationHash().getPasswordPart();
             if (passwordEncoder.matches(password, hashedPasswordPart)) {

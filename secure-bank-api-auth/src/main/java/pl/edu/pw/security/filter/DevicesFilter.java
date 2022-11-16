@@ -32,8 +32,11 @@ public class DevicesFilter extends ClientIdContainer {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String clientId = ClientIdContainer.clientId;
+        log.info("Request {}",request.getServletPath());
 //        TODO create enum containing paths
-        if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login")||request.getServletPath().equals("/api/web/register")) {
+        if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login")||request.getServletPath().equals("/api/web/register")
+        || request.getServletPath().equals("/api/transfer/notification/subscribe") || request.getServletPath().equals("/api/web/token/refresh")
+        ) {
             if (request.getServletPath().equals("/api/account/device/register"))
                 devicesService.registerDevice(request, clientId);
             filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);

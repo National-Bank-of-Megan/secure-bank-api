@@ -49,11 +49,11 @@ public class Account implements UserDetails {
     @Column
     private String secret;
 
-    @Column
-    private Long loginAttempts;
+    @Column(name = "login_attempts")
+    private Long loginAttempts = 0L;
 
     @Column
-    private boolean accountNonLocked;
+    private boolean accountNonLocked = true;
 
     @Column(name = "lock_time")
     private Date lockTime;
@@ -88,18 +88,7 @@ public class Account implements UserDetails {
     )
     private List<FavoriteReceiver> favoriteReceivers = new ArrayList<>();
 
-//    unidirectional relationship
-//    @OneToMany(
-//            orphanRemoval = (true),
-//            mappedBy = "id.clientId",
-//            fetch = FetchType.EAGER
-//    )
-
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "id.clientId", fetch = FetchType.EAGER)
-//    @JoinTable(name = "account_sub_accounts",
-//            joinColumns = {@JoinColumn(name = "clientId", referencedColumnName = "clientId")},
-//            inverseJoinColumns = {@JoinColumn(name = "id", referencedColumnName = "client_id")})
     @MapKey(name = "id.currency")
     private Map<Currency, SubAccount> subAccounts = new HashMap<>();
 

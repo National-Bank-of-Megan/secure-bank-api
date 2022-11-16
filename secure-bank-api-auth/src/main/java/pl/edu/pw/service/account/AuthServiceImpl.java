@@ -47,7 +47,6 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
             throw new IllegalArgumentException("This email is already taken");
         }
 
-        String deviceName = HttpRequestUtils.getDeviceNameFromRequest(request, devicesService);
         String rawPassword = registerData.getPassword();
         registerData.setPassword(passwordEncoder.encode(registerData.getPassword()));
         List<Account> allAccounts = accountRepository.findAll();
@@ -58,9 +57,6 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
         accountToRegister.addSubAccounts(Currency.values());
         accountToRegister.setAccountDetails(new AccountDetails(registerData.getFirstName(), registerData.getLastName(), registerData.getEmail(), "666 666 666"));
-
-//        dodanie urządzenia powoduje ze nie bd triggerowanego 2FA jeśli bezpośrednio po rejestracji uzytkownik postanowi sie zalogowac
-//        accountToRegister.addDevice(new Device(registerData.getDeviceFingerprint(), deviceName, LocalDateTime.now(), registerData.getIp()));
 
         String secret = otpService.generateSecret();
         accountToRegister.setSecret(secret);
