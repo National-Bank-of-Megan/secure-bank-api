@@ -122,22 +122,3 @@ CREATE TABLE currency_exchange
     FOREIGN KEY (client_id) REFERENCES account (client_id)
 
 );
-
-#
-CREATE TABLE subscriptions
-    #
-(
-    # client_id VARCHAR
-(
-    16
-) UNIQUE,
-    # submitter VARCHAR
-(
-    255
-) NOT NULL,
-    # PRIMARY KEY
-(
-    client_id
-)
-    # )
-
