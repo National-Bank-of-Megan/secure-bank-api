@@ -33,8 +33,10 @@ public abstract class AuthorizationFilterAbstract extends ClientIdContainer{
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
+        log.info(request.getHeader("Authorization"));
 
-        if (!(request.getServletPath().equals("/api/web/login") || request.getServletPath().equals("/api/web/login/verify"))) {
+        if (!(request.getServletPath().equals("/api/web/login") || request.getServletPath().equals("/api/web/login/verify")
+        )) {
             String authorizationHeader = null;
 //           potential security flaw
             if (request.getServletPath().contains("/api/transfer/notification/subscribe")) {
@@ -42,6 +44,7 @@ public abstract class AuthorizationFilterAbstract extends ClientIdContainer{
                 log.info("/api/transfer/notification/subscribe received JWT -> " + authorizationHeader);
             } else
                 authorizationHeader = request.getHeader(AUTHORIZATION);
+            log.info(authorizationHeader);
 
             if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 log.info("AuthorizationFilter->\tchecking jwt");
