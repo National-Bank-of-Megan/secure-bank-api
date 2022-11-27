@@ -1,5 +1,9 @@
 package pl.edu.pw.service;
 
+import io.github.jav.exposerversdk.ExpoPushMessage;
+import io.github.jav.exposerversdk.ExpoPushTicket;
+import io.github.jav.exposerversdk.PushClient;
+import io.github.jav.exposerversdk.PushClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.auth.logic.DataGenerator;
@@ -10,8 +14,11 @@ import pl.edu.pw.repository.KlikRepository;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static pl.edu.pw.constant.Constants.KLIK_CODE_LENGTH;
@@ -31,6 +38,32 @@ public class KlikServiceImpl implements KlikService {
             generateNewKlikCode(klik);
         }
         return mapToDto(klik);
+    }
+
+    @Override
+    public void sendKlikPushNotification(String accountId) throws PushClientException {
+        String recipient = "ExponentPushToken[xyaJ55JedriZTglPBB0g_K]";
+        String title = "My message title!";
+        String message = "A push message from ExampleExpoServer";
+
+        if (!PushClient.isExponentPushToken(recipient)) {
+            throw new Error("Token:" + recipient + " is not a valid token.");
+        }
+
+        ExpoPushMessage expoPushMessage = new ExpoPushMessage();
+        expoPushMessage.getTo().add(recipient);
+        expoPushMessage.setTitle(title);
+        expoPushMessage.setBody(message);
+
+        List<ExpoPushMessage> expoPushMessages = new ArrayList<>();
+        expoPushMessages.add(expoPushMessage);
+
+        PushClient client = new PushClient();
+        List<List<ExpoPushMessage>> chunks = client.chunkPushNotifications(expoPushMessages);
+
+        for (List<ExpoPushMessage> chunk : chunks) {
+            client.sendPushNotificationsAsync(chunk);
+        }
     }
 
     private void generateNewKlikCode(Klik clientKlik) {
