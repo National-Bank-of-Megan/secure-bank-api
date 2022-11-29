@@ -27,9 +27,9 @@ public class KlikServiceImpl implements KlikService {
     @Override
     public KlikCodeResponse handleKlikCode(String clientId) {
         Klik klik = klikRepository.findById(clientId).orElseThrow();
-        if (!klikCodeValid(klik)) {
+//        if (!klikCodeValid(klik)) {
             generateNewKlikCode(klik);
-        }
+//        }
         return mapToDto(klik);
     }
 

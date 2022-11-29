@@ -13,18 +13,20 @@ public class ServerWebSocketConfig implements WebSocketConfigurer, WebSocketMess
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketHandler(), "/klik");
+        registry.addHandler(webSocketHandler(), "/payment/finalize");
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/klik");
+        config.enableSimpleBroker("/payment/finalize");
         config.setApplicationDestinationPrefixes("/nbm/api/");
+
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/generate")
+                .setAllowedOrigins("*")
                 .withSockJS();
     }
 
