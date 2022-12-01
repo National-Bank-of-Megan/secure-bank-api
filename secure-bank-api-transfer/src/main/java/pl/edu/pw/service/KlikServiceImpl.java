@@ -1,7 +1,8 @@
 package pl.edu.pw.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.jav.exposerversdk.ExpoPushMessage;
-import io.github.jav.exposerversdk.ExpoPushTicket;
 import io.github.jav.exposerversdk.PushClient;
 import io.github.jav.exposerversdk.PushClientException;
 import lombok.RequiredArgsConstructor;
@@ -9,16 +10,13 @@ import org.springframework.stereotype.Service;
 import pl.edu.pw.auth.logic.DataGenerator;
 import pl.edu.pw.domain.Klik;
 import pl.edu.pw.dto.KlikCodeResponse;
+import pl.edu.pw.dto.KlikTransferPushNotificationDto;
 import pl.edu.pw.repository.KlikRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pl.edu.pw.constant.Constants.KLIK_CODE_LENGTH;
@@ -30,6 +28,7 @@ import static pl.edu.pw.constant.Constants.KLIK_DURATION_SECONDS;
 public class KlikServiceImpl implements KlikService {
 
     private final KlikRepository klikRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public KlikCodeResponse handleKlikCode(String clientId) {
@@ -41,23 +40,38 @@ public class KlikServiceImpl implements KlikService {
     }
 
     @Override
-    public void sendKlikPushNotification(String accountId) throws PushClientException {
+    public void sendKlikPushNotification(String accountId, KlikTransferPushNotificationDto klikTransferDto) throws PushClientException {
+
         String recipient = "ExponentPushToken[xyaJ55JedriZTglPBB0g_K]";
-        String title = "My message title!";
-        String message = "A push message from ExampleExpoServer";
 
         if (!PushClient.isExponentPushToken(recipient)) {
-            throw new Error("Token:" + recipient + " is not a valid token.");
+            throw new Error("Token: " + recipient + " is not a valid token.");
         }
+
+        ExpoPushMessage expoPushMessage = createExpoPushMessage(recipient, klikTransferDto);
+
+        List<ExpoPushMessage> expoPushMessages = new ArrayList<>();
+        expoPushMessages.add(expoPushMessage);
+
+        sendExpoPushNotificationToRecipients(expoPushMessages);
+    }
+
+    private ExpoPushMessage createExpoPushMessage(String recipient, KlikTransferPushNotificationDto klikTransferDto) {
+        final String title = "Confirm Klik payment";
+        final String message = "Tap to open Klik confirm payment screen";
+
+        Map<String, Object> klikPaymentData = objectMapper.convertValue(klikTransferDto, new TypeReference<>() {});
 
         ExpoPushMessage expoPushMessage = new ExpoPushMessage();
         expoPushMessage.getTo().add(recipient);
         expoPushMessage.setTitle(title);
         expoPushMessage.setBody(message);
+        expoPushMessage.setData(klikPaymentData);
 
-        List<ExpoPushMessage> expoPushMessages = new ArrayList<>();
-        expoPushMessages.add(expoPushMessage);
+        return expoPushMessage;
+    }
 
+    private void sendExpoPushNotificationToRecipients(List<ExpoPushMessage> expoPushMessages) throws PushClientException {
         PushClient client = new PushClient();
         List<List<ExpoPushMessage>> chunks = client.chunkPushNotifications(expoPushMessages);
 

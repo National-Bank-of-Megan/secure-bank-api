@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.KlikCodeResponse;
+import pl.edu.pw.dto.KlikTransferPushNotificationDto;
 import pl.edu.pw.service.KlikService;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/transfer/klik")
@@ -26,7 +30,9 @@ public class KlikController {
 
     @PostMapping("/test")
     public ResponseEntity<Void> sendPushNotification(@AuthenticationPrincipal Account account) throws PushClientException {
-        klikService.sendKlikPushNotification(account.getClientId());
+        KlikTransferPushNotificationDto klikTransferDto = new KlikTransferPushNotificationDto(
+                "foo", "Frog Shop", BigDecimal.valueOf(99.99), "USD", LocalDateTime.now());
+        klikService.sendKlikPushNotification(account.getClientId(), klikTransferDto);
         return ResponseEntity.ok().build();
     }
 }
