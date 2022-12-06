@@ -62,6 +62,8 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests().antMatchers("/h2-console/**").permitAll()
                 .and()
+                .authorizeRequests().antMatchers("/payment/finalize").permitAll()
+                .and()
                 .authorizeRequests().anyRequest().authenticated()
                 .and()
                 .addFilter(webAuthenticationFilter)

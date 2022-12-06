@@ -36,11 +36,11 @@ public class DevicesFilter extends ClientIdContainer {
 //        TODO create enum containing paths
         if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login")||request.getServletPath().equals("/api/web/register")
         || request.getServletPath().equals("/api/transfer/notification/subscribe") || request.getServletPath().equals("/api/web/token/refresh")
-                || request.getServletPath().contains("/payment/finalize")
+                || request.getServletPath().equals("/payment/finalize")
         ) {
-            if (request.getServletPath().equals("/api/account/device/register")
-            )
+            if (request.getServletPath().equals("/api/account/device/register"))
                 devicesService.registerDevice(request, clientId);
+            log.info("filtering");
             filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);
         } else {
             if (devicesService.verifyDeviceByFingerprintAndClientId(request.getHeader("Device-Fingerprint"),clientId))

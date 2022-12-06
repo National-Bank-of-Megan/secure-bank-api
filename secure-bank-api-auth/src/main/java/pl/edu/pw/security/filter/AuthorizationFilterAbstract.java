@@ -35,8 +35,7 @@ public abstract class AuthorizationFilterAbstract extends ClientIdContainer{
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
         log.info(request.getHeader("Authorization"));
 
-        if (!(request.getServletPath().equals("/api/web/login") || request.getServletPath().equals("/api/web/login/verify")
-        )) {
+        if (!(request.getServletPath().equals("/api/web/login") || request.getServletPath().equals("/api/web/login/verify") ||  request.getServletPath().contains("/payment/finalize"))) {
             String authorizationHeader = null;
 //           potential security flaw
             if (request.getServletPath().contains("/api/transfer/notification/subscribe")) {
