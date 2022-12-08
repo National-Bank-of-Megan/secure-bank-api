@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.PongMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -14,6 +15,8 @@ import pl.edu.pw.domain.Klik;
 import pl.edu.pw.dto.PaymentRequest;
 import pl.edu.pw.repository.KlikRepository;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 
 public class ServerWebSocketHandler extends TextWebSocketHandler {
@@ -54,7 +57,6 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
                         .build()
         );
 
-//        TODO send push notification to the klik's owner
         Klik klik = klikRepository.findKlikByKlikCode(payment.getCode()).orElseThrow(
                 () -> new IllegalArgumentException("Klik code not found")
         );
