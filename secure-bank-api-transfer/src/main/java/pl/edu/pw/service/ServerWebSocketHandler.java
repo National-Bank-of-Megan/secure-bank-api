@@ -1,9 +1,12 @@
 package pl.edu.pw.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.PongMessage;
 import org.springframework.web.socket.TextMessage;
@@ -18,12 +21,14 @@ import pl.edu.pw.repository.KlikRepository;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
+import java.util.Optional;
 
+@Component
+@RequiredArgsConstructor
+@Log4j2
 public class ServerWebSocketHandler extends TextWebSocketHandler {
-    @Autowired
-    private KlikRepository klikRepository;
 
-    private static final Logger log = LoggerFactory.getLogger(ServerWebSocketHandler.class);
+    private final KlikRepository klikRepository;
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
@@ -48,6 +53,12 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
                 .code((String) payload.get("code")).build();
 
         log.info(payment.toString());
+
+        Optional<Klik> klikCodeToCheck = klikRepository.findKlikByKlikCode(payment.getCode());
+        if (klikCodeToCheck.isEmpty()) {
+            throw new IllegalArgumentException("Klik code was not found");
+        }
+
 //        TODO later on delete from the lists
         WebSocketPool.payments.put(
                 payment.getCode(),
@@ -56,11 +67,6 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
                         .paymentRequest(payment)
                         .build()
         );
-
-        Klik klik = klikRepository.findKlikByKlikCode(payment.getCode()).orElseThrow(
-                () -> new IllegalArgumentException("Klik code not found")
-        );
-
     }
 
     @Override

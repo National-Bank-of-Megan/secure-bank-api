@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface KlikRepository extends JpaRepository<Klik, String> {
     Optional<Klik> findKlikByKlikCode(String klikCode);
+    Klik getByClientId(String clientId);
 }

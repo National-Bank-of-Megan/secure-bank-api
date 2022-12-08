@@ -40,17 +40,9 @@ public class KlikController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/payment/confirm")
-    public void confirmKlikPayment(){
-        WebSocketPool.payments.forEach((key,entry) ->{
-            try {
-                entry.getWebSocketSession().sendMessage(
-                        new TextMessage("Payment accepted")
-                );
-                WebSocketPool.payments.remove(key);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+    @PostMapping("/payment/confirm")
+    public ResponseEntity<Void> confirmKlikPayment(@AuthenticationPrincipal Account account) throws IOException {
+        klikService.finalizeKlikTransfer(account.getClientId());
+        return ResponseEntity.noContent().build();
     }
 }

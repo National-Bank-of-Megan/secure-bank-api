@@ -1,5 +1,6 @@
 package pl.edu.pw.config.klik;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -9,11 +10,14 @@ import pl.edu.pw.service.ServerWebSocketHandler;
 
 @Configuration
 @EnableWebSocket
+@RequiredArgsConstructor
 public class ServerWebSocketConfig implements WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
+
+    private final ServerWebSocketHandler serverWebSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketHandler(), "/payment/finalize");
+        registry.addHandler(serverWebSocketHandler, "/payment/finalize");
     }
 
     @Override
@@ -28,10 +32,5 @@ public class ServerWebSocketConfig implements WebSocketConfigurer, WebSocketMess
         registry.addEndpoint("/generate")
                 .setAllowedOrigins("*")
                 .withSockJS();
-    }
-
-    @Bean
-    public WebSocketHandler webSocketHandler() {
-        return new ServerWebSocketHandler();
     }
 }
