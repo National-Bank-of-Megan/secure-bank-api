@@ -6,4 +6,5 @@ import pl.edu.pw.domain.Klik;
 
 @Repository
 public interface KlikRepository extends JpaRepository<Klik, String> {
+
 }

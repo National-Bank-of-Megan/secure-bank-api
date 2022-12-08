@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.socket.TextMessage;
+import pl.edu.pw.config.klik.WebSocketPool;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.KlikCodeResponse;
 import pl.edu.pw.dto.KlikTransferPushNotificationDto;
@@ -15,6 +17,8 @@ import pl.edu.pw.service.KlikService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/transfer/klik")
@@ -34,5 +38,19 @@ public class KlikController {
                 "foo", "Frog Shop", BigDecimal.valueOf(99.99), "USD", LocalDateTime.now());
         klikService.sendKlikPushNotification(account.getClientId(), klikTransferDto);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/payment/confirm")
+    public void confirmKlikPayment(){
+        WebSocketPool.payments.forEach((key,entry) ->{
+            try {
+                entry.getWebSocketSession().sendMessage(
+                        new TextMessage("Payment accepted")
+                );
+                WebSocketPool.payments.remove(key);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

@@ -12,4 +12,5 @@ import java.time.LocalDateTime;
 public class KlikCodeResponse {
     private String klikCode;
     private LocalDateTime generateDate;
+
 }

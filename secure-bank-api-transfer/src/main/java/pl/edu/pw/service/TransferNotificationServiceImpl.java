@@ -1,9 +1,7 @@
 package pl.edu.pw.service;
 
-import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import pl.edu.pw.domain.AccountDetails;
@@ -42,7 +40,7 @@ public class TransferNotificationServiceImpl implements TransferNotificationServ
                 log.info("Emitter timed out");
                 subscriptions.remove(clientId);
             });
-            emitter.onError(e ->  {
+            emitter.onError(e -> {
                 log.error("Create SseEmitter exception", e);
                 subscriptions.remove(clientId);
             });
