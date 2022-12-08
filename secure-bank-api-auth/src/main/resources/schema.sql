@@ -16,6 +16,7 @@ CREATE TABLE account
     current_hash_id    INT UNIQUE,
     account_number     VARCHAR(255) NOT NULL UNIQUE,
     password           VARCHAR(255) NOT NULL,
+    expo_push_token    VARCHAR(255),
     login_attempts     INT     DEFAULT 0,
     account_non_locked BOOLEAN DEFAULT true,
     lock_time          DATETIME

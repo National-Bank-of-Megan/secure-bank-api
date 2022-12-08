@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -119,5 +120,17 @@ public class DevicesServiceImpl implements DevicesService {
         Device trustedDevice = new Device(request.getHeader("Device-Fingerprint"), deviceName, LocalDateTime.now(), requestPublicIp);
         trustedDevice.setLastLoggedIn(LocalDateTime.now());
         this.saveDevice(clientId, trustedDevice);
+    }
+
+    @Override
+    public void setExpoPushToken(String clientId, String expoPushToken) {
+        Account account = accountRepository.findById(clientId).orElseThrow(() ->
+                new ResourceNotFoundException("Account with " + clientId + " client id was not found"));
+
+        if (Objects.isNull(expoPushToken) || expoPushToken.isBlank()) {
+            throw new IllegalArgumentException("Expo push token cannot be null or blank");
+        }
+
+        account.setExpoPushToken(expoPushToken);
     }
 }

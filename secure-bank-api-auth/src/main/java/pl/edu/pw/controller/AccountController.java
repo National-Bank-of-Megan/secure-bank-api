@@ -81,4 +81,10 @@ public class AccountController {
         accountService.changePassword(account, changePassword);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PostMapping("/device/token")
+    public ResponseEntity<Void> attachMobileDeviceTokenToAccount(@AuthenticationPrincipal Account account, @RequestParam String expoPushToken) {
+        devicesService.setExpoPushToken(account.getClientId(), expoPushToken);
+        return ResponseEntity.noContent().build();
+    }
 }

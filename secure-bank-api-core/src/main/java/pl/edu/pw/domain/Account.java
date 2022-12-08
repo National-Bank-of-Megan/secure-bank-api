@@ -66,6 +66,9 @@ public class Account implements UserDetails {
     @PrimaryKeyJoinColumn
     private Klik klik;
 
+    @Column
+    private String expoPushToken;
+
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL,
             fetch = FetchType.EAGER, optional = false)
     private AccountDetails accountDetails;

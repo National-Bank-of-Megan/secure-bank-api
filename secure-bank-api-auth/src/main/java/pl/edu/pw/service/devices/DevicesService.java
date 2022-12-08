@@ -23,4 +23,6 @@ public interface DevicesService {
     void deleteDeviceFromTrustedDevices(Long deviceId, String clientId);
 
     void registerDevice(HttpServletRequest request, String clientId);
+
+    void setExpoPushToken(String clientId, String expoPushToken);
 }
