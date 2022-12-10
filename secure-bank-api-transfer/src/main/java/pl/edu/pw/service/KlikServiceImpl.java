@@ -118,6 +118,20 @@ public class KlikServiceImpl implements KlikService {
         generateNewKlikCode(klik);
     }
 
+    @Override
+    public void generateNewKlikCode(String clientId) {
+        Klik klik = klikRepository.getByClientId(clientId);
+        generateNewKlikCode(klik);
+    }
+
+    private void generateNewKlikCode(Klik clientKlik) {
+        Set<String> validKlikCodes = klikRepository.findAll().stream().filter(Klik::isValid).map(Klik::getKlikCode).collect(Collectors.toSet());
+        String newKlikCode = DataGenerator.generateUniqueNumber(validKlikCodes, KLIK_CODE_LENGTH);
+        clientKlik.setKlikCode(newKlikCode);
+        clientKlik.setGenerateDate(LocalDateTime.now());
+        klikRepository.save(clientKlik);
+    }
+
     private ExpoPushMessage createExpoPushMessage(String recipient, KlikTransferPushNotificationDto klikTransferDto) {
         final String title = "Confirm Klik payment";
         final String message = "Tap to open Klik confirm payment screen";
@@ -140,14 +154,6 @@ public class KlikServiceImpl implements KlikService {
         for (List<ExpoPushMessage> chunk : chunks) {
             client.sendPushNotificationsAsync(chunk);
         }
-    }
-
-    private void generateNewKlikCode(Klik clientKlik) {
-        Set<String> validKlikCodes = klikRepository.findAll().stream().filter(Klik::isValid).map(Klik::getKlikCode).collect(Collectors.toSet());
-        String newKlikCode = DataGenerator.generateUniqueNumber(validKlikCodes, KLIK_CODE_LENGTH);
-        clientKlik.setKlikCode(newKlikCode);
-        clientKlik.setGenerateDate(LocalDateTime.now());
-        klikRepository.save(clientKlik);
     }
 
     private KlikCodeResponse mapToDto(Klik klik) {

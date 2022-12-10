@@ -61,7 +61,8 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
                 .code((String) payload.get("code"))
                 .dateCreated(LocalDateTime.now()).build();
 
-        if (Objects.nonNull(WebSocketPool.payments.get(payment.getCode()))) {
+        PaymentDataWrapper currentKlikPayment = WebSocketPool.payments.get(payment.getCode());
+        if (Objects.nonNull(currentKlikPayment) && currentKlikPayment.getWebSocketSession().isOpen()) {
             throw new IllegalArgumentException("There is already pending transaction for this klik code");
         }
 
