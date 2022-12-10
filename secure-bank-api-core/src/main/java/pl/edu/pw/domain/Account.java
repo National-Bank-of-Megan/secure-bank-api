@@ -62,7 +62,7 @@ public class Account implements UserDetails {
     @NotBlank
     private String password;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, optional = false)
     @PrimaryKeyJoinColumn
     private Klik klik;
 

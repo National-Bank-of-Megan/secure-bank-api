@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class KlikTransferPushNotificationDto {
     private String title;
-    private String receiverName;
+    private String moneyReceiverAccountNumber;
     private BigDecimal amount;
     private String currency;
     private LocalDateTime dateCreated;

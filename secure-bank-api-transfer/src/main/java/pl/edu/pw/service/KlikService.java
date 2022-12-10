@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public interface KlikService {
     KlikCodeResponse handleKlikCode(String clientId);
-    void sendKlikPushNotification(String accountId, KlikTransferPushNotificationDto klikTransferDto) throws PushClientException;
+    void sendKlikPushNotification(String receiverClientId, KlikTransferPushNotificationDto klikTransferDto) throws PushClientException;
 
     void finalizeKlikTransfer(String senderClientId) throws IOException;
 }

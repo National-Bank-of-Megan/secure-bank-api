@@ -27,12 +27,11 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pl.edu.pw.constant.Constants.KLIK_CODE_LENGTH;
-import static pl.edu.pw.constant.Constants.KLIK_DURATION_SECONDS;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static pl.edu.pw.constant.Constants.*;
 
 @Service
 @Transactional
@@ -50,27 +49,34 @@ public class KlikServiceImpl implements KlikService {
     @Override
     public KlikCodeResponse handleKlikCode(String clientId) {
         Klik klik = klikRepository.getByClientId(clientId);
-        if (!klikCodeValid(klik)) {
+        if (!klik.isValid()) {
             generateNewKlikCode(klik);
         }
         return mapToDto(klik);
     }
 
     @Override
-    public void sendKlikPushNotification(String accountId, KlikTransferPushNotificationDto klikTransferDto) throws PushClientException {
+    public void sendKlikPushNotification(String receiverClientId, KlikTransferPushNotificationDto klikTransferDto) throws PushClientException {
+        Account paymentRequestReceiverAccount = accountRepository.findById(receiverClientId).orElseThrow(() ->
+            new ResourceNotFoundException("Payment request receiver account was not found"));
 
-        String recipient = "ExponentPushToken[xyaJ55JedriZTglPBB0g_K]";
-
-        if (!PushClient.isExponentPushToken(recipient)) {
-            throw new Error("Token: " + recipient + " is not a valid token.");
+        String receiverAccountExpoPushToken = paymentRequestReceiverAccount.getExpoPushToken();
+        if (Objects.isNull(receiverAccountExpoPushToken)) {
+            throw new RuntimeException("Klik transfer is not possible - client hasn't registered his mobile device");
         }
 
-        ExpoPushMessage expoPushMessage = createExpoPushMessage(recipient, klikTransferDto);
+        String completeReceiverAccountExpoPushToken = String.format("ExponentPushToken[%s]", receiverAccountExpoPushToken);
+
+        if (!PushClient.isExponentPushToken(completeReceiverAccountExpoPushToken)) {
+            throw new IllegalArgumentException("Token: " + completeReceiverAccountExpoPushToken + " is not a valid token");
+        }
+
+        ExpoPushMessage expoPushMessage = createExpoPushMessage(completeReceiverAccountExpoPushToken, klikTransferDto);
 
         List<ExpoPushMessage> expoPushMessages = new ArrayList<>();
         expoPushMessages.add(expoPushMessage);
 
-        sendExpoPushNotificationToRecipients(expoPushMessages);
+        sendExpoPushNotificationToRecipient(expoPushMessages);
     }
 
     @Override
@@ -78,11 +84,15 @@ public class KlikServiceImpl implements KlikService {
         Klik klik = klikRepository.getByClientId(senderClientId);
         String klikCode = klik.getKlikCode();
         if (Objects.isNull(klikCode) || Objects.isNull(WebSocketPool.payments.get(klikCode))) {
-            throw new RuntimeException("There is no active klik payment to finalize for this client");
+            throw new RuntimeException(NO_ACTIVE_KLIK_PAYMENT);
         }
 
         PaymentDataWrapper paymentDataWrapper = WebSocketPool.payments.get(klikCode);
         PaymentRequest paymentRequest = paymentDataWrapper.getPaymentRequest();
+        if (SECONDS.between(paymentRequest.getDateCreated(), LocalDateTime.now()) > KLIK_CONFIRM_PAYMENT_DURATION_SECONDS) {
+            throw new RuntimeException(NO_ACTIVE_KLIK_PAYMENT);
+        }
+
         TransferCreate transferCreate = mapFromPaymentRequestToTransferCreate(paymentRequest);
 
         Account senderAccount = accountRepository.findById(senderClientId).orElseThrow(() ->
@@ -103,7 +113,9 @@ public class KlikServiceImpl implements KlikService {
         // Send klik transfer done notification here
 
         paymentDataWrapper.getWebSocketSession().sendMessage(new TextMessage("Klik payment accepted"));
-        WebSocketPool.payments.remove(klikCode);
+        PaymentDataWrapper paymentSessionToClose = WebSocketPool.payments.remove(klikCode);
+        paymentSessionToClose.getWebSocketSession().close();
+        generateNewKlikCode(klik);
     }
 
     private ExpoPushMessage createExpoPushMessage(String recipient, KlikTransferPushNotificationDto klikTransferDto) {
@@ -121,7 +133,7 @@ public class KlikServiceImpl implements KlikService {
         return expoPushMessage;
     }
 
-    private void sendExpoPushNotificationToRecipients(List<ExpoPushMessage> expoPushMessages) throws PushClientException {
+    private void sendExpoPushNotificationToRecipient(List<ExpoPushMessage> expoPushMessages) throws PushClientException {
         PushClient client = new PushClient();
         List<List<ExpoPushMessage>> chunks = client.chunkPushNotifications(expoPushMessages);
 
@@ -131,18 +143,11 @@ public class KlikServiceImpl implements KlikService {
     }
 
     private void generateNewKlikCode(Klik clientKlik) {
-        Set<String> validKlikCodes = klikRepository.findAll().stream().filter(this::klikCodeValid).map(Klik::getKlikCode).collect(Collectors.toSet());
+        Set<String> validKlikCodes = klikRepository.findAll().stream().filter(Klik::isValid).map(Klik::getKlikCode).collect(Collectors.toSet());
         String newKlikCode = DataGenerator.generateUniqueNumber(validKlikCodes, KLIK_CODE_LENGTH);
         clientKlik.setKlikCode(newKlikCode);
         clientKlik.setGenerateDate(LocalDateTime.now());
         klikRepository.save(clientKlik);
-    }
-
-    private boolean klikCodeValid(Klik klik) {
-        if (Objects.isNull(klik.getKlikCode()) || Objects.isNull(klik.getGenerateDate())) {
-            return false;
-        }
-        return ChronoUnit.SECONDS.between(klik.getGenerateDate(), LocalDateTime.now()) < KLIK_DURATION_SECONDS;
     }
 
     private KlikCodeResponse mapToDto(Klik klik) {

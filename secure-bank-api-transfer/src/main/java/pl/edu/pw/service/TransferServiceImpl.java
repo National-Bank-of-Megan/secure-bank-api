@@ -16,6 +16,7 @@ import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.CurrencyExchangeRepository;
 import pl.edu.pw.repository.TransferRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +67,7 @@ public class TransferServiceImpl implements TransferService {
         Account receiverAccount = accountRepository.findByAccountNumber(transferCreate.getReceiverAccountNumber()).orElseThrow(() ->
                 new ResourceNotFoundException("Account with " + transferCreate.getReceiverAccountNumber() + " account number was not found"));
 
-        if (senderAccount.getSubAccounts().get(currency).getBalance().subtract(transferCreate.getAmount()).doubleValue() < 0.0) {
+        if (senderAccount.getSubAccounts().get(currency).getBalance().subtract(transferCreate.getAmount()).compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Too low " + transferCreate.getCurrency() + " balance on your account");
         }
 

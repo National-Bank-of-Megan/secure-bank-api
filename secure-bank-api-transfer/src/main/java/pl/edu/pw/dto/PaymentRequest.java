@@ -8,6 +8,7 @@ import pl.edu.pw.security.validation.ValidCurrency;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PUBLIC)
 @Getter
@@ -32,4 +33,6 @@ public class PaymentRequest {
     @NotBlank(message = "Currency name cannot be blank")
     @ValidCurrency(message = "Unknown currency provided")
     private String currency;
+
+    private LocalDateTime dateCreated;
 }

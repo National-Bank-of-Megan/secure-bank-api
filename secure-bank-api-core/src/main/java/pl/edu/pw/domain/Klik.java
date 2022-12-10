@@ -14,6 +14,10 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static pl.edu.pw.constant.Constants.KLIK_DURATION_SECONDS;
 
 @Data
 @Entity
@@ -40,5 +44,12 @@ public class Klik {
 
     public Klik(String clientId) {
         this.clientId = clientId;
+    }
+
+    public boolean isValid() {
+        if (Objects.isNull(klikCode) || Objects.isNull(generateDate)) {
+            return false;
+        }
+        return SECONDS.between(generateDate, LocalDateTime.now()) <= KLIK_DURATION_SECONDS;
     }
 }
