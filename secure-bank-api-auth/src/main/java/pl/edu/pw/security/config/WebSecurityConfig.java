@@ -69,7 +69,7 @@ public class WebSecurityConfig {
                 .addFilter(webAuthenticationFilter)
                 .addFilterBefore(webAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(mobileAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
-//                .addFilterBefore(devicesFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(devicesFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers().frameOptions().disable()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint);

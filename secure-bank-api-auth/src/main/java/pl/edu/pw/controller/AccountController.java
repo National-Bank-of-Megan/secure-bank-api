@@ -28,7 +28,7 @@ public class AccountController {
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
     @PostMapping("/device/register")
-    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
+//    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
     public ResponseEntity<Void> registerMobileDevice(){
         return new ResponseEntity<>(HttpStatus.OK);
     }
