@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.dto.*;
-import pl.edu.pw.security.filter.MobileAuthorizationFilter;
 import pl.edu.pw.service.account.AccountService;
 import pl.edu.pw.service.devices.DevicesService;
 
@@ -29,17 +28,20 @@ public class AccountController {
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
     @PostMapping("/device/register")
+    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
     public ResponseEntity<Void> registerMobileDevice(){
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
     @GetMapping("/profile")
+    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
     public ResponseEntity<AccountDTO> getAccountData(@AuthenticationPrincipal Account account) {
         return ResponseEntity.ok(accountService.getAccountData(account));
     }
 
     @GetMapping("/devices")
+    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
     public ResponseEntity<List<DeviceDTO>> getAccountDevices(@AuthenticationPrincipal Account account, HttpServletRequest request) {
         String deviceFingerprint = request.getHeader("Device-Fingerprint");
         if (deviceFingerprint == null) {
@@ -48,7 +50,7 @@ public class AccountController {
         return ResponseEntity.ok(devicesService.getAccountVerifiedDevices(account.getClientId(), deviceFingerprint));
     }
 
-    @PreAuthorize("@accountSecurity.isDeviceAttachedToAccount(#id, #account.getClientId())")
+    @PreAuthorize("@accountSecurity.isDeviceAttachedToAccount(#id, #account.getClientId()) and @accountSecurity.doesUserHaveAccountAuthority()")
     @DeleteMapping("/devices/{id}")
     public ResponseEntity<Void> deleteDeviceFromTrustedDevices(@AuthenticationPrincipal Account account, @PathVariable Long id) {
         devicesService.deleteDeviceFromTrustedDevices(id, account.getClientId());
@@ -56,6 +58,7 @@ public class AccountController {
     }
 
     @PutMapping("/currency")
+    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
     public ResponseEntity<Void> addCurrencyBalance(@AuthenticationPrincipal Account account,
                                                    @RequestBody @Valid AddCurrencyBalance addCurrencyBalance) {
         accountService.addCurrencyBalance(account, addCurrencyBalance);
@@ -63,6 +66,7 @@ public class AccountController {
     }
 
     @GetMapping("/currency/all")
+    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
     public ResponseEntity<List<AccountCurrencyBalance>> getAccountTotalBalance(@AuthenticationPrincipal Account account) {
         log.info(SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString());
         List<AccountCurrencyBalance> accountTotalBalance = accountService.getAccountCurrenciesBalance(account);
@@ -70,6 +74,7 @@ public class AccountController {
     }
 
     @GetMapping("/receiver/all")
+    @PreAuthorize("@accountSecurity.doesUserHaveAccountAuthority()")
     public ResponseEntity<List<FavoriteReceiverDTO>> getFavoriteReceivers(@AuthenticationPrincipal Account account) {
         return ResponseEntity.ok(accountService.getAllFavoriteReceivers(account));
     }
