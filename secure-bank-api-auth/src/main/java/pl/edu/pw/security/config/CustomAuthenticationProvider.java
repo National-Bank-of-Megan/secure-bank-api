@@ -23,12 +23,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
+        System.out.println("provider credentias: "+authentication.getAuthorities().toString());
         Account account = authService.getAccount(name);
         if(RestAuthenticationFailureHandler.isAccountLocked(account)) return null;
         if (account != null) {
             String hashedPasswordPart = account.getCurrentAuthenticationHash().getPasswordPart();
             if (passwordEncoder.matches(password, hashedPasswordPart)) {
-                return new UsernamePasswordAuthenticationToken(account, new ArrayList<>());
+                return new UsernamePasswordAuthenticationToken(account, authentication.getAuthorities());
             }
         }
         return null;
