@@ -61,9 +61,9 @@ public class AccountServiceImpl implements AccountService {
                 () -> new SubAccountNotFoundException("Subaccount was not found")
         );
 
-//        if (subAccount.getBalance().add(addCurrencyBalance.getAmount()).compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0) {
-//            throw new IllegalArgumentException("Cannot add more money to this subaccount");
-//        }
+        if (subAccount.getBalance().add(addCurrencyBalance.getAmount()).compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0) {
+            throw new IllegalArgumentException("Cannot add more money to this subaccount");
+        }
 
         subAccount.addToBalance(addCurrencyBalance.getAmount());
     }
