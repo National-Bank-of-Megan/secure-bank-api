@@ -24,7 +24,7 @@ services:
     restart: always
     container_name: nginx-proxy
     ports:
-      - "80:80"
+      - "80:80" # to remove
       - "443:443"
     volumes:
       - /usr/docker/nginx/ssl:/etc/nginx/ssl
