@@ -9,9 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
+
+import java.util.List;
 
 import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 
@@ -36,9 +39,12 @@ public class WebAuthorizationFilter extends AuthorizationFilterAbstract {
             DecodedJWT decodedJWT = verifier.verify(token);
             String accountNumber = decodedJWT.getSubject();
             ClientIdContainer.clientId = accountNumber;
+            log.info("USER CREDENTIALS " + decodedJWT.getClaims());
+            List<SimpleGrantedAuthority> userAuthorities = getUserAuthorities(String.valueOf(decodedJWT.getClaims().get("scope")));
+            log.info(userAuthorities.toString());
             Account account = accountRepository.findById(accountNumber).orElseThrow(() ->
                     new ResourceNotFoundException("Account with " + accountNumber + " account number was not found"));
-            return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), null);
+            return new UsernamePasswordAuthenticationToken(account, decodedJWT.getClaims(), userAuthorities);
         } catch (AlgorithmMismatchException e) {
             return null;
         }

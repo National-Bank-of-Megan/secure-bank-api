@@ -13,11 +13,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.JsonWebTokenType;
+import pl.edu.pw.security.config.BankGrantedAuthorities;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -48,6 +51,10 @@ public class JWTUtil {
                 .withClaim(TOKEN_TYPE_CLAIM, tokenType.name())
                 .withClaim("firstName", user.getAccountDetails().getFirstName())
                 .withClaim("lastName", user.getAccountDetails().getLastName())
+                .withClaim("scope", List.of(
+                        BankGrantedAuthorities.TRANSFER.toString().toLowerCase(),
+                        BankGrantedAuthorities.EXCHANGE.toString().toLowerCase(),
+                        BankGrantedAuthorities.ACCOUNT.toString().toLowerCase()))
                 .withExpiresAt(new Date(System.currentTimeMillis() + (tokenType == JsonWebTokenType.ACCESS ? this.jwtExpirationTime : this.refreshTokenExpirationTime)))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);

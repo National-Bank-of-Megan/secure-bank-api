@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.edu.pw.repository.AccountRepository;
+import pl.edu.pw.security.config.BankGrantedAuthorities;
 import pl.edu.pw.util.http.CustomHttpServletRequestWrapper;
 
 import javax.servlet.Filter;
@@ -17,8 +19,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -63,6 +68,14 @@ public abstract class AuthorizationFilterAbstract extends ClientIdContainer{
             }
         }
         filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);
+    }
+
+    protected List<SimpleGrantedAuthority> getUserAuthorities(String scope) {
+        return Arrays.stream(BankGrantedAuthorities.values()).filter(
+                (authority) -> scope.contains(authority.toString().toLowerCase())
+        ).collect(Collectors.toList()).stream().map(
+                a -> new SimpleGrantedAuthority(a.toString())
+        ).collect(Collectors.toList());
     }
 
     public abstract UsernamePasswordAuthenticationToken getAuthentication(String authorizationHeader);
