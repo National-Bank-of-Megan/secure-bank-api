@@ -83,7 +83,7 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
         }
 
         Account moneySenderAccount = accountRepository.findById(klik.getClientId()).orElseThrow(() ->
-                new ResourceNotFoundException("Payment request receiver account was not found"));
+                new ResourceNotFoundException("Payment request sender account was not found"));
         if (Objects.isNull(moneySenderAccount.getExpoPushToken())) {
             throw new RuntimeException("Klik transfer is not possible - client hasn't registered his mobile device");
         }

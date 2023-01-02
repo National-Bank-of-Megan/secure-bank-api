@@ -23,7 +23,7 @@ public class PasswordHashesGenerator {
             List<Integer> randomPasswordCharacters;
             do {
                 randomPasswordCharacters = random.ints(0, passwordLength).distinct().
-                        limit(PASSWORD_HASH_LENGTH).boxed().sorted().toList(); // TODO: consider defining own algorithm with more restrictions
+                        limit(PASSWORD_HASH_LENGTH).boxed().sorted().toList();
                 for (PartPasswordHash passwordHash : passwordHashes) {
                     if (passwordHash.getDigitsLocations().equals(randomPasswordCharacters)) {
                         uniqueCombination = false;
