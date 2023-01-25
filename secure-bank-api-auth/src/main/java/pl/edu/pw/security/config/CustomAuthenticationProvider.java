@@ -1,6 +1,7 @@
 package pl.edu.pw.security.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import pl.edu.pw.service.account.AuthService;
 
 @Component
 @RequiredArgsConstructor
+@Log4j2
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final AuthService authService;
@@ -22,19 +24,21 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        log.info("authenticating in provider");
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
-        System.out.println("provider credentias: "+ authentication.getAuthorities().toString());
+        System.out.println("provider credentias: " + authentication.getAuthorities().toString());
         Account account = authService.getAccount(name);
-        if (RestAuthenticationFailureHandler.isAccountLocked(account)) {
+        if (account != null && RestAuthenticationFailureHandler.isAccountLocked(account)) {
             if (RestAuthenticationFailureHandler.isAccountStillLocked(account)) {
                 return null;
             } else {
                 accountService.unlockAccount(account);
             }
         }
+
         String hashedPasswordPart = account.getCurrentAuthenticationHash().getPasswordPart();
-        if (passwordEncoder.matches(password, hashedPasswordPart)) {
+        if (RestAuthenticationFailureHandler.isAccountLocked(account) && passwordEncoder.matches(password, hashedPasswordPart)) {
             return new UsernamePasswordAuthenticationToken(account, authentication.getAuthorities());
         }
         return null;

@@ -6,6 +6,7 @@
 
     <groupId>pl.edu.pw</groupId>
     <artifactId>secure-bank-api</artifactId>
+    <name>secure-bank-api</name>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
@@ -15,14 +16,14 @@
         <version>2.7.1</version>
     </parent>
     <modules>
+        <module>secure-bank-api-util</module>
         <module>secure-bank-api-core</module>
         <module>secure-bank-api-auth</module>
         <module>secure-bank-api-transfer</module>
         <module>secure-bank-api-currency-exchange</module>
-        <module>secure-bank-api-util</module>
     </modules>
 
-    <name>secure-bank-api</name>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -88,6 +89,34 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.maven.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <!-- Build an executable JAR -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <classpathPrefix>lib/</classpathPrefix>
+                                <mainClass>secure-bank-api-auth.pl.edu.pw.Main</mainClass>
+                                <mainClass>secure-bank-api-transfer.pl.edu.pw.Main</mainClass>
+                                <mainClass>secure-bank-api-currency-exchange.src.main.java.pl.edu.pw.CurrencyExchangeMain</mainClass>
+                            </manifest>
+                        </archive>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

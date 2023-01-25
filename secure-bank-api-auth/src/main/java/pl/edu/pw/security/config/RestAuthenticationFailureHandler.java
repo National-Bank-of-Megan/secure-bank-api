@@ -1,10 +1,13 @@
 package pl.edu.pw.security.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.streams.state.internals.LeftOrRightValue;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
@@ -19,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -55,10 +59,18 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
                 System.out.println(!isAccountStillLocked(a));
                 if (!isAccountStillLocked(a)) {
                     accountService.unlockAccount(a);
-                } else
-                    exception = new LockedException("You failed to login more than " + MAX_LOGIN_ATTEMPTS + " times." +
-                            " Your account has been locked for 24h for safety reasons");
+                } else{
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
 
+
+                    Map<String,String> error = new HashMap<>();
+                    error.put( "message","You failed to login more than " + MAX_LOGIN_ATTEMPTS + " times. Your account has been locked for 24h for safety reasons");
+                    new ObjectMapper().writeValue(response.getOutputStream(), error);
+//                    response.getWriter().write(mapper.write("You failed to login more than " + MAX_LOGIN_ATTEMPTS + " times. Your account has been locked for 24h for safety reasons"));
+                    return;
+                }
             }
 
             if (a.isAccountNonLocked()) {
