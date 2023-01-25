@@ -4,11 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.edu.pw.domain.Account;
-import pl.edu.pw.domain.Currency;
-import pl.edu.pw.domain.CurrencyExchange;
-import pl.edu.pw.domain.SubAccount;
-import pl.edu.pw.domain.SubAccountId;
+import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.CurrencyExchangeDto;
 import pl.edu.pw.dto.CurrencyExchangeRequest;
 import pl.edu.pw.exception.ExternalApiException;
@@ -33,6 +29,17 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     private static final Logger log = LoggerFactory.getLogger(CurrencyExchangeServiceImpl.class);
     private final SubAccountRepository subAccountRepository;
     private final CurrencyExchangeRepository currencyExchangeRepository;
+
+    private static CurrencyExchangeDto map(CurrencyExchange currencyExchange) {
+        return new CurrencyExchangeDto(
+                currencyExchange.getId(),
+                currencyExchange.getOrderedOn(),
+                currencyExchange.getCurrencyBought().toString(),
+                currencyExchange.getAmountBought(),
+                currencyExchange.getCurrencySold().toString(),
+                currencyExchange.getAmountSold()
+        );
+    }
 
     @Override
     public void exchangeCurrency(CurrencyExchangeRequest currencyExchangeRequest) {
@@ -100,16 +107,5 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
         SubAccount newSubAccount = new SubAccount(new SubAccountId(account, currency), BigDecimal.ZERO);
         subAccountRepository.save(newSubAccount);
         return newSubAccount;
-    }
-
-    private static CurrencyExchangeDto map(CurrencyExchange currencyExchange) {
-        return new CurrencyExchangeDto(
-                currencyExchange.getId(),
-                currencyExchange.getOrderedOn(),
-                currencyExchange.getCurrencyBought().toString(),
-                currencyExchange.getAmountBought(),
-                currencyExchange.getCurrencySold().toString(),
-                currencyExchange.getAmountSold()
-        );
     }
 }

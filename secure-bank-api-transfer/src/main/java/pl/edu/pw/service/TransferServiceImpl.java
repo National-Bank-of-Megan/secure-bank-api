@@ -29,13 +29,12 @@ import static pl.edu.pw.service.TransferServiceImpl.TransferMapper.mapToPending;
 @RequiredArgsConstructor
 public class TransferServiceImpl implements TransferService {
 
+    private static final Logger log = LoggerFactory.getLogger(TransferServiceImpl.class);
     private final TransferRepository transferRepository;
     private final AccountRepository accountRepository;
     private final CurrencyExchangeRepository currencyExchangeRepository;
     private final TransfersSender transfersSender;
     private final TransferNotificationService transferNotificationService;
-
-    private static final Logger log = LoggerFactory.getLogger(TransferServiceImpl.class);
 
     @Override
     public List<TransferDTO> getAll(String clientId) {

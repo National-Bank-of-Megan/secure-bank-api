@@ -5,9 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.web.filter.OncePerRequestFilter;
-import pl.edu.pw.exception.DeviceNotFoundException;
 import pl.edu.pw.service.devices.DevicesService;
 import pl.edu.pw.util.http.CustomHttpServletRequestWrapper;
 
@@ -19,7 +16,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequiredArgsConstructor
@@ -32,10 +28,10 @@ public class DevicesFilter extends ClientIdContainer {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String clientId = ClientIdContainer.clientId;
-        log.info("Request {}",request.getServletPath());
+        log.info("Request {}", request.getServletPath());
 //        TODO create enum containing paths
-        if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login")||request.getServletPath().equals("/api/web/register")
-        || request.getServletPath().equals("/api/transfer/notification/subscribe") || request.getServletPath().equals("/api/web/token/refresh")
+        if (request.getServletPath().equals("/api/account/device/register") || request.getServletPath().contains("/api/web/login") || request.getServletPath().equals("/api/web/register")
+                || request.getServletPath().equals("/api/transfer/notification/subscribe") || request.getServletPath().equals("/api/web/token/refresh")
                 || request.getServletPath().equals("/payment/finalize")
         ) {
             if (request.getServletPath().equals("/api/account/device/register"))
@@ -43,12 +39,12 @@ public class DevicesFilter extends ClientIdContainer {
             log.info("filtering");
             filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);
         } else {
-            if (devicesService.verifyDeviceByFingerprintAndClientId(request.getHeader("Device-Fingerprint"),clientId))
+            if (devicesService.verifyDeviceByFingerprintAndClientId(request.getHeader("Device-Fingerprint"), clientId))
                 filterChain.doFilter(new CustomHttpServletRequestWrapper(request), response);
             else {
                 Map<String, String> error = new HashMap<>();
                 error.put("error_message", "This device is not authorized to access this resource");
-                response.setStatus(HttpStatus.NETWORK_AUTHENTICATION_REQUIRED.value());
+                response.setStatus(HttpStatus.PROXY_AUTHENTICATION_REQUIRED.value());
                 response.setContentType(APPLICATION_JSON_VALUE);
                 new ObjectMapper().writeValue(response.getOutputStream(), error);
             }

@@ -10,7 +10,7 @@ public interface DevicesService {
 
     boolean verifyDevice(HttpServletRequest request);
 
-    boolean verifyDeviceByFingerprintAndClientId(String fingerprint,String clientId);
+    boolean verifyDeviceByFingerprintAndClientId(String fingerprint, String clientId);
 
     void saveDevice(String clientId, Device device);
 

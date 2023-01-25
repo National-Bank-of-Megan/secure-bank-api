@@ -1,4 +1,4 @@
-package pl.edu.pw.auth.logic;
+package pl.edu.pw.util;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.security.crypto.password.PasswordEncoder;

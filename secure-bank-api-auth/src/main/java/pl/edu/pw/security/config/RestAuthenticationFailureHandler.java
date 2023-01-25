@@ -1,15 +1,11 @@
 package pl.edu.pw.security.config;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.streams.state.internals.LeftOrRightValue;
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -29,15 +25,27 @@ import java.util.Optional;
 @Component
 public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     private static final Logger log = LoggerFactory.getLogger(RestAuthenticationFailureHandler.class);
-
+    private static long LOCK_TIME = 86400000;
     @Autowired
     private AccountRepository accountRepository;
-
     @Autowired
     private AccountService accountService;
-
     private long MAX_LOGIN_ATTEMPTS = 5;
-    private static long LOCK_TIME = 86400000;
+
+    public static boolean isAccountStillLocked(Account account) {
+        long current = System.currentTimeMillis();
+        if (account.getLockTime() == null) return false;
+        long time = account.getLockTime().getTime();
+        log.info("time " + time);
+        log.info("current " + current);
+        log.info("lock time " + LOCK_TIME);
+        System.out.println(time + LOCK_TIME > current);
+        return time + LOCK_TIME > current;
+    }
+
+    public static boolean isAccountLocked(Account account) {
+        return !account.isAccountNonLocked() || isAccountStillLocked(account);
+    }
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
@@ -59,14 +67,14 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
                 System.out.println(!isAccountStillLocked(a));
                 if (!isAccountStillLocked(a)) {
                     accountService.unlockAccount(a);
-                } else{
+                } else {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
 
 
-                    Map<String,String> error = new HashMap<>();
-                    error.put( "message","You failed to login more than " + MAX_LOGIN_ATTEMPTS + " times. Your account has been locked for 24h for safety reasons");
+                    Map<String, String> error = new HashMap<>();
+                    error.put("message", "You failed to login more than " + MAX_LOGIN_ATTEMPTS + " times. Your account has been locked for 24h for safety reasons");
                     new ObjectMapper().writeValue(response.getOutputStream(), error);
 //                    response.getWriter().write(mapper.write("You failed to login more than " + MAX_LOGIN_ATTEMPTS + " times. Your account has been locked for 24h for safety reasons"));
                     return;
@@ -86,20 +94,5 @@ public class RestAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
         super.onAuthenticationFailure(request, response, exception);
 
 
-    }
-
-    public static  boolean isAccountStillLocked(Account account) {
-        long current = System.currentTimeMillis();
-        if (account.getLockTime() == null) return false;
-        long time = account.getLockTime().getTime();
-        log.info("time "+time);
-        log.info("current "+current);
-        log.info("lock time "+ LOCK_TIME);
-        System.out.println(time + LOCK_TIME > current);
-        return time + LOCK_TIME > current;
-    }
-
-    public static boolean isAccountLocked(Account account){
-        return !account.isAccountNonLocked() || isAccountStillLocked(account);
     }
 }

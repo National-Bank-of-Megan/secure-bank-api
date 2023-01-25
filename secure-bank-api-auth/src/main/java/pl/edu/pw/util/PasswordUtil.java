@@ -2,7 +2,6 @@ package pl.edu.pw.util;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.edu.pw.auth.logic.PasswordHashesGenerator;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.AccountHash;
 import pl.edu.pw.dto.PartPasswordHash;

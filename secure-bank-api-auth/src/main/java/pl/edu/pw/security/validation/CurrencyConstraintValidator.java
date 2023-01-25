@@ -13,7 +13,7 @@ public class CurrencyConstraintValidator implements ConstraintValidator<ValidCur
 
     @Override
     public boolean isValid(String currency, ConstraintValidatorContext context) {
-        if(currency == null || currency.isBlank()) return true;
+        if (currency == null || currency.isBlank()) return true;
         for (Currency currencyValue : Currency.values()) {
             if (currencyValue.name().equals(currency.toUpperCase())) {
                 return true;

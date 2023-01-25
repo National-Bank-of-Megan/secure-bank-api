@@ -7,13 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.security.config.BankGrantedAuthorities;
 import pl.edu.pw.util.http.CustomHttpServletRequestWrapper;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +28,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 
 @RequiredArgsConstructor
-public abstract class AuthorizationFilterAbstract extends ClientIdContainer{
+public abstract class AuthorizationFilterAbstract extends ClientIdContainer {
     private static final Logger log = LoggerFactory.getLogger(AuthorizationFilterAbstract.class);
     protected final AccountRepository accountRepository;
 
@@ -40,7 +37,7 @@ public abstract class AuthorizationFilterAbstract extends ClientIdContainer{
         log.info("AuthorizationFilter->\ttrying to authorize (jwt)...");
         log.info(request.getHeader("Authorization"));
 
-        if (!(request.getServletPath().equals("/api/web/login") || request.getServletPath().equals("/api/web/login/verify") ||  request.getServletPath().contains("/payment/finalize"))) {
+        if (!(request.getServletPath().equals("/api/web/login") || request.getServletPath().equals("/api/web/login/verify") || request.getServletPath().contains("/payment/finalize"))) {
             String authorizationHeader = null;
 //           potential security flaw
             if (request.getServletPath().contains("/api/transfer/notification/subscribe")) {

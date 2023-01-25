@@ -2,7 +2,6 @@ package pl.edu.pw.dto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import pl.edu.pw.security.validation.ValidCurrency;
 

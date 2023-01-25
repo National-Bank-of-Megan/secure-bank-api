@@ -12,16 +12,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
-import pl.edu.pw.security.config.BankGrantedAuthorities;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static pl.edu.pw.util.JWTUtil.TOKEN_PREFIX;
 

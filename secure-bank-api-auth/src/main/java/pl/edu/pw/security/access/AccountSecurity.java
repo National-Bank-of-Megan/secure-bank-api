@@ -22,19 +22,19 @@ public class AccountSecurity {
         return device.getAccount().getClientId().equals(clientId);
     }
 
-    public boolean doesUserHaveTransferAuthority(){
+    public boolean doesUserHaveTransferAuthority() {
         return CurrentUserUtil.getCurrentAuthenticationPrincipleAuthorities().contains(new SimpleGrantedAuthority(BankGrantedAuthorities.TRANSFER.toString()));
     }
 
-    public boolean doesUserHaveAccountAuthority(){
+    public boolean doesUserHaveAccountAuthority() {
         return CurrentUserUtil.getCurrentAuthenticationPrincipleAuthorities().contains(new SimpleGrantedAuthority(BankGrantedAuthorities.ACCOUNT.toString()));
     }
 
-    public boolean doesUserHaveExchangeAuthority(){
+    public boolean doesUserHaveExchangeAuthority() {
         return CurrentUserUtil.getCurrentAuthenticationPrincipleAuthorities().contains(new SimpleGrantedAuthority(BankGrantedAuthorities.EXCHANGE.toString()));
     }
 
-    public boolean doesUserHaveKlikAuthority(){
+    public boolean doesUserHaveKlikAuthority() {
         return CurrentUserUtil.getCurrentAuthenticationPrincipleAuthorities().contains(new SimpleGrantedAuthority(BankGrantedAuthorities.KLIK.toString()));
     }
 }

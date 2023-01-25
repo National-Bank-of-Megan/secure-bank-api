@@ -87,8 +87,8 @@ public class RestExceptionHandler {
         if (e instanceof AsyncRequestTimeoutException) {
             return new ResponseEntity<>(e.getCause(), HttpStatus.BAD_REQUEST);
         }
-        if(e instanceof DeviceNotFoundException)
-            return new ResponseEntity<>(e.getCause(),HttpStatus.NETWORK_AUTHENTICATION_REQUIRED);
+        if (e instanceof DeviceNotFoundException)
+            return new ResponseEntity<>(e.getCause(), HttpStatus.NETWORK_AUTHENTICATION_REQUIRED);
         return new ResponseEntity<>(buildErrorMessageBody(e), HttpStatus.BAD_REQUEST);
     }
 

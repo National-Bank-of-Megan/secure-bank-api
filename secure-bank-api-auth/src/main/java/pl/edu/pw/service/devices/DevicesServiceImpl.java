@@ -10,7 +10,6 @@ import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Device;
 import pl.edu.pw.dto.DeviceDTO;
 import pl.edu.pw.exception.ResourceNotFoundException;
-import pl.edu.pw.exception.SubAccountNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.DeviceRepository;
 import pl.edu.pw.util.http.HttpRequestUtils;
@@ -44,7 +43,7 @@ public class DevicesServiceImpl implements DevicesService {
 
     @Override
     public boolean verifyDeviceByFingerprintAndClientId(String fingerprint, String clientId) {
-        Device device = deviceRepository.findAllByAccountClientId(clientId).stream().filter(d->d.getFingerprint().equals(fingerprint))
+        Device device = deviceRepository.findAllByAccountClientId(clientId).stream().filter(d -> d.getFingerprint().equals(fingerprint))
                 .findFirst().orElse(null);
         return device != null;
     }
@@ -94,19 +93,6 @@ public class DevicesServiceImpl implements DevicesService {
         deviceRepository.deleteById(deviceId);
     }
 
-    public static class DeviceMapper {
-        public static DeviceDTO map(Device device) {
-            return new DeviceDTO(
-                    device.getId(),
-                    device.getName(),
-                    device.getIp(),
-                    device.getRegistrationDate(),
-                    device.getLastLoggedIn(),
-                    false
-            );
-        }
-    }
-
     @Override
     public void registerDevice(HttpServletRequest request, String clientId) {
         String fingerprint = request.getHeader(DEVICE_FINGERPRINT_HEADER);
@@ -132,5 +118,18 @@ public class DevicesServiceImpl implements DevicesService {
         }
 
         account.setExpoPushToken(expoPushToken);
+    }
+
+    public static class DeviceMapper {
+        public static DeviceDTO map(Device device) {
+            return new DeviceDTO(
+                    device.getId(),
+                    device.getName(),
+                    device.getIp(),
+                    device.getRegistrationDate(),
+                    device.getLastLoggedIn(),
+                    false
+            );
+        }
     }
 }

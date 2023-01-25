@@ -9,11 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
-import pl.edu.pw.auth.logic.DataGenerator;
 import pl.edu.pw.config.klik.PaymentDataWrapper;
 import pl.edu.pw.config.klik.WebSocketPool;
-import pl.edu.pw.domain.*;
 import pl.edu.pw.domain.Currency;
+import pl.edu.pw.domain.*;
 import pl.edu.pw.dto.KlikCodeResponse;
 import pl.edu.pw.dto.KlikTransferPushNotificationDto;
 import pl.edu.pw.dto.PaymentRequest;
@@ -22,6 +21,7 @@ import pl.edu.pw.exception.ResourceNotFoundException;
 import pl.edu.pw.repository.AccountRepository;
 import pl.edu.pw.repository.KlikRepository;
 import pl.edu.pw.repository.TransferRepository;
+import pl.edu.pw.util.DataGenerator;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class KlikServiceImpl implements KlikService {
     @Override
     public void sendKlikPushNotification(String receiverClientId, KlikTransferPushNotificationDto klikTransferDto) throws PushClientException {
         Account paymentRequestReceiverAccount = accountRepository.findById(receiverClientId).orElseThrow(() ->
-            new ResourceNotFoundException("Payment request receiver account was not found"));
+                new ResourceNotFoundException("Payment request receiver account was not found"));
 
         String receiverAccountExpoPushToken = paymentRequestReceiverAccount.getExpoPushToken();
         if (Objects.isNull(receiverAccountExpoPushToken)) {
@@ -136,7 +136,8 @@ public class KlikServiceImpl implements KlikService {
         final String title = "Confirm Klik payment";
         final String message = "Tap to open Klik confirm payment screen";
 
-        Map<String, Object> klikPaymentData = objectMapper.convertValue(klikTransferDto, new TypeReference<>() {});
+        Map<String, Object> klikPaymentData = objectMapper.convertValue(klikTransferDto, new TypeReference<>() {
+        });
 
         ExpoPushMessage expoPushMessage = new ExpoPushMessage();
         expoPushMessage.getTo().add(recipient);

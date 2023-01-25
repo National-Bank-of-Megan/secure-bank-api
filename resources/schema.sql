@@ -1,5 +1,5 @@
 use
-nbm;
+    nbm;
 
 DROP TABLE IF EXISTS devices;
 DROP TABLE IF EXISTS account_balance;

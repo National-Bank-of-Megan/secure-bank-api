@@ -13,7 +13,6 @@ import pl.edu.pw.config.klik.WebSocketPool;
 import pl.edu.pw.domain.Account;
 import pl.edu.pw.domain.Currency;
 import pl.edu.pw.domain.Klik;
-import pl.edu.pw.domain.SubAccount;
 import pl.edu.pw.dto.KlikTransferPushNotificationDto;
 import pl.edu.pw.dto.PaymentRequest;
 import pl.edu.pw.exception.ResourceNotFoundException;
@@ -36,6 +35,10 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
     private final AccountRepository accountRepository;
     private final KlikRepository klikRepository;
     private final KlikService klikService;
+
+    private static String invalidKlikCodeMessage(String klikCode) {
+        return "Klik code " + klikCode + " has expired or does not exist";
+    }
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
@@ -113,10 +116,6 @@ public class ServerWebSocketHandler extends TextWebSocketHandler {
         session.close();
 
         super.afterConnectionClosed(session, status);
-    }
-
-    private static String invalidKlikCodeMessage(String klikCode) {
-        return "Klik code " + klikCode + " has expired or does not exist";
     }
 
     private KlikTransferPushNotificationDto mapToKlikTransferPushNotification(PaymentRequest paymentRequest) {

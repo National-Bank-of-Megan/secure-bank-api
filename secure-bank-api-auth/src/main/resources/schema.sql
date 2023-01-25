@@ -42,7 +42,7 @@ CREATE TABLE klik
 
 CREATE TABLE sub_account
 (
-    client_id VARCHAR(16) NOT NULL,
+    client_id VARCHAR(16)                              NOT NULL,
     currency  ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
     balance   DECIMAL(15, 2) DEFAULT 0.00,
     FOREIGN KEY (client_id) REFERENCES account (client_id),
@@ -96,15 +96,15 @@ CREATE TABLE device
 CREATE TABLE transfer
 (
     id           INT PRIMARY KEY AUTO_INCREMENT,
-    title        NVARCHAR(60) NOT NULL,
-    sender_id    VARCHAR(16)    NOT NULL,
-    receiver_id  VARCHAR(16)    NOT NULL,
-    request_date DATETIME       NOT NULL,
+    title        NVARCHAR(60)                             NOT NULL,
+    sender_id    VARCHAR(16)                              NOT NULL,
+    receiver_id  VARCHAR(16)                              NOT NULL,
+    request_date DATETIME                                 NOT NULL,
     done_date    DATETIME,
-    amount       DECIMAL(15, 2) NOT NULL,
+    amount       DECIMAL(15, 2)                           NOT NULL,
     currency     ENUM ('EUR', 'USD', 'PLN', 'CHF', 'GBP') NOT NULL,
     type         ENUM ('CLASSIC', 'MOBILE'),
-    status       ENUM ('PENDING', 'DONE') NOT NULL,
+    status       ENUM ('PENDING', 'DONE')                 NOT NULL,
     FOREIGN KEY (sender_id)
         REFERENCES account (client_id),
     FOREIGN KEY (receiver_id)
