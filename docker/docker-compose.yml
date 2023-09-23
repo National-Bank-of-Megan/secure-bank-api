@@ -1,26 +1,36 @@
 version: '3.1'
 services:
+  mysql:
+    image: mysql
+    container_name: mysqldb
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: nbm
+#    volumes:
+#      - ./mysql-data:/var/lib/mysql
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     restart: always
     container_name: zookeeper
-    ports:
-      - '2181:2181'
+#    ports:
+#      - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
   kafkaserver:
     image: 'bitnami/kafka:latest'
     restart: always
     container_name: kafka
-    ports:
-      - '9092:9092'
+#    ports:
+#      - '9092:9092'
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_DEFAULT_REPLICATION_FACTOR=1
   nginx-proxy:
-    image: 'nginx-proxy'
+    image: 'nginx-proxy:1.0'
     restart: always
     container_name: nginx-proxy
     ports:
@@ -28,3 +38,31 @@ services:
       - "443:443"
     volumes:
       - /usr/docker/nginx/ssl:/etc/nginx/ssl
+#  secure-bank-api-core:
+#    image: 'secure-bank-api-core:1.0'
+#    restart: always
+#    container_name: secure-bank-api-core
+  secure-bank-api-auth:
+    image: 'secure-bank-api-auth:1.0'
+    restart: always
+    container_name: secure-bank-api-auth
+#    ports:
+#      - "8080:8080"
+    depends_on:
+      - mysql
+  secure-bank-api-transfer:
+    image: 'secure-bank-api-transfer:1.0'
+    restart: always
+    container_name: secure-bank-api-transfer
+#    ports:
+#      - "8081:8081"
+    depends_on:
+      - secure-bank-api-auth
+  secure-bank-api-currency-exchange:
+    image: 'secure-bank-api-currency-exchange:1.0'
+    restart: always
+    container_name: secure-bank-api-currency-exchange
+#    ports:
+#      - "8082:8082"
+    depends_on:
+      - secure-bank-api-auth

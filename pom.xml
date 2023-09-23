@@ -3,25 +3,24 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>pl.edu.pw</groupId>
     <artifactId>secure-bank-api</artifactId>
     <name>secure-bank-api</name>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.1</version>
     </parent>
+
     <modules>
         <module>secure-bank-api-core</module>
         <module>secure-bank-api-auth</module>
         <module>secure-bank-api-transfer</module>
         <module>secure-bank-api-currency-exchange</module>
     </modules>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -98,26 +97,29 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <!-- Build an executable JAR -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.0</version>
                     <configuration>
-                        <archive>
-                            <manifest>
-                                <addClasspath>true</addClasspath>
-                                <classpathPrefix>lib/</classpathPrefix>
-                                <mainClass>secure-bank-api-auth.pl.edu.pw.Main</mainClass>
-                                <mainClass>secure-bank-api-transfer.pl.edu.pw.Main</mainClass>
-                                <mainClass>
-                                    secure-bank-api-currency-exchange.src.main.java.pl.edu.pw.CurrencyExchangeMain
-                                </mainClass>
-                            </manifest>
-                        </archive>
+                        <classifier>exec</classifier>
                     </configuration>
                 </plugin>
+<!--                <plugin>-->
+<!--                    &lt;!&ndash; Build an executable JAR &ndash;&gt;-->
+<!--                    <groupId>org.apache.maven.plugins</groupId>-->
+<!--                    <artifactId>maven-jar-plugin</artifactId>-->
+<!--                    <version>3.1.0</version>-->
+<!--                    <configuration>-->
+<!--                        <archive>-->
+<!--                            <manifest>-->
+<!--                                <addClasspath>true</addClasspath>-->
+<!--                                <classpathPrefix>lib/</classpathPrefix>-->
+<!--                                <mainClass>secure-bank-api-auth.pl.edu.pw.Main</mainClass>-->
+<!--                                <mainClass>secure-bank-api-transfer.pl.edu.pw.Main</mainClass>-->
+<!--                                <mainClass>-->
+<!--                                    secure-bank-api-currency-exchange.src.main.java.pl.edu.pw.CurrencyExchangeMain-->
+<!--                                </mainClass>-->
+<!--                            </manifest>-->
+<!--                        </archive>-->
+<!--                    </configuration>-->
+<!--                </plugin>-->
             </plugins>
         </pluginManagement>
     </build>

@@ -2,14 +2,18 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>pl.edu.pw</groupId>
+    <artifactId>secure-bank-api-transfer</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
     <parent>
         <artifactId>secure-bank-api</artifactId>
         <groupId>pl.edu.pw</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>secure-bank-api-transfer</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -37,16 +41,16 @@
 
         <dependency>
             <groupId>pl.edu.pw</groupId>
-            <artifactId>secure-bank-api-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>secure-bank-api-auth</artifactId>
+            <version>1.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>pl.edu.pw</groupId>
-            <artifactId>secure-bank-api-auth</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <artifactId>secure-bank-api-core</artifactId>
+            <version>1.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
@@ -57,5 +61,17 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>pl.edu.pw.Main</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
