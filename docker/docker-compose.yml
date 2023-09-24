@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.5'
 services:
   mysql:
     image: mysql
@@ -37,6 +37,8 @@ services:
       - "443:443"
     volumes:
       - /usr/docker/nginx/ssl:/etc/nginx/ssl
+#    networks:
+#      - proxynetwork
 
   secure-bank-api-auth:
     build: ../secure-bank-api-auth
@@ -61,3 +63,8 @@ services:
     container_name: secure-bank-api-currency-exchange
     depends_on:
       - secure-bank-api-auth
+
+#networks:
+#  proxynetwork:
+#    name: proxynetwork
+#    external: true
