@@ -27,7 +27,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <spring.boot.dependencies.version>2.7.1</spring.boot.dependencies.version>
-        <spring.boot.maven.plugin.version>2.7.1</spring.boot.maven.plugin.version>
         <logback.version>1.2.11</logback.version>
     </properties>
 
@@ -85,11 +84,6 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring.boot.maven.plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
                     <executions>
                         <execution>
                             <goals>
@@ -101,25 +95,6 @@
                         <classifier>exec</classifier>
                     </configuration>
                 </plugin>
-<!--                <plugin>-->
-<!--                    &lt;!&ndash; Build an executable JAR &ndash;&gt;-->
-<!--                    <groupId>org.apache.maven.plugins</groupId>-->
-<!--                    <artifactId>maven-jar-plugin</artifactId>-->
-<!--                    <version>3.1.0</version>-->
-<!--                    <configuration>-->
-<!--                        <archive>-->
-<!--                            <manifest>-->
-<!--                                <addClasspath>true</addClasspath>-->
-<!--                                <classpathPrefix>lib/</classpathPrefix>-->
-<!--                                <mainClass>secure-bank-api-auth.pl.edu.pw.Main</mainClass>-->
-<!--                                <mainClass>secure-bank-api-transfer.pl.edu.pw.Main</mainClass>-->
-<!--                                <mainClass>-->
-<!--                                    secure-bank-api-currency-exchange.src.main.java.pl.edu.pw.CurrencyExchangeMain-->
-<!--                                </mainClass>-->
-<!--                            </manifest>-->
-<!--                        </archive>-->
-<!--                    </configuration>-->
-<!--                </plugin>-->
             </plugins>
         </pluginManagement>
     </build>
